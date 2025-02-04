@@ -1,0 +1,23 @@
+# Syntax Coloring Map For TinyFilmFestival
+
+# Datatypes (KEYWORD1)
+TinyFilmFestival	KEYWORD1
+PlayMode	KEYWORD1
+
+# Methods and Functions (KEYWORD2)
+begin	KEYWORD2
+startAnimation	KEYWORD2
+setSpeed	KEYWORD2
+pause	KEYWORD2
+resume	KEYWORD2
+update	KEYWORD2
+restoreOriginalSpeed	KEYWORD2
+isPausedState	KEYWORD2
+sequenceDone	KEYWORD2
+getCurrentFrame	KEYWORD2
+displayFrame	KEYWORD2
+
+# Constants (LITERAL1)
+PLAY_ONCE	LITERAL1
+PLAY_LOOP	LITERAL1
+PLAY_BOOMERANG	LITERAL1
