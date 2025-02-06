@@ -1,23 +1,18 @@
-/*
- * TinyFilmFestival Library
- * For Arduino UNO R4 WiFi LED Matrix
- */
-
+// TinyFilmFestival.cpp
 #include "TinyFilmFestival.h"
 
 TinyFilmFestival::TinyFilmFestival() :
     isCustomSpeed(false),
     customSpeedInterval(0),
-    isPaused(false),
     originalTimings(nullptr),
     frameCount(0),
     currentFrameIndex(0),
     isBoomerang(false),
     isReversing(false),
-    sequenceCompleted(false),
     currentAnimation(nullptr),
     lastUpdateTime(0),
-    currentMode(PLAY_ONCE)
+    currentMode(PLAY_ONCE),
+    currentState(IDLE)
 {
 }
 
@@ -30,61 +25,129 @@ void TinyFilmFestival::cleanup() {
         delete[] originalTimings;
         originalTimings = nullptr;
     }
+    currentAnimation = nullptr;
+    frameCount = 0;
+}
+
+bool TinyFilmFestival::shouldStartNewAnimation(const Animation& animation, PlayMode mode) const {
+    // If we're not playing anything or in IDLE state, definitely start
+    if (!isValidAnimation() || currentState == IDLE) {
+        return true;
+    }
+    
+    // If it's a different animation or different mode, start new
+    if (currentAnimation != animation.getFrames() || currentMode != mode) {
+        return true;
+    }
+    
+    // If we're completed and not in PLAY_ONCE, restart
+    if (currentState == COMPLETED && mode != PLAY_ONCE) {
+        return true;
+    }
+    
+    // Otherwise, don't restart
+    return false;
 }
 
 void TinyFilmFestival::copyTimings(const uint32_t frames[][4], uint32_t numFrames) {
-    cleanup();
-    frameCount = numFrames;
-    originalTimings = new uint32_t[frameCount];
+    if (originalTimings != nullptr) {
+        delete[] originalTimings;
+    }
     
-    for (uint32_t i = 0; i < frameCount; i++) {
+    originalTimings = new uint32_t[numFrames];
+    for (uint32_t i = 0; i < numFrames; i++) {
         originalTimings[i] = frames[i][3];
     }
 }
 
 bool TinyFilmFestival::begin() {
-    return baseMatrix.begin();
+    bool success = baseMatrix.begin();
+    if (success) {
+        setState(IDLE);
+    }
+    return success;
+}
+
+void TinyFilmFestival::setState(AnimationState newState) {
+    if (currentState == newState) return;
+    
+    // Handle state exit actions
+    switch (currentState) {
+        case PLAYING:
+            // Store last frame time in case we resume
+            break;
+        default:
+            break;
+    }
+    
+    currentState = newState;
+    
+    // Handle state entry actions
+    switch (currentState) {
+        case IDLE:
+            cleanup();
+            break;
+            
+        case PLAYING:
+            if (!isValidAnimation()) {
+                currentState = IDLE;
+            }
+            break;
+            
+        case COMPLETED:
+            if (currentMode != PLAY_ONCE && isValidAnimation()) {
+                setState(PLAYING);
+            }
+            break;
+            
+        case PAUSED:
+            break;
+    }
 }
 
 void TinyFilmFestival::setSpeed(uint32_t speedMs) {
+    if (!isValidAnimation()) return;
+    
     if (speedMs == 0) {
-        isPaused = true;
+        setState(PAUSED);
     } else {
-        isPaused = false;
         isCustomSpeed = true;
         customSpeedInterval = speedMs;
+        
+        if (currentState != PLAYING) {
+            lastUpdateTime = millis();
+            setState(PLAYING);
+        }
     }
 }
 
 void TinyFilmFestival::pause() {
-    isPaused = true;
+    if (currentState == PLAYING) {
+        setState(PAUSED);
+    }
 }
 
 void TinyFilmFestival::resume() {
-    isPaused = false;
-    lastUpdateTime = millis();
+    if (currentState != PLAYING && isValidAnimation()) {
+        lastUpdateTime = millis();
+        setState(PLAYING);
+    }
 }
 
 void TinyFilmFestival::restoreOriginalSpeed() {
-    isCustomSpeed = false;
-    isPaused = false;
-    lastUpdateTime = millis();
-}
-
-bool TinyFilmFestival::isPausedState() {
-    return isPaused;
-}
-
-bool TinyFilmFestival::sequenceDone() {
-    if (sequenceCompleted) {
-        sequenceCompleted = false;
-        return true;
+    if (!isValidAnimation()) return;
+    
+    if (isCustomSpeed) {
+        isCustomSpeed = false;
+        if (currentState != PLAYING) {
+            lastUpdateTime = millis();
+            setState(PLAYING);
+        }
     }
-    return false;
 }
 
-uint32_t TinyFilmFestival::getCurrentFrame() {
-    return currentFrameIndex;
+void TinyFilmFestival::stop() {
+    setState(IDLE);
 }
 
 void TinyFilmFestival::update() {
@@ -93,12 +156,11 @@ void TinyFilmFestival::update() {
 
 void TinyFilmFestival::displayFrame(const uint32_t frame[3]) {
     baseMatrix.loadFrame(frame);
-    isPaused = true;
-    currentAnimation = nullptr;
+    setState(PAUSED);
 }
 
 void TinyFilmFestival::updateFrame() {
-    if (isPaused || currentAnimation == nullptr) return;
+    if (currentState != PLAYING || !isValidAnimation()) return;
 
     unsigned long currentTime = millis();
     uint32_t interval = isCustomSpeed ? customSpeedInterval : originalTimings[currentFrameIndex];
@@ -125,18 +187,14 @@ void TinyFilmFestival::updateFrame() {
                 if (currentFrameIndex == 0) {
                     isReversing = false;
                     if (currentMode == PLAY_ONCE) {
-                        isPaused = true;
-                        sequenceCompleted = true;
+                        setState(COMPLETED);
                     }
                 }
             }
         } else {
             currentFrameIndex = (currentFrameIndex + 1) % frameCount;
-            if (currentFrameIndex == 0) {
-                if (currentMode == PLAY_ONCE) {
-                    isPaused = true;
-                    sequenceCompleted = true;
-                }
+            if (currentFrameIndex == 0 && currentMode == PLAY_ONCE) {
+                setState(COMPLETED);
             }
         }
 
