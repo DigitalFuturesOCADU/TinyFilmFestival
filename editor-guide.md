@@ -2,6 +2,8 @@
 
 The Arduino LED Matrix Editor (https://ledmatrix-editor.arduino.cc/) provides a visual interface for creating LED matrix animations.
 
+![LED Matrix Editor](images/matrixEditor.png)
+
 ## Project Actions
 - Start/Stop preview: spacebar
 - Start/Stop preview with loop: ⇧ + spacebar
