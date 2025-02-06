@@ -36,6 +36,6 @@ There are 3 different buttons that are important for Saving , Opening, and Expor
 2. Set frame duration (in milliseconds)
 3. Preview animation with spacebar
 4. Export code and name it
-![export controls](images\dowloadSteps.png)
+![exportcontrols](images\downloadSteps.png)
 5. Copy generated code to your project
 ![variables](images/variableNames.png)
