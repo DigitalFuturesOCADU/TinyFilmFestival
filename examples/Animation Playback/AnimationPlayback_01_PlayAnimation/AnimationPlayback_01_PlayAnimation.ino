@@ -42,7 +42,7 @@
 TinyFilmFestival film;
 
 // Create an Animation object from the frame data
-Animation myAnimation = frameAnimation;
+Animation myAnimation = animation;
 
 // Animation control settings
 int playSpeed = 50;    // Animation speed in milliseconds

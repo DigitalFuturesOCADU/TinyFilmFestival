@@ -30,7 +30,7 @@
 TinyFilmFestival film;
 
 // Create Animation object from the imported frame data
-Animation myAnimation = frameAnimation;
+Animation myAnimation = animation;
 
 // State machine variables
 int currentState = 0;            // Tracks which state we're in (0-4)

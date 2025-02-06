@@ -1,4 +1,4 @@
-const uint32_t frameAnimation[][4] = {
+const uint32_t animation[][4] = {
 	{
 		0x30c20,
 		0x43fc3fc2,

@@ -43,6 +43,8 @@ void setup() {
     film.begin();
     
     // Setup button pin with internal pullup resistor
+Calendar
+
     pinMode(buttonPin, INPUT_PULLUP);
     
     // Start with animation playing in loop mode at original speed
