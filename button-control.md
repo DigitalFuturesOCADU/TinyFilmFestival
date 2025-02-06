@@ -7,7 +7,7 @@
 ## Wiring Setup
 
 These examples use a simple 1 button setup with it wired to pin2
-![button dia](images\simpleButton_bb.png)
+![button dia](images/simpleButton_bb.png)
 
 ## Play/Pause Control
 
