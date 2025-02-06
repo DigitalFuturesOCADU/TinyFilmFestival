@@ -1,4 +1,13 @@
 # Button Control Examples
+## Table of Contents
+- [Wiring Setup](#wiring-setup)
+- [Play/Pause Control](#playpause-control)
+- [Speed Control](#speed-control)
+
+## Wiring Setup
+
+These examples use a simple 1 button setup with it wired to pin2
+![button dia](images\simpleButton_bb.png)
 
 ## Play/Pause Control
 

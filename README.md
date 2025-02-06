@@ -12,7 +12,7 @@ LED matrix animation library for Arduino UNO R4 WiFi's built-in matrix. Create a
 - Animation switching
 
 ## Installation
-1. Copy TinyFilmFestival library files to Arduino libraries folder
+1. Install the Library from the Library Manager
 2. Include in sketch: `#include "TinyFilmFestival.h"`
 
 ## Core Components
@@ -20,22 +20,72 @@ LED matrix animation library for Arduino UNO R4 WiFi's built-in matrix. Create a
 ### Animation Class
 ```cpp
 Animation myAnimation = frameData;  // frameData is uint32_t[][4] array
-size_t frameCount = myAnimation.getFrameCount();
-const uint32_t (*frames)[4] = myAnimation.getFrames();
+
 ```
 
 ### PlayMode Types
-- `PLAY_ONCE`: Play once and stop
-- `PLAY_LOOP`: Play repeatedly  
-- `PLAY_BOOMERANG`: Play forward/backward
+- `ONCE`: Play once and stop
+- `LOOP`: Play repeatedly  
+- `BOOMERANG`: Play forward/backward
 
-Constants: `ONCE`, `LOOP`, `BOOMERANG`
+
 
 ### AnimationState Types
 - `IDLE`: No animation loaded
 - `PLAYING`: Animation playing
 - `PAUSED`: Animation paused
 - `COMPLETED`: Animation finished (PLAY_ONCE mode)
+
+## API Reference
+
+### Animation Control Functions
+```cpp
+// Start animation playback
+void startAnimation(const Animation& animation, PlayMode mode = PLAY_ONCE);
+// Start from raw frame data
+void startAnimation(const uint32_t frames[][4], PlayMode mode = PLAY_ONCE);
+
+// Speed control
+void setSpeed(uint32_t speedMs);        // Set custom frame duration
+void restoreOriginalSpeed();            // Return to original timing
+
+// Playback control
+void pause();                           // Pause animation
+void resume();                          // Resume animation
+void stop();                            // Stop animation completely
+void update();                          // Update frame (call in loop)
+void displayFrame(const uint32_t frame[3]); // Display single frame
+```
+
+### Status Functions
+```cpp
+bool isPaused() const;              // Check if paused
+bool isComplete() const;            // Check if complete (PLAY_ONCE)
+bool isPlaying() const;             // Check if playing
+bool isIdle() const;                // Check if no animation loaded
+bool isCustomSpeedActive() const;   // Check if using custom speed
+AnimationState getState() const;     // Get current state
+uint32_t getCurrentFrame() const;    // Get current frame number
+uint32_t getCurrentSpeed() const;    // Get current frame duration
+```
+
+### Basic Usage Example
+```cpp
+#include "TinyFilmFestival.h"
+#include "animation.h" //this is the name of your downloaded file
+
+TinyFilmFestival film;
+Animation myAnimation = animation;
+
+void setup() {
+    film.begin();
+    film.startAnimation(myAnimation, LOOP);
+}
+
+void loop() {
+    film.update();
+}
+```
 
 ## Documentation
 - [LED Matrix Editor Guide](editor-guide.md)
