@@ -42,8 +42,7 @@ Animation myAnimation = frameData;  // frameData is uint32_t[][4] array
 ```cpp
 // Start animation playback
 void startAnimation(const Animation& animation, PlayMode mode = PLAY_ONCE);
-// Start from raw frame data
-void startAnimation(const uint32_t frames[][4], PlayMode mode = PLAY_ONCE);
+
 
 // Speed control
 void setSpeed(uint32_t speedMs);        // Set custom frame duration
