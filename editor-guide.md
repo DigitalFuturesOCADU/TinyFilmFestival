@@ -40,4 +40,6 @@ There are 3 different buttons that are important for Saving , Opening, and Expor
 
 5. Copy generated code to your project
 
+   Drag the file into the folder *NOT* onto the Arduino Interface
+
 ![variables](images/variableNames.png)
