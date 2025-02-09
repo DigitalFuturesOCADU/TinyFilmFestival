@@ -1,98 +1,115 @@
 /*
- * TinyFilmFestival - State Machine Example
+ * TinyFilmFestival - Example 1 - Version 2
+ * Basic Animation Control
  * 
- * This example demonstrates how to combine animation control with a simple
- * state machine to create different playback effects. The example shows:
- *   - How to declare and use the Animation type
- *   - Basic state machine implementation
- *   - Timer-based state transitions
- *   - How animation parameters change with states
- *   - Different playback modes (ONCE, LOOP, BOOMERANG)
+ * This example shows the simplest way to use the TinyFilmFestival library.
+ * It demonstrates how to:
+ *   - Create an Animation object from frame data
+ *   - Set different playback modes (ONCE, LOOP, BOOMERANG)
+ *   - Control animation playback
+ *   - Play specific portions of an animation forwards or backwards
  * 
+ * Available Playback Modes:
+ *   - ONCE: Play animation one time and stop
+ *   - LOOP: Play animation forward repeatedly
+ *   - BOOMERANG: Play animation forward then backward repeatedly
  * 
- * State 0: Normal speed (100ms), plays once
- * State 1: Fast speed (50ms), loops
- * State 2: Slow speed (200ms), boomerang
- * State 3: Original speed from animation data, loops
- * State 4: Paused
+ * Animation File:
+ *   The animation array variable name matches the header filename:
+ *   - animation.h -> const uint32_t animation[][4]
+ *   - myanimation.h -> const uint32_t myanimation[][4]
+ *   This name is set when exporting from the Matrix Editor
  * 
+ * startAnimation Usage:
+ *   Full animation:
+ *     film.startAnimation(myAnimation, mode)
+ *   Partial animation:
+ *     film.startAnimation(myAnimation, mode, startFrame, endFrame)
+ *   Note: Frame numbers start at 1
+ * 
+ * Animation Control Methods:
+ *   - startAnimation(animation, mode): Start playing an animation
+ *   - setSpeed(milliseconds): Set a custom frame duration
+ *   - restoreOriginalSpeed(): Return to original frame timings
+ *   - pause(): Pause the animation
+ *   - resume(): Resume a paused animation
+ *   - stop(): Stop the animation completely
+ *   - update(): Update the animation (call in loop)
+ * 
+ * Status Methods:
+ *   - isPlaying(): Check if animation is playing
+ *   - isPaused(): Check if animation is paused
+ *   - isComplete(): Check if animation is complete
+ *   - getState(): Get current animation state
+ *   - getCurrentFrame(): Get current frame number
  * 
  * Hardware Required:
  * - Arduino UNO R4 WiFi with built-in LED Matrix
- *
+ * 
  * Uses Arduino LED Matrix Editor https://ledmatrix-editor.arduino.cc/ 
  */
 
 #include "TinyFilmFestival.h"
-#include "animation.h"
+#include "animation.h"     // Your animation file from LED Matrix Editor
 
-// Create instance of TinyFilmFestival
+// Create an instance of TinyFilmFestival
 TinyFilmFestival film;
 
-// Create Animation object from the imported frame data
+// Create an Animation object from the frame data
 Animation myAnimation = animation;
 
-// State machine variables
-int currentState = 0;            // Tracks which state we're in (0-4)
+// Animation control settings
+int playSpeed = 50;    // Animation speed in milliseconds
+int animationState = 2;  // Change this value to try different modes (1-5)
 
-
-// Speed settings for different states
-int normalSpeed = 100;  // Normal playback speed (milliseconds)
-int fastSpeed = 50;     // Fast playback speed
-int slowSpeed = 200;    // Slow playback speed
+// Counter for completed animations
+int completionCount = 0;
 
 void setup() {
-    // Initialize serial communication
+    // Initialize Serial communication
     Serial.begin(9600);
+    Serial.print("Total frames in animation: ");
+    Serial.println(myAnimation.getFrameCount());
     
-    // Initialize the LED matrix
+    // Start the LED matrix
     film.begin();
     
-            // Handle state transition
-        switch (currentState) 
-        {
-            case 0:
-                // Normal speed, play once
-                film.startAnimation(myAnimation, ONCE);
-                film.setSpeed(normalSpeed);
-                Serial.println("State 0: Normal speed, Play Once");
-                break;
-                
-            case 1:
-                // Fast speed, looping
-                film.startAnimation(myAnimation, LOOP);
-                film.setSpeed(fastSpeed);
-                Serial.println("State 1: Fast speed, Looping");
-                break;
-                
-            case 2:
-                // Slow speed, boomerang
-                film.startAnimation(myAnimation, BOOMERANG);
-                film.setSpeed(slowSpeed);
-                Serial.println("State 2: Slow speed, Boomerang");
-                break;
-                
-            case 3:
-                // Original timing from animation data, looping
-                film.startAnimation(myAnimation, LOOP);
-                film.restoreOriginalSpeed();
-                Serial.println("State 3: Original speed from animation, Looping");
-                break;
-                
-            case 4:
-                // Paused state
-                film.pause();
-                Serial.println("State 4: Paused");
-                break;
-        }
+    // Select animation mode based on state
+    if (animationState == 1)  // Method 1: Play animation once and stop
+    {
+        film.startAnimation(myAnimation, ONCE);
+    }
+    else if (animationState == 2)  // Method 2: Play animation in a continuous loop
+    {
+        film.startAnimation(myAnimation, LOOP);
+    }
+    else if (animationState == 3)  // Method 3: Play animation in boomerang mode (forward/backward)
+    {
+        film.startAnimation(myAnimation, BOOMERANG);
+    }
+    else if (animationState == 4)  // Method 4: Play frames 2-6 forward
+    {
+        film.startAnimation(myAnimation, LOOP, 2, 6);
+    }
+    else if (animationState == 5)  // Method 5: Play frames 6-2 backward
+    {
+        film.startAnimation(myAnimation, LOOP, 6, 2);
+    }
+    
+    // Optional: Set a custom playback speed
+    film.setSpeed(playSpeed);
+    
+    // Other control examples:
+    //film.pause();              // Pause the animation
+    //film.resume();             // Resume the animation
+    //film.restoreOriginalSpeed(); // Use original frame timings
+    //film.stop();              // Stop the animation
 }
 
 void loop() {
-    // Update the animation frame
+    // Required: Update the animation in each loop
     film.update();
-    
- 
-        
 
-    
+    //add other code here to interact with the controls dynamically with sensor inputs    
+
 }

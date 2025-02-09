@@ -1,10 +1,12 @@
 # TinyFilmFestival Library
 
-LED matrix animation library for Arduino UNO R4 WiFi's built-in matrix. Create and control LED animations with multiple playback modes and state management.
+LED matrix animation library for Arduino UNO R4 WiFi's built-in matrix. Create and control LED animations with multiple playback modes, partial clip playback, and the ability to combine multiple animations.
 
 ## Features
 - Frame-by-frame animation control
 - Multiple playback modes (once, loop, boomerang)
+- Partial clip playback (forward or backward)
+- Combine multiple animations simultaneously
 - Custom speed control
 - Pause/resume functionality
 - State management
@@ -18,17 +20,17 @@ LED matrix animation library for Arduino UNO R4 WiFi's built-in matrix. Create a
 ## Core Components
 
 ### Animation Class
+The Animation class is automatically created from your exported header file:
 ```cpp
-Animation myAnimation = frameData;  // frameData is uint32_t[][4] array
-
+// If your exported file is named "myanimation.h":
+#include "myanimation.h"
+Animation myAnim = myanimation;  // Variable name matches header filename
 ```
 
 ### PlayMode Types
 - `ONCE`: Play once and stop
 - `LOOP`: Play repeatedly  
-- `BOOMERANG`: Play forward/backward
-
-
+- `BOOMERANG`: Play forward/backward repeatedly
 
 ### AnimationState Types
 - `IDLE`: No animation loaded
@@ -36,45 +38,77 @@ Animation myAnimation = frameData;  // frameData is uint32_t[][4] array
 - `PAUSED`: Animation paused
 - `COMPLETED`: Animation finished (PLAY_ONCE mode)
 
-## API Reference
+## Animation Control
 
-### Animation Control Functions
+### Single Animation Control
 ```cpp
-// Start animation playback
-void startAnimation(const Animation& animation, PlayMode mode = PLAY_ONCE);
+TinyFilmFestival film;
+Animation myAnim = animation;  // animation.h is your exported file
 
+// Basic playback
+film.startAnimation(myAnim, LOOP);             // Play full animation in loop
+
+// Partial clip playback (frame numbers start at 1)
+film.startAnimation(myAnim, LOOP, 2, 6);       // Play frames 2-6 forward
+film.startAnimation(myAnim, LOOP, 6, 2);       // Play frames 6-2 backward
 
 // Speed control
-void setSpeed(uint32_t speedMs);        // Set custom frame duration
-void restoreOriginalSpeed();            // Return to original timing
+film.setSpeed(100);                            // Set frame duration to 100ms
+film.restoreOriginalSpeed();                   // Return to original timing
 
 // Playback control
-void pause();                           // Pause animation
-void resume();                          // Resume animation
-void stop();                            // Stop animation completely
-void update();                          // Update frame (call in loop)
-void displayFrame(const uint32_t frame[3]); // Display single frame
+film.pause();                                  // Pause animation
+film.resume();                                 // Resume animation
+film.stop();                                   // Stop animation completely
+film.update();                                 // Update frame (call in loop)
+```
+
+### Multiple Animation Control
+Combine multiple animations to play simultaneously:
+```cpp
+TinyFilmFestival film1, film2;                 // Create film objects
+CombinedFilmFestival combinedFilm;             // Create combiner
+
+// Setup animations
+film1.startAnimation(landscapeAnim, LOOP);     // Background
+film2.startAnimation(effectAnim, LOOP);        // Foreground
+
+// Add to combiner (order matters - first = background)
+combinedFilm.addFilm(film1);                   // Background layer
+combinedFilm.addFilm(film2);                   // Foreground layer
+
+// Update combined animation
+combinedFilm.update();                         // Call in loop
 ```
 
 ### Status Functions
 ```cpp
-bool isPaused() const;              // Check if paused
-bool isComplete() const;            // Check if complete (PLAY_ONCE)
-bool isPlaying() const;             // Check if playing
-bool isIdle() const;                // Check if no animation loaded
-bool isCustomSpeedActive() const;   // Check if using custom speed
-AnimationState getState() const;     // Get current state
-uint32_t getCurrentFrame() const;    // Get current frame number
-uint32_t getCurrentSpeed() const;    // Get current frame duration
+// Playback status
+bool isPaused();                   // Check if paused
+bool isComplete();                 // Check if complete (PLAY_ONCE)
+bool isPlaying();                  // Check if playing
+bool isIdle();                     // Check if no animation loaded
+bool isCustomSpeedActive();        // Check if using custom speed
+bool isPlayingBackwards();         // Check if playing in reverse
+
+// Current state
+AnimationState getState();         // Get current state
+int getCurrentFrame();             // Get current frame number (1-based)
+int getCurrentSpeed();             // Get current frame duration
+int getTotalFrames();             // Get total frames in animation
+int getStartFrame();              // Get start frame of current clip
+int getEndFrame();                // Get end frame of current clip
 ```
 
-### Basic Usage Example
+## Basic Examples
+
+### Simple Looping Animation
 ```cpp
 #include "TinyFilmFestival.h"
-#include "animation.h" //this is the name of your downloaded file
+#include "animation.h"             // Your exported animation file
 
 TinyFilmFestival film;
-Animation myAnimation = animation;
+Animation myAnimation = animation;  // Name matches header file
 
 void setup() {
     film.begin();
@@ -83,6 +117,56 @@ void setup() {
 
 void loop() {
     film.update();
+}
+```
+
+### Partial Clip Playback
+```cpp
+#include "TinyFilmFestival.h"
+#include "animation.h"
+
+TinyFilmFestival film;
+Animation myAnimation = animation;
+
+void setup() {
+    film.begin();
+    // Play frames 2-6 forward in a loop
+    film.startAnimation(myAnimation, LOOP, 2, 6);
+    // Or play frames 6-2 backward in a loop
+    //film.startAnimation(myAnimation, LOOP, 6, 2);
+}
+
+void loop() {
+    film.update();
+}
+```
+
+### Combined Animations
+```cpp
+#include "TinyFilmFestival.h"
+#include "landscape.h"
+#include "effect.h"
+
+TinyFilmFestival background, effect;
+CombinedFilmFestival combined;
+
+Animation landscapeAnim = landscape;
+Animation effectAnim = effect;
+
+void setup() {
+    combined.begin();
+    
+    // Setup animations
+    background.startAnimation(landscapeAnim, LOOP);
+    effect.startAnimation(effectAnim, LOOP);
+    
+    // Add to combiner (background first)
+    combined.addFilm(background);
+    combined.addFilm(effect);
+}
+
+void loop() {
+    combined.update();
 }
 ```
 

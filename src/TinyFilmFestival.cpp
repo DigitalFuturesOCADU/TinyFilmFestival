@@ -7,8 +7,11 @@ TinyFilmFestival::TinyFilmFestival() :
     originalTimings(nullptr),
     frameCount(0),
     currentFrameIndex(0),
+    startFrameIndex(0),
+    endFrameIndex(0),
     isBoomerang(false),
     isReversing(false),
+    isPlayingBackward(false),
     currentAnimation(nullptr),
     lastUpdateTime(0),
     currentMode(PLAY_ONCE),
@@ -30,32 +33,28 @@ void TinyFilmFestival::cleanup() {
 }
 
 bool TinyFilmFestival::shouldStartNewAnimation(const Animation& animation, PlayMode mode) const {
-    // If we're not playing anything or in IDLE state, definitely start
     if (!isValidAnimation() || currentState == IDLE) {
         return true;
     }
     
-    // If it's a different animation or different mode, start new
     if (currentAnimation != animation.getFrames() || currentMode != mode) {
         return true;
     }
     
-    // If we're completed and not in PLAY_ONCE, restart
     if (currentState == COMPLETED && mode != PLAY_ONCE) {
         return true;
     }
     
-    // Otherwise, don't restart
     return false;
 }
 
-void TinyFilmFestival::copyTimings(const uint32_t frames[][4], uint32_t numFrames) {
+void TinyFilmFestival::copyTimings(const uint32_t frames[][4], int numFrames) {
     if (originalTimings != nullptr) {
         delete[] originalTimings;
     }
     
     originalTimings = new uint32_t[numFrames];
-    for (uint32_t i = 0; i < numFrames; i++) {
+    for (int i = 0; i < numFrames; i++) {
         originalTimings[i] = frames[i][3];
     }
 }
@@ -71,10 +70,8 @@ bool TinyFilmFestival::begin() {
 void TinyFilmFestival::setState(AnimationState newState) {
     if (currentState == newState) return;
     
-    // Handle state exit actions
     switch (currentState) {
         case PLAYING:
-            // Store last frame time in case we resume
             break;
         default:
             break;
@@ -82,7 +79,6 @@ void TinyFilmFestival::setState(AnimationState newState) {
     
     currentState = newState;
     
-    // Handle state entry actions
     switch (currentState) {
         case IDLE:
             cleanup();
@@ -105,7 +101,7 @@ void TinyFilmFestival::setState(AnimationState newState) {
     }
 }
 
-void TinyFilmFestival::setSpeed(uint32_t speedMs) {
+void TinyFilmFestival::setSpeed(int speedMs) {
     if (!isValidAnimation()) return;
     
     if (speedMs == 0) {
@@ -159,6 +155,15 @@ void TinyFilmFestival::displayFrame(const uint32_t frame[3]) {
     setState(PAUSED);
 }
 
+bool TinyFilmFestival::getCurrentFrame(uint32_t frame[3]) {
+    if (!isValidAnimation() || currentState != PLAYING) return false;
+    
+    frame[0] = currentAnimation[currentFrameIndex][0];
+    frame[1] = currentAnimation[currentFrameIndex][1];
+    frame[2] = currentAnimation[currentFrameIndex][2];
+    return true;
+}
+
 void TinyFilmFestival::updateFrame() {
     if (currentState != PLAYING || !isValidAnimation()) return;
 
@@ -166,35 +171,43 @@ void TinyFilmFestival::updateFrame() {
     uint32_t interval = isCustomSpeed ? customSpeedInterval : originalTimings[currentFrameIndex];
 
     if (currentTime - lastUpdateTime >= interval) {
-        // Load current frame
-        const uint32_t frame[3] = {
-            currentAnimation[currentFrameIndex][0],
-            currentAnimation[currentFrameIndex][1],
-            currentAnimation[currentFrameIndex][2]
-        };
-        baseMatrix.loadFrame(frame);
-
-        // Update frame index based on mode
-        if (isBoomerang) {
-            if (!isReversing) {
-                currentFrameIndex++;
-                if (currentFrameIndex >= frameCount - 1) {
-                    isReversing = true;
-                    currentFrameIndex = frameCount - 1;
-                }
-            } else {
+        if (!isBoomerang) {
+            if (isPlayingBackward) {
                 currentFrameIndex--;
-                if (currentFrameIndex == 0) {
-                    isReversing = false;
+                if (currentFrameIndex <= startFrameIndex) {
                     if (currentMode == PLAY_ONCE) {
                         setState(COMPLETED);
+                    } else {
+                        currentFrameIndex = endFrameIndex;
+                    }
+                }
+            } else {
+                currentFrameIndex++;
+                if (currentFrameIndex > endFrameIndex) {
+                    if (currentMode == PLAY_ONCE) {
+                        setState(COMPLETED);
+                    } else {
+                        currentFrameIndex = startFrameIndex;
                     }
                 }
             }
         } else {
-            currentFrameIndex = (currentFrameIndex + 1) % frameCount;
-            if (currentFrameIndex == 0 && currentMode == PLAY_ONCE) {
-                setState(COMPLETED);
+            if (!isReversing) {
+                currentFrameIndex = isPlayingBackward ? currentFrameIndex - 1 : currentFrameIndex + 1;
+                if (currentFrameIndex >= endFrameIndex || currentFrameIndex <= startFrameIndex) {
+                    isReversing = true;
+                    currentFrameIndex = isPlayingBackward ? startFrameIndex : endFrameIndex;
+                }
+            } else {
+                currentFrameIndex = isPlayingBackward ? currentFrameIndex + 1 : currentFrameIndex - 1;
+                if (currentFrameIndex <= startFrameIndex || currentFrameIndex >= endFrameIndex) {
+                    isReversing = false;
+                    if (currentMode == PLAY_ONCE) {
+                        setState(COMPLETED);
+                    } else {
+                        currentFrameIndex = isPlayingBackward ? endFrameIndex : startFrameIndex;
+                    }
+                }
             }
         }
 
