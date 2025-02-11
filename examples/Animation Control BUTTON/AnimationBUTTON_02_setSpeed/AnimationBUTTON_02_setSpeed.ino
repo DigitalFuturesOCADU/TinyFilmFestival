@@ -43,7 +43,6 @@ void setup() {
     film.begin();
     
     // Setup button pin with internal pullup resistor
-Calendar
 
     pinMode(buttonPin, INPUT_PULLUP);
     

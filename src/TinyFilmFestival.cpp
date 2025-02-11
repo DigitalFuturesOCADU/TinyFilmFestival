@@ -32,6 +32,11 @@ void TinyFilmFestival::cleanup() {
     frameCount = 0;
 }
 
+void TinyFilmFestival::clearDisplay() {
+    const uint32_t blankFrame[3] = {0, 0, 0};
+    baseMatrix.loadFrame(blankFrame);
+}
+
 bool TinyFilmFestival::shouldStartNewAnimation(const Animation& animation, PlayMode mode) const {
     if (!isValidAnimation() || currentState == IDLE) {
         return true;
@@ -82,6 +87,7 @@ void TinyFilmFestival::setState(AnimationState newState) {
     switch (currentState) {
         case IDLE:
             cleanup();
+            clearDisplay();
             break;
             
         case PLAYING:
@@ -91,7 +97,9 @@ void TinyFilmFestival::setState(AnimationState newState) {
             break;
             
         case COMPLETED:
-            if (currentMode != PLAY_ONCE && isValidAnimation()) {
+            if (currentMode == PLAY_ONCE) {
+                clearDisplay();
+            } else if (isValidAnimation()) {
                 setState(PLAYING);
             }
             break;
@@ -177,6 +185,7 @@ void TinyFilmFestival::updateFrame() {
                 if (currentFrameIndex <= startFrameIndex) {
                     if (currentMode == PLAY_ONCE) {
                         setState(COMPLETED);
+                        return;
                     } else {
                         currentFrameIndex = endFrameIndex;
                     }
@@ -186,6 +195,7 @@ void TinyFilmFestival::updateFrame() {
                 if (currentFrameIndex > endFrameIndex) {
                     if (currentMode == PLAY_ONCE) {
                         setState(COMPLETED);
+                        return;
                     } else {
                         currentFrameIndex = startFrameIndex;
                     }
@@ -204,6 +214,7 @@ void TinyFilmFestival::updateFrame() {
                     isReversing = false;
                     if (currentMode == PLAY_ONCE) {
                         setState(COMPLETED);
+                        return;
                     } else {
                         currentFrameIndex = isPlayingBackward ? endFrameIndex : startFrameIndex;
                     }
@@ -212,5 +223,13 @@ void TinyFilmFestival::updateFrame() {
         }
 
         lastUpdateTime = currentTime;
+        
+        // Display the current frame
+        const uint32_t frame[3] = {
+            currentAnimation[currentFrameIndex][0],
+            currentAnimation[currentFrameIndex][1],
+            currentAnimation[currentFrameIndex][2]
+        };
+        baseMatrix.loadFrame(frame);
     }
 }

@@ -68,6 +68,7 @@ private:
     bool shouldStartNewAnimation(const Animation& animation, PlayMode mode) const;
     bool isValidAnimation() const { return currentAnimation != nullptr && frameCount > 0; }
     bool isValidFrame(int frame) const { return frame <= frameCount && frame > 0; }
+    void clearDisplay();  // Added clearDisplay declaration
 
 protected:
     void updateFrame();
@@ -203,4 +204,4 @@ class CombinedFilmFestival {
             // Display final combined frame
             baseMatrix.loadFrame(combinedFrame);
         }
-    };
+};
