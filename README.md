@@ -26,7 +26,7 @@ TinyFilmFestival is a library that enables interactive media controls for animat
         - [Speed Control](#speed-control)
         - [Switch Between Animations](#switch-between-animations)
         - [Combined Animations with Button Trigger](#combined-animations-with-button-trigger)
-- [Included Examples](#examples-overview)
+- [Included Examples](#included-examples)
     - [Basic Matrix Examples](#basic-matrix-examples)
         - [BasicMatrix_01_SingleFrame](#basicmatrix_01_singleframe)
         - [BasicMatrix_02_TwoFrames](#basicmatrix_02_twoframes)
