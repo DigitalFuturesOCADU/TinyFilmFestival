@@ -73,7 +73,9 @@ This simple tool allows you to create / edit frame by frame animations and expor
 
 Each animation you create is downloaded as a ".h" header file that can be loaded into your main arduino code and manipulated dynamically using the methods within the TinyFilmFestival library.
 
-For full details see: [LED Matrix Editor Guide](editor-guide.md)
+- [Example Animations](exampleAnimations/)
+
+- For full details see: [LED Matrix Editor Guide](editor-guide.md)
 
 ## Core Components
 
