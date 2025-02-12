@@ -388,6 +388,9 @@ These can be found in File -> Examples -> TinyFilmFestival
 ### Basic Matrix Examples
 Simple examples demonstrating fundamental LED matrix control:
 
+**NOTE** These are for general demonstration only. This is not how you should draw
+to the matrix for your projects.
+
 #### BasicMatrix_01_SingleFrame
 - Static pattern display on LED matrix
 - Uses `ArduinoLEDMatrix` class directly
