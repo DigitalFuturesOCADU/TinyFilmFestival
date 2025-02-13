@@ -10,9 +10,10 @@ TinyFilmFestival is a library that enables interactive media controls for animat
 - [Installation](#installation)
 - [Creating Animations for the LED Screen](#creating-animations-for-the-led-screen)
 - [Core Components](#core-components)
-    - [TinyFilmFestival Player Class](#tinyfilmfestival-player-class)
+    - [TinyFilmFestival Class](#tinyfilmfestival-class)
     - [CombinedFilmFestival Class](#combinedfilmfestival-class)
     - [Animation Class](#animation-class)
+    - [Start Animation](#StartAnimation)
     - [PlayMode Types](#playmode-types)
     - [AnimationState Types](#animationstate-types)
 - [Animation Control](#animation-control)
@@ -151,22 +152,35 @@ void loop() {
 ```
 
 Use CombinedFilmFestival to simplify managing multiple animation layers in your project.
-```
 
-Key features:
-- Multiple independent animation players
-- Each maintains its own state and speed
-- Use `CombinedFilmFestival` to merge layers
-- Layer order determines visual stacking
+
+
+
 
 ### Animation Class
-The Animation class is automatically created from your exported header file:
-```cpp
-// If your exported file is named "myanimation.h":
-#include "myanimation.h"
-Animation myAnim = myanimation;  // Variable name matches header filename
-```
+The Animation class wraps the frame data exported from the LED Matrix Editor into a format that can be played by TinyFilmFestival:
 
+```cpp
+// Animation from exported header file
+#include "myanimation.h"
+Animation myAnim = myanimation;  // Name matches header filename
+
+// Access animation data
+int totalFrames = myAnim.getFrameCount();  // Get number of frames
+```
+### StartAnimation
+The key method for controlling animations is `startAnimation()`:
+
+```cpp
+// Start playing a full animation
+film.startAnimation(myAnim, LOOP);              // Play in loop mode
+film.startAnimation(myAnim, ONCE);              // Play once and stop
+film.startAnimation(myAnim, BOOMERANG);         // Play forward/backward
+
+// Play partial clips (frame numbers are 1-based)
+film.startAnimation(myAnim, LOOP, 2, 6);        // Play frames 2-6 forward
+film.startAnimation(myAnim, LOOP, 6, 2);        // Play frames 6-2 backward
+```
 ### PlayMode Types
 - `ONCE`: Play once and stop
 - `LOOP`: Play repeatedly  
@@ -179,6 +193,8 @@ Animation myAnim = myanimation;  // Variable name matches header filename
 - `COMPLETED`: Animation finished (PLAY_ONCE mode)
 
 ## Animation Control
+These functions allow to change the way in which your generated animations can be controlled by Arduino.
+- These can be set one time in setup() **OR** controlled dynamically in loop()
 
 ### Single Animation Control
 ```cpp
