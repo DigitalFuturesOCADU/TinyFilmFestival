@@ -459,7 +459,6 @@ These can be found in File -> Examples -> TinyFilmFestival
 ### Basic Matrix Examples
 Simple examples demonstrating fundamental LED matrix control:
 
-**NOTE** These are for general demonstration only. This is not how you should draw to the matrix for your projects.
 
 #### [BasicMatrix_01_SingleFrame](/examples/Basic%20Matrix/BasicMatrix_01_singleFrame/BasicMatrix_01_SingleFrame.ino)
 - Static pattern display on LED matrix  
@@ -483,25 +482,25 @@ Core animation control demonstrations:
 - Status checking methods
 
 #### [AnimationPlayback_02_PlayStates](/examples/Animation%20Playback/AnimationPlayback_02_PlayStates/AnimationPlayback_02_PlayStates.ino)
-- Different animation states (normal, fast, slow)  _CyclePlayStates/AnimationPlayback_03_CyclePlayStates.ino)
+- Different animation states (normal, fast, slow) 
 - Variable-based state selection  
 - Multiple playback modes per state  
 - Custom speed settings
 
 #### [AnimationPlayback_03_CyclePlayStates](/examples/Animation%20Playback/AnimationPlayback_03_CyclePlayStates/AnimationPlayback_03_CyclePlayStates.ino)
-- Automated 5-state cycling  _PlayStatesMULTI/AnimationPlayback_04_PlayStatesMULTI.ino)
+- Automated 5-state cycling  
 - Timer-based transitions (5 seconds each)  
 - Different speeds and modes per state  
 - Serial feedback for state tracking
 
 #### [AnimationPlayback_04_PlayStatesMULTI](/examples/Animation%20Playback/AnimationPlayback_04_PlayStatesMULTI/AnimationPlayback_04_PlayStatesMULTI.ino)
-- Multiple animation switching  ePlayStatesMULTI/AnimationPlayback_05_CyclePlayStatesMULTI.ino)
+- Multiple animation switching  
 - Boolean flag control  
 - Two animations: idle and go  
 - Independent animation objects
 
 #### [AnimationPlayback_05_CyclePlayStatesMULTI](/examples/Animation%20Playback/AnimationPlayback_05_CyclePlayStatesMULTI/AnimationPlayback_05_CyclePlayStatesMULTI.ino)
-- Complex state machine with multiple animations  ayMultipleAtOnce/AnimationPlayback_06_PlayMultipleAtOnce.ino)
+- Complex state machine with multiple animations  
 - 5 different states with timing  
 - Alternating between idle and go animations  
 - Different parameters per state
@@ -510,25 +509,25 @@ Core animation control demonstrations:
 - `CombinedFilmFestival` usage  
 - Background/foreground layering  
 - Independent speed control  
-- Layer managementationBUTTON_01_PlayPause/AnimationBUTTON_01_PlayPause.ino)
+- Layer management
 
 ### Button Control Examples
 Interactive hardware control demonstrations:
 
 #### [AnimationBUTTON_01_PlayPause](/examples/Animation%20Control%20BUTTON/AnimationBUTTON_01_PlayPause/AnimationBUTTON_01_PlayPause.ino)
-- Simple play/pause toggle  mationBUTTON_02_SetSpeed/AnimationBUTTON_02_SetSpeed.ino)
+- Simple play/pause toggle  animation
 - Button debouncing  
 - Internal state tracking  
 - Serial feedback
 
 #### [AnimationBUTTON_02_SetSpeed](/examples/Animation%20Control%20BUTTON/AnimationBUTTON_02_SetSpeed/AnimationBUTTON_02_SetSpeed.ino)
-- Fast/slow speed toggling  ionBUTTON_03_SwitchTrack/AnimationBUTTON_03_SwitchTrack.ino)
+- Fast/slow speed toggling  animation 
 - Custom speed settings  
 - Button input handling  
 - Speed state management
 
 #### [AnimationBUTTON_03_SwitchTrack](/examples/Animation%20Control%20BUTTON/AnimationBUTTON_03_SwitchTrack/AnimationBUTTON_03_SwitchTrack.ino)
-- Animation switching with button  tionBUTTON_04_ComboTrack/AnimationBUTTON_04_ComboTrack.ino)
+- Animation switching with button  animation 
 - Two different animations  
 - Real-time switching  
 - Clean transition handling
@@ -537,25 +536,25 @@ Interactive hardware control demonstrations:
 - Combined animations with button trigger  
 - Background/foreground system  
 - Button-triggered overlay effects  
-- Layer management with `CombinedFilmFestival`%20Mush/PressureMush_01_PlayPause/PressureMush_01_PlayPause.ino)
+- Layer management with `CombinedFilmFestival`
 
 ### Pressure Sensor Examples
 Interactive control using analog pressure sensor input:
 
 #### [PressureMush_01_PlayPause](/examples/Animation%20Control%20Pressure%20Mush/PressureMush_01_PlayPause/PressureMush_01_PlayPause.ino)
-- Pressure-based play/pause control  0Mush/PressureMush_02_SpeedChange/PressureMush_02_SpeedChange.ino)
+- Pressure-based play/pause control  
 - Analog threshold detection  
 - Serial pressure monitoring  
 - Simple state toggling based on pressure
 
 #### [PressureMush_02_SpeedChange](/examples/Animation%20Control%20Pressure%20Mush/PressureMush_02_SpeedChange/PressureMush_02_SpeedChange.ino)
-- Dynamic speed control via pressure  Mush/PressureMush_03_PressureSwap/PressureMush_03_PressureSwap.ino)
+- Dynamic speed control via pressure  
 - Maps pressure (0-1023) to speed (50-300ms)  
 - Continuous analog reading  
 - Real-time speed adjustments
 
 #### [PressureMush_03_PressureSwap](/examples/Animation%20Control%20Pressure%20Mush/PressureMush_03_PressureSwap/PressureMush_03_PressureSwap.ino)
-- Pressure threshold animation switching  Mush/PressureMush_04_ComboTrigger/PressureMush_04_ComboTrigger.ino)
+- Pressure threshold animation switching  
 - Two animations: idle and go states  
 - Clean transitions between animations  
 - Demonstrates simple pressure-based state machine
