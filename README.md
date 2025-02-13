@@ -62,13 +62,17 @@ TinyFilmFestival is a library that enables interactive media controls for animat
 - Animation switching
 
 ## Installation
-1. Install the Library from the Library Manager
+Install the Library from the Library Manager
     
     - Search: TinyFilmFestival
     - Click Install
-    - Choose "Install with Depencies" When prompted
+    - Choose "INSTALL ALL" When prompted
+
+![Install](images/Install.png)
     
-2. Include in sketch: `#include "TinyFilmFestival.h"`
+
+
+![Install All](images/InstallAll.png)
 
 ## Creating Animations for the LED Screen
 ![Editor Small](images/editorSmall.png)
