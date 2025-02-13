@@ -10,6 +10,7 @@ TinyFilmFestival is a library that enables interactive media controls for animat
 - [Installation](#installation)
 - [Creating Animations for the LED Screen](#creating-animations-for-the-led-screen)
 - [Core Components](#core-components)
+    - [TinyFilmFestival Class](#tinyfilmfestival-class)
     - [Animation Class](#animation-class)
     - [PlayMode Types](#playmode-types)
     - [AnimationState Types](#animationstate-types)
@@ -42,6 +43,11 @@ TinyFilmFestival is a library that enables interactive media controls for animat
         - [AnimationBUTTON_02_SetSpeed](#animationbutton_02_setspeed)
         - [AnimationBUTTON_03_SwitchTrack](#animationbutton_03_switchtrack)
         - [AnimationBUTTON_04_ComboTrack](#animationbutton_04_combotrack)
+    - [Pressure Sensor Examples](#pressure-sensor-examples)
+        - [PressureMush_01_PlayPause](#pressuremush_01_playpause)
+        - [PressureMush_02_SpeedChange](#pressuremush_02_speedchange)
+        - [PressureMush_03_PressureSwap](#pressuremush_03_pressureswap)
+        - [PressureMush_04_ComboTrigger](#pressuremush_04_combotrigger)
 - [Documentation](#documentation)
 
 ## Features
@@ -78,6 +84,69 @@ Each animation you create is downloaded as a ".h" header file that can be loaded
 - For full details see: [LED Matrix Editor Guide](editor-guide.md)
 
 ## Core Components
+
+### TinyFilmFestival Class
+The TinyFilmFestival class acts as a media player for LED matrix animations:
+
+```cpp
+// Basic single animation player
+TinyFilmFestival player;
+Animation anim1 = animation1;
+Animation anim2 = animation2;
+
+void setup() {
+    player.begin();
+    player.startAnimation(anim1, LOOP);  // Start with animation1
+}
+
+void loop() {
+    if(someCondition) {
+        player.startAnimation(anim2, LOOP);  // Swap to animation2
+    }
+    player.update();
+}
+```
+
+Key characteristics:
+- One animation track per player
+- Swap animations at any time
+- Independent playback control
+- Must call `update()` in loop
+
+### Simultaneous Animation
+To display multiple animations at once, use multiple TinyFilmFestival objects:
+
+```cpp
+// Create separate players for each layer
+TinyFilmFestival background;
+TinyFilmFestival foreground;
+CombinedFilmFestival combined;
+
+void setup() {
+    combined.begin();
+    
+    // Each player has independent control
+    background.startAnimation(landscapeAnim, LOOP);
+    background.setSpeed(100);  // Slow background
+    
+    foreground.startAnimation(effectAnim, LOOP);
+    foreground.setSpeed(50);   // Fast foreground
+    
+    // Layer order: first added = bottom layer
+    combined.addFilm(background);
+    combined.addFilm(foreground);
+}
+
+void loop() {
+    combined.update();  // Updates all layers
+}
+```
+
+Key features:
+- Multiple independent animation players
+- Each maintains its own state and speed
+- Use `CombinedFilmFestival` to merge layers
+- Layer order determines visual stacking
 
 ### Animation Class
 The Animation class is automatically created from your exported header file:
@@ -390,90 +459,111 @@ These can be found in File -> Examples -> TinyFilmFestival
 ### Basic Matrix Examples
 Simple examples demonstrating fundamental LED matrix control:
 
-**NOTE** These are for general demonstration only. This is not how you should draw
-to the matrix for your projects.
+**NOTE** These are for general demonstration only. This is not how you should draw to the matrix for your projects.
 
-#### BasicMatrix_01_SingleFrame
-- Static pattern display on LED matrix
-- Uses `ArduinoLEDMatrix` class directly
-- 8x12 grid of binary values (0=off, 1=on)
+#### [BasicMatrix_01_SingleFrame](/examples/Basic%20Matrix/BasicMatrix_01_singleFrame/BasicMatrix_01_SingleFrame.ino)
+- Static pattern display on LED matrix  
+- Uses `ArduinoLEDMatrix` class directly  
+- 8x12 grid of binary values (0=off, 1=on)  
 - Simple `renderBitmap()` call to display pattern
 
-#### BasicMatrix_02_TwoFrames  
-- Basic animation using frame alternation
-- Manual timing control with `delay()`
-- Two patterns: heart and smiley face
+#### [BasicMatrix_02_TwoFrames](/examples/Basic%20Matrix/BasicMatrix_02_twoFrames/BasicMatrix_02_TwoFrames.ino)
+- Basic animation using frame alternation  
+- Manual timing control with `delay()`  
+- Two patterns: heart and smiley face  
 - Demonstrates frame buffer structure
 
 ### Animation Playback Examples
 Core animation control demonstrations:
 
-#### AnimationPlayback_01_PlayAnimation
-- Basic animation setup and playback
-- Multiple playback modes (`ONCE`, `LOOP`, `BOOMERANG`)
-- Speed control with `setSpeed()` and `restoreOriginalSpeed()`
+#### [AnimationPlayback_01_PlayAnimation](/examples/Animation%20Playback/AnimationPlayback_01_PlayAnimation/AnimationPlayback_01_PlayAnimation.ino)
+- Basic animation setup and playback  
+- Multiple playback modes (`ONCE`, `LOOP`, `BOOMERANG`)  
+- Speed control with `setSpeed()` and `restoreOriginalSpeed()`  
 - Status checking methods
 
-#### AnimationPlayback_02_PlayStates
-- Different animation states (normal, fast, slow)
-- Variable-based state selection
-- Multiple playback modes per state
+#### [AnimationPlayback_02_PlayStates](/examples/Animation%20Playback/AnimationPlayback_02_PlayStates/AnimationPlayback_02_PlayStates.ino)
+- Different animation states (normal, fast, slow)  _CyclePlayStates/AnimationPlayback_03_CyclePlayStates.ino)
+- Variable-based state selection  
+- Multiple playback modes per state  
 - Custom speed settings
 
-#### AnimationPlayback_03_CyclePlayStates
-- Automated 5-state cycling
-- Timer-based transitions (5 seconds each)
-- Different speeds and modes per state
+#### [AnimationPlayback_03_CyclePlayStates](/examples/Animation%20Playback/AnimationPlayback_03_CyclePlayStates/AnimationPlayback_03_CyclePlayStates.ino)
+- Automated 5-state cycling  _PlayStatesMULTI/AnimationPlayback_04_PlayStatesMULTI.ino)
+- Timer-based transitions (5 seconds each)  
+- Different speeds and modes per state  
 - Serial feedback for state tracking
 
-#### AnimationPlayback_04_PlayStatesMULTI
-- Multiple animation switching
-- Boolean flag control
-- Two animations: idle and go
+#### [AnimationPlayback_04_PlayStatesMULTI](/examples/Animation%20Playback/AnimationPlayback_04_PlayStatesMULTI/AnimationPlayback_04_PlayStatesMULTI.ino)
+- Multiple animation switching  ePlayStatesMULTI/AnimationPlayback_05_CyclePlayStatesMULTI.ino)
+- Boolean flag control  
+- Two animations: idle and go  
 - Independent animation objects
 
-#### AnimationPlayback_05_CyclePlayStatesMULTI
-- Complex state machine with multiple animations
-- 5 different states with timing
-- Alternating between idle and go animations
+#### [AnimationPlayback_05_CyclePlayStatesMULTI](/examples/Animation%20Playback/AnimationPlayback_05_CyclePlayStatesMULTI/AnimationPlayback_05_CyclePlayStatesMULTI.ino)
+- Complex state machine with multiple animations  ayMultipleAtOnce/AnimationPlayback_06_PlayMultipleAtOnce.ino)
+- 5 different states with timing  
+- Alternating between idle and go animations  
 - Different parameters per state
 
-#### AnimationPlayback_06_PlayMultipleAtOnce
-- `CombinedFilmFestival` usage
-- Background/foreground layering
-- Independent speed control
-- Layer management
+#### [AnimationPlayback_06_PlayMultipleAtOnce](/examples/Animation%20Playback/AnimationPlayback_06_PlayMultipleAtOnce/AnimationPlayback_06_PlayMultipleAtOnce.ino)
+- `CombinedFilmFestival` usage  
+- Background/foreground layering  
+- Independent speed control  
+- Layer managementationBUTTON_01_PlayPause/AnimationBUTTON_01_PlayPause.ino)
 
 ### Button Control Examples
 Interactive hardware control demonstrations:
 
-#### AnimationBUTTON_01_PlayPause
-- Simple play/pause toggle
-- Button debouncing
-- Internal state tracking
+#### [AnimationBUTTON_01_PlayPause](/examples/Animation%20Control%20BUTTON/AnimationBUTTON_01_PlayPause/AnimationBUTTON_01_PlayPause.ino)
+- Simple play/pause toggle  mationBUTTON_02_SetSpeed/AnimationBUTTON_02_SetSpeed.ino)
+- Button debouncing  
+- Internal state tracking  
 - Serial feedback
 
-#### AnimationBUTTON_02_SetSpeed
-- Fast/slow speed toggling
-- Custom speed settings
-- Button input handling
+#### [AnimationBUTTON_02_SetSpeed](/examples/Animation%20Control%20BUTTON/AnimationBUTTON_02_SetSpeed/AnimationBUTTON_02_SetSpeed.ino)
+- Fast/slow speed toggling  ionBUTTON_03_SwitchTrack/AnimationBUTTON_03_SwitchTrack.ino)
+- Custom speed settings  
+- Button input handling  
 - Speed state management
 
-#### AnimationBUTTON_03_SwitchTrack
-- Animation switching with button
-- Two different animations
-- Real-time switching
+#### [AnimationBUTTON_03_SwitchTrack](/examples/Animation%20Control%20BUTTON/AnimationBUTTON_03_SwitchTrack/AnimationBUTTON_03_SwitchTrack.ino)
+- Animation switching with button  tionBUTTON_04_ComboTrack/AnimationBUTTON_04_ComboTrack.ino)
+- Two different animations  
+- Real-time switching  
 - Clean transition handling
 
-#### AnimationBUTTON_04_ComboTrack
-- Combined animations with button trigger
-- Background/foreground system
-- Button-triggered overlay effects
-- Layer management with `CombinedFilmFestival`
+#### [AnimationBUTTON_04_ComboTrack](/examples/Animation%20Control%20BUTTON/AnimationBUTTON_04_ComboTrack/AnimationBUTTON_04_ComboTrack.ino)
+- Combined animations with button trigger  
+- Background/foreground system  
+- Button-triggered overlay effects  
+- Layer management with `CombinedFilmFestival`%20Mush/PressureMush_01_PlayPause/PressureMush_01_PlayPause.ino)
+
+### Pressure Sensor Examples
+Interactive control using analog pressure sensor input:
+
+#### [PressureMush_01_PlayPause](/examples/Animation%20Control%20Pressure%20Mush/PressureMush_01_PlayPause/PressureMush_01_PlayPause.ino)
+- Pressure-based play/pause control  0Mush/PressureMush_02_SpeedChange/PressureMush_02_SpeedChange.ino)
+- Analog threshold detection  
+- Serial pressure monitoring  
+- Simple state toggling based on pressure
+
+#### [PressureMush_02_SpeedChange](/examples/Animation%20Control%20Pressure%20Mush/PressureMush_02_SpeedChange/PressureMush_02_SpeedChange.ino)
+- Dynamic speed control via pressure  Mush/PressureMush_03_PressureSwap/PressureMush_03_PressureSwap.ino)
+- Maps pressure (0-1023) to speed (50-300ms)  
+- Continuous analog reading  
+- Real-time speed adjustments
+
+#### [PressureMush_03_PressureSwap](/examples/Animation%20Control%20Pressure%20Mush/PressureMush_03_PressureSwap/PressureMush_03_PressureSwap.ino)
+- Pressure threshold animation switching  Mush/PressureMush_04_ComboTrigger/PressureMush_04_ComboTrigger.ino)
+- Two animations: idle and go states  
+- Clean transitions between animations  
+- Demonstrates simple pressure-based state machine
+
+#### [PressureMush_04_ComboTrigger](/examples/Animation%20Control%20Pressure%20Mush/PressureMush_04_ComboTrigger/PressureMush_04_ComboTrigger.ino)
+- Pressure-activated overlay effects  
+- Continuous background animation  
+- Pressure-triggered foreground effects  
+- Layer management with [`CombinedFilmFestival`](src/TinyFilmFestival.h)
 
 
-## Documentation
-- [LED Matrix Editor Guide](editor-guide.md)
-- [Basic Matrix Examples](basic-matrix.md)
-- [Animation Control Examples](animation-control.md) 
-- [Button Control Examples](button-control.md)
