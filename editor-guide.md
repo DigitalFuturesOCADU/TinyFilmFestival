@@ -1,5 +1,17 @@
 # LED Matrix Editor Guide
 
+## Table of Contents
+- [Overview](#overview)
+- [Interface](#interface)
+- [Project Controls](#project-controls)
+- [Canvas Controls](#canvas-controls)
+- [Timeline Controls](#timeline-controls)
+- [File Types: Saving Your Working File Vs Exporting Your Animation](#file-types-saving-your-working-file-vs-exporting-your-animation)
+- [Playing / Controlling your Animation on your Arduino](#playing--controlling-your-animation-on-your-arduino)
+- [Example Animations](#example-animations)
+- [Animated Gifs](#animated-gifs)
+
+## Overview
 The Arduino LED Matrix Editor (https://ledmatrix-editor.arduino.cc/) provides a visual interface for creating LED matrix animations. It allows you to
 - Create the animations by painting/erasing pixels frame by frame
 - Copying Frames to allow easy transtions
@@ -58,3 +70,14 @@ There are a few simple steps required to go from the animation you see in the Ed
 ![variables](images/variableNames.png)
 
 ### Once you have completed 1 - 5 you can use all function of TinyFilmFestival to control your animaation
+
+## Example Animations
+There are a few [Example Animations](exampleAnimations/) here
+
+## Animated Gifs
+For your documentation, you can also convert the **.h** files into animated gifs.
+
+- Go to this [Link](https://npuckett.github.io/gifBuilder/)
+- Click the [Choose File] Button
+- Click the [Save GIF] Button
+- Wait a few seconds. It will generate an animated GIF and download it
