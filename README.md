@@ -113,7 +113,7 @@ void loop() {
 ```
 
 Key characteristics:
-- One animation track per player
+- One animation track can be played at a time
 - Swap animations at any time
 - Independent playback control
 - Must call `update()` in loop
