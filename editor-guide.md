@@ -27,6 +27,9 @@ The Arduino LED Matrix Editor (https://ledmatrix-editor.arduino.cc/) provides a 
 
 ## Saving Your Working File Vs Exporting Your Animation
 
+When using the Matrix Editor it is important to remember that it is a web-based tool, so your work is not autmatically saved.
+
+
 There are 3 different buttons that are important for Saving , Opening, and Exporting your Animations. 
 ![down controls](images/downloadControls.png)
 
