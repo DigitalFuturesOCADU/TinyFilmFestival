@@ -10,7 +10,8 @@ TinyFilmFestival is a library that enables interactive media controls for animat
 - [Installation](#installation)
 - [Creating Animations for the LED Screen](#creating-animations-for-the-led-screen)
 - [Core Components](#core-components)
-    - [TinyFilmFestival Class](#tinyfilmfestival-class)
+    - [TinyFilmFestival Player Class](#tinyfilmfestival-player-class)
+    - [CombinedFilmFestival Class](#combinedfilmfestival-class)
     - [Animation Class](#animation-class)
     - [PlayMode Types](#playmode-types)
     - [AnimationState Types](#animationstate-types)
@@ -28,7 +29,7 @@ TinyFilmFestival is a library that enables interactive media controls for animat
         - [Switch Between Animations](#switch-between-animations)
         - [Combined Animations with Button Trigger](#combined-animations-with-button-trigger)
 - [Included Examples](#included-examples)
-    - [Basic Matrix Examples](#basic-matrix-examples)
+    - [Matrix Examples](#matrix-examples)
         - [BasicMatrix_01_SingleFrame](#basicmatrix_01_singleframe)
         - [BasicMatrix_02_TwoFrames](#basicmatrix_02_twoframes)
     - [Animation Playback Examples](#animation-playback-examples)
@@ -113,33 +114,39 @@ Key characteristics:
 - Independent playback control
 - Must call `update()` in loop
 
-### Simultaneous Animation
-To display multiple animations at once, use multiple TinyFilmFestival objects:
+### CombinedFilmFestival Class
+
+The CombinedFilmFestival Class lets you merge multiple TinyFilmFestival objects into one layered animation. Each layer retains its own speed and playback control, while the combiner updates them all with a single call.
 
 ```cpp
-// Create separate players for each layer
+// Create individual animation players for different layers
 TinyFilmFestival background;
 TinyFilmFestival foreground;
 CombinedFilmFestival combined;
 
 void setup() {
     combined.begin();
-    
-    // Each player has independent control
+
+    // Set up each player separately.
     background.startAnimation(landscapeAnim, LOOP);
-    background.setSpeed(100);  // Slow background
-    
+    background.setSpeed(100);  // Slow background animation
+
     foreground.startAnimation(effectAnim, LOOP);
-    foreground.setSpeed(50);   // Fast foreground
-    
-    // Layer order: first added = bottom layer
+    foreground.setSpeed(50);   // Fast foreground effect
+
+    // The order in which films are added determines the layer stacking:
+    // first added becomes the bottom layer.
     combined.addFilm(background);
     combined.addFilm(foreground);
 }
 
 void loop() {
-    combined.update();  // Updates all layers
+    // Update all layers together with one call.
+    combined.update();
 }
+```
+
+Use CombinedFilmFestival to simplify managing multiple animation layers in your project.
 ```
 
 Key features:
@@ -563,6 +570,6 @@ Interactive control using analog pressure sensor input:
 - Pressure-activated overlay effects  
 - Continuous background animation  
 - Pressure-triggered foreground effects  
-- Layer management with [`CombinedFilmFestival`](src/TinyFilmFestival.h)
+- Layer management with `CombinedFilmFestival`
 
 
