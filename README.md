@@ -59,7 +59,6 @@ TinyFilmFestival is a library that enables interactive media controls for animat
 - Combine multiple animations simultaneously
 - Custom speed control
 - Pause/resume functionality
-- Button input integration
 - Animation switching
 
 ## Installation
