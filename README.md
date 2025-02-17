@@ -13,7 +13,7 @@ TinyFilmFestival is a library that enables interactive media controls for animat
     - [TinyFilmFestival Class](#tinyfilmfestival-class)
     - [CombinedFilmFestival Class](#combinedfilmfestival-class)
     - [Animation Class](#animation-class)
-    - [Start Animation](#StartAnimation)
+    - [Start Animation](#start-animation)
     - [PlayMode Types](#playmode-types)
     - [AnimationState Types](#animationstate-types)
 - [Animation Control](#animation-control)
@@ -50,6 +50,13 @@ TinyFilmFestival is a library that enables interactive media controls for animat
         - [PressureMush_02_SpeedChange](#pressuremush_02_speedchange)
         - [PressureMush_03_PressureSwap](#pressuremush_03_pressureswap)
         - [PressureMush_04_ComboTrigger](#pressuremush_04_combotrigger)
+    - [Distance Sensor Examples](#distance-sensor-examples)
+        - [DistanceSensor_01_PlayPause](#distancesensor_01_playpause)
+        - [DistanceSensor_02_SpeedChange](#distancesensor_02_speedchange)
+        - [DistanceSensor_03_ThresholdSwap](#distancesensor_03_thresholdswap)
+        - [DistanceSensor_04_ComboTrigger](#distancesensor_04_combotrigger)
+        - [DistanceSensor_05_MultiThreshold](#distancesensor_05_multithreshold)
+        - [DistanceSensor_07_MultiCombined](#distancesensor_07_multicombined)
 - [Documentation](#documentation)
 
 ## Features
@@ -592,4 +599,44 @@ Interactive control using analog pressure sensor input:
 - Pressure-triggered foreground effects  
 - Layer management with `CombinedFilmFestival`
 
+### Distance Sensor Examples
+Interactive control using HC-SR04 ultrasonic distance sensor:
+#### Distance Sensor Connection
+Connect the HC-SR04 or similar distance sensor as depicted below:
+![Distance Sensor Wiring Diagram](images/distanceSensorConnection.png)
 
+#### [DistanceSensor_01_PlayPause](/examples/Animation%20Control%20Distance/DistanceSensor_01_PlayPause/DistanceSensor_01_PlayPause.ino)
+- Distance-based play/pause control
+- Simple threshold detection
+- Serial distance monitoring
+- Basic state toggling based on proximity
+
+#### [DistanceSensor_02_SpeedChange](/examples/Animation%20Control%20Distance/DistanceSensor_02_SpeedChange/DistanceSensor_02_SpeedChange.ino)
+- Dynamic speed control via distance
+- Maps distance to animation speed
+- Continuous distance reading
+- Real-time speed adjustments
+
+#### [DistanceSensor_03_ThresholdSwap](/examples/Animation%20Control%20Distance/DistanceSensor_03_ThresholdSwap/DistanceSensor_03_ThresholdSwap.ino)
+- Distance threshold animation switching
+- Two animations: idle and go states
+- Clean transitions between animations
+- Simple proximity-based state machine
+
+#### [DistanceSensor_04_ComboTrigger](/examples/Animation%20Control%20Distance/DistanceSensor_04_ComboTrigger/DistanceSensor_04_ComboTrigger.ino)
+- Distance-activated overlay effects
+- Continuous background animation
+- Proximity-triggered foreground effects
+- Layer management with `CombinedFilmFestival`
+
+#### [DistanceSensor_05_MultiThreshold](/examples/Animation%20Control%20Distance/DistanceSensor_05_MultiThreshold/DistanceSensor_05_MultiThreshold.ino)
+- Multiple distance thresholds
+- Four different animations
+- Distance-based animation selection
+- Progressive interaction zones
+
+#### [DistanceSensor_07_MultiCombined](/examples/Animation%20Control%20Distance/DistanceSensor_07_MultiCombined/DistanceSensor_07_MultiCombined.ino)
+- Multiple layered animations
+- Distance-based layer control
+- Progressive animation combining
+- Complex interaction zones with multiple effects
