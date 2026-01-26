@@ -9,10 +9,10 @@ A library for creating animated displays on the Arduino UNO R4 WiFi's built-in 1
 | Animation Mode | Canvas Mode |
 |----------------|-------------|
 | Pre-made frames from [LED Matrix Editor](https://ledmatrix-editor.arduino.cc/) | Code-generated graphics in real-time |
-| `startAnimation()`, `pause()`, `setSpeed()` | `beginDraw()`, `point()`, `circle()` |
+| `play()`, `pause()`, `setSpeed()` | `beginDraw()`, `point()`, `circle()` |
 | Great for detailed art & characters | Great for dynamic data & effects |
 
-**Both modes can be combined** — draw code-based overlays on top of playing animations.
+**Both modes can be combined** — draw code-based overlays on top of playing animations with `beginOverlay()`.
 
 ---
 
@@ -23,36 +23,35 @@ A library for creating animated displays on the Arduino UNO R4 WiFi's built-in 1
 #include "TinyFilmFestival.h"
 #include "animation.h"          // From LED Matrix Editor
 
-TinyFilmFestival film;
+TinyScreen screen;
 Animation myAnim = animation;
 
 void setup() {
-    film.begin();
-    film.startAnimation(myAnim, LOOP);
+    screen.begin();
+    screen.play(myAnim, LOOP);
 }
 
 void loop() {
-    film.update();
+    screen.update();
 }
 ```
 
 ### Canvas Mode (30 seconds)
 ```cpp
-#include "Arduino_LED_Matrix.h"
-#include "ArduinoGraphics.h"
+#include "TinyFilmFestival.h"
 
-ArduinoLEDMatrix matrix;
+TinyScreen screen;
 int x = 0;
 
 void setup() {
-    matrix.begin();
+    screen.begin();
 }
 
 void loop() {
-    matrix.beginDraw();
-    matrix.clear();
-    matrix.point(x, 4);
-    matrix.endDraw();
+    screen.beginDraw();
+    screen.clear();
+    screen.point(x, 4);
+    screen.endDraw();
     
     x = (x + 1) % 12;
     delay(100);
@@ -81,26 +80,26 @@ Pre-made frame-by-frame animations created in the [LED Matrix Editor](https://le
 - **BOOMERANG** — Play forward, then backward
 
 ```cpp
-film.startAnimation(myAnim, LOOP);      // Play forever
-film.startAnimation(myAnim, ONCE);      // Play once
-film.startAnimation(myAnim, BOOMERANG); // Ping-pong
+screen.play(myAnim, LOOP);              // Play forever
+screen.play(myAnim, ONCE);              // Play once
+screen.play(myAnim, BOOMERANG);         // Ping-pong
 
-film.setSpeed(50);                      // Faster (50ms/frame)
-film.pause();                           // Pause playback
-film.resume();                          // Resume playback
+screen.setSpeed(50);                    // Faster (50ms/frame)
+screen.pause();                         // Pause playback
+screen.resume();                        // Resume playback
 ```
 
 ### Canvas Mode
-Draw directly with code using ArduinoGraphics primitives. Create motion through code logic:
+Draw directly with code using graphics primitives. Create motion through code logic:
 
 ```cpp
-matrix.beginDraw();
-matrix.clear();
-matrix.point(x, y);                     // Single pixel
-matrix.line(0, 0, 11, 7);               // Diagonal line
-matrix.rect(2, 1, 8, 5);                // Rectangle outline
-matrix.circle(6, 4, 3);                 // Circle
-matrix.endDraw();
+screen.beginDraw();
+screen.clear();
+screen.point(x, y);                     // Single pixel
+screen.line(0, 0, 11, 7);               // Diagonal line
+screen.rect(2, 1, 8, 5);                // Rectangle outline
+screen.circle(6, 4, 3);                 // Circle
+screen.endDraw();
 ```
 
 ### Hybrid Mode
@@ -108,12 +107,12 @@ Combine both — play an animation and draw on top of it:
 
 ```cpp
 // In loop():
-film.update();                          // Update animation frame
+screen.update();                        // Update animation frame
 
-matrix.beginDraw();
+screen.beginOverlay();
 // Animation is already rendered, now add overlay
-matrix.line(0, indicatorY, 11, indicatorY);  // Draw indicator bar
-matrix.endDraw();
+screen.line(0, indicatorY, 11, indicatorY);  // Draw indicator bar
+screen.endOverlay();
 ```
 
 ---
@@ -134,70 +133,81 @@ Pre-made animations: [exampleAnimations/](exampleAnimations/)
 
 ## API Reference
 
-### TinyFilmFestival Class
+### TinyScreen Class
 
 ```cpp
-TinyFilmFestival film;
+TinyScreen screen;
 Animation myAnim = animation;           // From .h file
 
 // Setup
-film.begin();                           // Initialize matrix
+screen.begin();                         // Initialize matrix
 
 // Playback
-film.startAnimation(myAnim, LOOP);      // Start animation
-film.startAnimation(myAnim, LOOP, 2, 6);// Play frames 2-6 only
-film.pause();                           // Pause
-film.resume();                          // Resume
-film.stop();                            // Stop completely
-film.update();                          // Update frame (call in loop!)
+screen.play(myAnim, LOOP);              // Start animation
+screen.play(myAnim, LOOP, 2, 6);        // Play frames 2-6 only
+screen.pause();                         // Pause
+screen.resume();                        // Resume
+screen.stop();                          // Stop completely
+screen.update();                        // Update frame (call in loop!)
 
 // Speed
-film.setSpeed(100);                     // Set ms per frame
-film.restoreOriginalSpeed();            // Return to original timing
+screen.setSpeed(100);                   // Set ms per frame
+screen.restoreOriginalSpeed();          // Return to original timing
 
 // Status
-film.isPlaying();                       // Currently playing?
-film.isPaused();                        // Currently paused?
-film.isComplete();                      // Finished (ONCE mode)?
-film.getCurrentFrame();                 // Current frame number
+screen.isPlaying();                     // Currently playing?
+screen.isPaused();                      // Currently paused?
+screen.isComplete();                    // Finished (ONCE mode)?
+screen.getCurrentFrame();               // Current frame number
 ```
 
-### CombinedFilmFestival Class
-Layer multiple animations together:
+### Layered Animations
+Stack multiple animations together (up to 4 layers):
 
 ```cpp
-TinyFilmFestival bg, fg;
-CombinedFilmFestival combined;
+TinyScreen screen;
 
-combined.begin();
+screen.begin();
+screen.addLayer();                      // Add layer 1
+screen.addLayer();                      // Add layer 2
 
-bg.startAnimation(landscapeAnim, LOOP);
-fg.startAnimation(effectAnim, BOOMERANG);
+screen.play(bgAnim, LOOP);              // Layer 0 (default)
+screen.playOnLayer(1, fgAnim, LOOP);    // Layer 1
 
-combined.addFilm(bg);                   // Background (added first)
-combined.addFilm(fg);                   // Foreground (added last)
+// Control individual layers
+screen.setSpeedOnLayer(1, 50);
+screen.pauseOnLayer(1);
+screen.resumeOnLayer(1);
 
 // In loop:
-combined.update();
+screen.update();
 ```
 
-### ArduinoGraphics (Canvas Mode)
-Built into the Arduino UNO R4 WiFi board package:
+### Canvas Drawing
+All drawing methods are built into TinyScreen:
 
 ```cpp
-ArduinoLEDMatrix matrix;
+screen.beginDraw();                     // Start fresh frame
+screen.clear();
 
-matrix.begin();
-matrix.beginDraw();
-matrix.clear();
+screen.point(x, y);                     // Single pixel
+screen.line(x1, y1, x2, y2);            // Line
+screen.rect(x, y, w, h);                // Rectangle
+screen.circle(cx, cy, r);               // Circle
+screen.text("Hi", x, y);                // Text (needs font)
 
-matrix.point(x, y);                     // Single pixel
-matrix.line(x1, y1, x2, y2);            // Line
-matrix.rect(x, y, w, h);                // Rectangle
-matrix.circle(cx, cy, r);               // Circle
-matrix.text("Hi", x, y);                // Text (needs font)
+screen.endDraw();
+```
 
-matrix.endDraw();
+### Hybrid Mode (Overlays)
+Draw on top of a running animation:
+
+```cpp
+screen.update();                        // Update animation
+
+screen.beginOverlay();                  // Start overlay (preserves animation)
+screen.point(x, y);                     // Add drawn elements
+screen.endOverlay();                    // Commit overlay
 ```
 
 ---
@@ -216,7 +226,7 @@ Find these in **File → Examples → TinyFilmFestival**
 | Example | Description |
 |---------|-------------|
 | **PlaybackControl** | All playback modes (LOOP/ONCE/BOOMERANG), speed control, partial clips |
-| **LayeredAnimations** | Multiple animations combined with CombinedFilmFestival |
+| **LayeredAnimations** | Multiple animations combined with addLayer() and playOnLayer() |
 
 ### 03_Canvas_Mode
 | Example | Description |
