@@ -14,7 +14,7 @@
 #include "idle.h"
 #include "go.h"
 
-TinyFilmFestival film;
+TinyScreen screen;
 Animation idleAnim = idle;
 Animation goAnim = go;
 
@@ -25,8 +25,8 @@ void setup() {
     Serial.begin(9600);
     pinMode(buttonPin, INPUT_PULLUP);
     
-    film.begin();
-    film.startAnimation(idleAnim, LOOP);
+    screen.begin();
+    screen.play(idleAnim, LOOP);
     Serial.println("Hold button to play 'go' animation");
 }
 
@@ -35,13 +35,13 @@ void loop() {
     
     // Switch animation when button state changes
     if (isPressed && !wasPressed) {
-        film.startAnimation(goAnim, LOOP);
+        screen.play(goAnim, LOOP);
         Serial.println("Playing: go");
     } else if (!isPressed && wasPressed) {
-        film.startAnimation(idleAnim, LOOP);
+        screen.play(idleAnim, LOOP);
         Serial.println("Playing: idle");
     }
     
     wasPressed = isPressed;
-    film.update();
+    screen.update();
 }

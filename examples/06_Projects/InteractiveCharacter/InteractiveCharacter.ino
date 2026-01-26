@@ -1,5 +1,6 @@
 /*
- * TinyFilmFestival - Project - InteractiveCharacter
+ * TinyFilmFestival V2 - Interactive Character
+ * 06_Projects/InteractiveCharacter
  * 
  * A complete project combining Animation Mode, Canvas Mode, and Sensors.
  * A character on the LED matrix reacts to proximity:
@@ -13,13 +14,11 @@
  *   - Multi-zone sensor interaction
  *   - Animation switching based on state
  *   - Speed control based on proximity
- *   - Hybrid overlay effects (sparkles)
- *   - Complete project structure
+ *   - Hybrid overlay effects (sparkles via beginOverlay/endOverlay)
+ *   - Complete project structure with TinyScreen
  * 
- * Mode: Hybrid (Animation + Canvas + Sensor)
- * 
- * Hardware Required:
- *   - Arduino UNO R4 WiFi
+ * Hardware:
+ *   - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
  *   - HC-SR04 Ultrasonic Distance Sensor
  *     - Trigger: Pin 14 (A0)
  *     - Echo: Pin 15 (A1)
@@ -29,8 +28,6 @@
  *   - HCSR04 (install from Library Manager)
  */
 
-#include "ArduinoGraphics.h"
-#include "Arduino_LED_Matrix.h"
 #include "TinyFilmFestival.h"
 #include "HCSR04.h"
 #include "idle.h"
@@ -38,10 +35,9 @@
 
 // === Hardware Setup ===
 UltraSonicDistanceSensor sensor(14, 15, 200);  // trigger, echo, maxDistance
-ArduinoLEDMatrix matrix;
 
-// === Animation Setup ===
-TinyFilmFestival film;
+// === TinyScreen - Unified Interface ===
+TinyScreen screen;
 Animation idleAnim = idle;
 Animation goAnim = go;
 
@@ -72,11 +68,11 @@ int sparkleY = 0;
 
 void setup() {
     Serial.begin(9600);
-    film.begin();
+    screen.begin();
     
     // Start in sleeping state
-    film.startAnimation(idleAnim, LOOP);
-    film.setSpeed(300);  // Very slow for sleeping
+    screen.play(idleAnim, LOOP);
+    screen.setSpeed(300);  // Very slow for sleeping
     
     Serial.println("=== Interactive Character ===");
     Serial.println("Approach the sensor to wake the character!");
@@ -96,8 +92,8 @@ void loop() {
         onStateChange();
     }
     
-    // Update animation
-    film.update();
+    // Draw overlays (this also updates the animation)
+    drawOverlay();
     
     // Draw overlays based on state
     drawOverlay();
@@ -141,43 +137,43 @@ CharacterState determineState(float distance) {
 void onStateChange() {
     switch (currentState) {
         case SLEEPING:
-            film.startAnimation(idleAnim, LOOP);
-            film.setSpeed(300);  // Very slow
+            screen.play(idleAnim, LOOP);
+            screen.setSpeed(300);  // Very slow
             break;
             
         case ALERT:
-            film.startAnimation(idleAnim, LOOP);
-            film.setSpeed(100);  // Normal speed
+            screen.play(idleAnim, LOOP);
+            screen.setSpeed(100);  // Normal speed
             break;
             
         case EXCITED:
-            film.startAnimation(goAnim, LOOP);
-            film.setSpeed(50);  // Fast!
+            screen.play(goAnim, LOOP);
+            screen.setSpeed(50);  // Fast!
             break;
             
         case OVERWHELMED:
-            film.pause();  // Too close! Freeze up
+            screen.pause();  // Too close! Freeze up
             break;
     }
 }
 
 void drawOverlay() {
-    matrix.beginDraw();
-    matrix.stroke(0xFFFFFF);
+    // beginOverlay updates animation AND starts drawing mode
+    screen.beginOverlay();
     
     switch (currentState) {
         case SLEEPING:
             // Draw "Zzz" indicator in corner
-            matrix.point(10, 0);
+            screen.point(10, 0);
             if ((millis() / 500) % 2 == 0) {
-                matrix.point(11, 1);
+                screen.point(11, 1);
             }
             break;
             
         case ALERT:
             // Draw subtle corner dots to show awareness
-            matrix.point(0, 0);
-            matrix.point(11, 0);
+            screen.point(0, 0);
+            screen.point(11, 0);
             break;
             
         case EXCITED:
@@ -187,9 +183,9 @@ void drawOverlay() {
                 sparkleY = random(0, 8);
                 lastSparkle = millis();
             }
-            matrix.point(sparkleX, sparkleY);
+            screen.point(sparkleX, sparkleY);
             // Extra sparkle
-            matrix.point((sparkleX + 5) % 12, (sparkleY + 3) % 8);
+            screen.point((sparkleX + 5) % 12, (sparkleY + 3) % 8);
             break;
             
         case OVERWHELMED:
@@ -200,15 +196,15 @@ void drawOverlay() {
             }
             if (flashOn) {
                 // Draw border
-                matrix.line(0, 0, 11, 0);   // Top
-                matrix.line(0, 7, 11, 7);   // Bottom
-                matrix.line(0, 0, 0, 7);    // Left
-                matrix.line(11, 0, 11, 7);  // Right
+                screen.line(0, 0, 11, 0);   // Top
+                screen.line(0, 7, 11, 7);   // Bottom
+                screen.line(0, 0, 0, 7);    // Left
+                screen.line(11, 0, 11, 7);  // Right
             }
             break;
     }
     
-    matrix.endDraw();
+    screen.endOverlay();
 }
 
 const char* getStateName(CharacterState state) {

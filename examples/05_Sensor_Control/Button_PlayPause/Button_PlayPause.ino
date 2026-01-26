@@ -13,7 +13,7 @@
 #include "TinyFilmFestival.h"
 #include "idle.h"
 
-TinyFilmFestival film;
+TinyScreen screen;
 Animation idleAnim = idle;
 
 const int buttonPin = 2;
@@ -23,8 +23,8 @@ void setup() {
     Serial.begin(9600);
     pinMode(buttonPin, INPUT_PULLUP);
     
-    film.begin();
-    film.startAnimation(idleAnim, LOOP);
+    screen.begin();
+    screen.play(idleAnim, LOOP);
     Serial.println("Press button to toggle play/pause");
 }
 
@@ -33,16 +33,16 @@ void loop() {
     
     // Detect button press (falling edge)
     if (currentState == LOW && lastButtonState == HIGH) {
-        if (film.isPlaying()) {
-            film.pause();
+        if (screen.isPlaying()) {
+            screen.pause();
             Serial.println("Paused");
         } else {
-            film.resume();
+            screen.resume();
             Serial.println("Playing");
         }
         delay(50);  // Simple debounce
     }
     
     lastButtonState = currentState;
-    film.update();
+    screen.update();
 }

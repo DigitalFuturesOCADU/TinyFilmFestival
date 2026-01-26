@@ -2,9 +2,9 @@
  * TinyFilmFestival V2 - Layered Animations
  * 02_Animation_Mode/LayeredAnimations
  * 
- * Play multiple animations simultaneously using CombinedFilmFestival.
- * Animations are layered - earlier added = background, later = foreground.
- * Each animation runs independently with its own speed and playback mode.
+ * Play multiple animations simultaneously using TinyScreen layers.
+ * Each layer runs independently with its own speed and playback mode.
+ * Layers are combined (OR'd) when displayed.
  * 
  * Animation files (.h) are created using the Arduino LED Matrix Editor:
  * https://ledmatrix-editor.arduino.cc/
@@ -16,35 +16,32 @@
 #include "landscape.h"
 #include "fiz.h"
 
-// Individual animation players
-TinyFilmFestival film1;
-TinyFilmFestival film2;
-
-// Combines multiple animations into one output
-CombinedFilmFestival combined;
+TinyScreen screen;
 
 Animation bgAnim = landscape;   // Background layer
 Animation fgAnim = fiz;         // Foreground layer
 
+int fgLayer;  // Foreground layer index
+
 void setup() {
     Serial.begin(9600);
-    combined.begin();
+    screen.begin();
     
-    // Configure background (slow, looping)
-    film1.startAnimation(bgAnim, LOOP);
-    film1.setSpeed(150);
+    // Layer 0 (primary) - Background, slow looping
+    screen.play(bgAnim, LOOP);
+    screen.setSpeed(150);
     
-    // Configure foreground (fast, boomerang)
-    film2.startAnimation(fgAnim, BOOMERANG);
-    film2.setSpeed(60);
+    // Add a second layer for foreground
+    fgLayer = screen.addLayer();
     
-    // Add layers (order matters: first = back, last = front)
-    combined.addFilm(film1);
-    combined.addFilm(film2);
+    // Configure foreground layer (fast, boomerang)
+    screen.playOnLayer(fgLayer, fgAnim, BOOMERANG);
+    screen.setSpeedOnLayer(fgLayer, 60);
     
     Serial.println("Layered animation running");
 }
 
 void loop() {
-    combined.update();
+    // update() handles all layers automatically
+    screen.update();
 }

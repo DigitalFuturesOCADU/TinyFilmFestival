@@ -17,7 +17,7 @@
 #include "idle.h"
 #include "go.h"
 
-TinyFilmFestival film;
+TinyScreen screen;
 Animation idleAnim = idle;
 Animation goAnim = go;
 
@@ -35,8 +35,8 @@ bool inCloseZone = false;
 
 void setup() {
     Serial.begin(9600);
-    film.begin();
-    film.startAnimation(idleAnim, LOOP);
+    screen.begin();
+    screen.play(idleAnim, LOOP);
     Serial.println("Move closer than 40cm to trigger 'go' animation");
 }
 
@@ -49,10 +49,10 @@ void loop() {
             
             // Only switch when crossing threshold
             if (nowClose && !inCloseZone) {
-                film.startAnimation(goAnim, LOOP);
+                screen.play(goAnim, LOOP);
                 Serial.println("CLOSE - playing: go");
             } else if (!nowClose && inCloseZone) {
-                film.startAnimation(idleAnim, LOOP);
+                screen.play(idleAnim, LOOP);
                 Serial.println("FAR - playing: idle");
             }
             
@@ -61,5 +61,5 @@ void loop() {
         lastRead = millis();
     }
     
-    film.update();
+    screen.update();
 }

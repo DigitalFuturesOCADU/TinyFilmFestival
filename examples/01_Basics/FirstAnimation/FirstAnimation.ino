@@ -14,17 +14,17 @@
 #include "TinyFilmFestival.h"
 #include "animation.h"
 
-TinyFilmFestival film;
+TinyScreen screen;
 Animation myAnim = animation;
 
 void setup() {
-    film.begin();
+    screen.begin();
     
     // Play animation in a loop
     // Try also: ONCE (play once) or BOOMERANG (forward/backward)
-    film.startAnimation(myAnim, LOOP);
+    screen.play(myAnim, LOOP);
 }
 
 void loop() {
-    film.update();
+    screen.update();
 }

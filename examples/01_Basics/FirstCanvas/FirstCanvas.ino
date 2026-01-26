@@ -1,5 +1,6 @@
 /*
- * TinyFilmFestival - Basics - FirstCanvas
+ * TinyFilmFestival V2 - First Canvas
+ * 01_Basics/FirstCanvas
  * 
  * Your first code-generated animation: a bouncing dot.
  * No pre-made animation file needed - the motion is created with code!
@@ -10,41 +11,33 @@
  *   - Using variables to create motion
  *   - The basic animation loop pattern
  * 
- * Mode: Canvas
- * See also: 01_Basics/FirstAnimation (pre-made animation version)
- * 
- * Hardware Required:
- *   - Arduino UNO R4 WiFi
+ * Hardware: Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
  */
 
-#include "ArduinoGraphics.h"
-#include "Arduino_LED_Matrix.h"
+#include "TinyFilmFestival.h"
 
-ArduinoLEDMatrix matrix;
+TinyScreen screen;
 
 // Position and direction
 int x = 0;
 int direction = 1;  // 1 = moving right, -1 = moving left
 
 void setup() {
-    matrix.begin();
+    screen.begin();
 }
 
 void loop() {
     // Start drawing
-    matrix.beginDraw();
+    screen.beginDraw();
     
     // Clear the screen (set all pixels off)
-    matrix.clear();
-    
-    // Set the drawing color to "on"
-    matrix.stroke(0xFFFFFF);
+    screen.clear();
     
     // Draw a single point at the current position
-    matrix.point(x, 4);  // y=4 is the middle row
+    screen.point(x, 4);  // y=4 is the middle row
     
     // Show what we drew
-    matrix.endDraw();
+    screen.endDraw();
     
     // Update position for next frame
     x += direction;

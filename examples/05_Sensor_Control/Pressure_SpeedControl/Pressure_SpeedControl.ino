@@ -13,7 +13,7 @@
 #include "TinyFilmFestival.h"
 #include "idle.h"
 
-TinyFilmFestival film;
+TinyScreen screen;
 Animation idleAnim = idle;
 
 const int pressurePin = A0;
@@ -28,8 +28,8 @@ void setup() {
     Serial.begin(9600);
     pinMode(pressurePin, INPUT);
     
-    film.begin();
-    film.startAnimation(idleAnim, LOOP);
+    screen.begin();
+    screen.play(idleAnim, LOOP);
     Serial.println("Press sensor to speed up animation");
 }
 
@@ -41,7 +41,7 @@ void loop() {
         pressure = constrain(pressure, minPressure, maxPressure);
         int speed = map(pressure, minPressure, maxPressure, 
                        slowSpeed, fastSpeed);
-        film.setSpeed(speed);
+        screen.setSpeed(speed);
         
         Serial.print("Pressure: ");
         Serial.print(pressure);
@@ -49,8 +49,8 @@ void loop() {
         Serial.print(speed);
         Serial.println(" ms");
     } else {
-        film.setSpeed(slowSpeed);
+        screen.setSpeed(slowSpeed);
     }
     
-    film.update();
+    screen.update();
 }

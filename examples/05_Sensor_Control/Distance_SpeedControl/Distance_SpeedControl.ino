@@ -16,7 +16,7 @@
 #include "HCSR04.h"
 #include "idle.h"
 
-TinyFilmFestival film;
+TinyScreen screen;
 Animation idleAnim = idle;
 
 // Distance sensor
@@ -35,8 +35,8 @@ const int readInterval = 100;   // ms between sensor reads
 
 void setup() {
     Serial.begin(9600);
-    film.begin();
-    film.startAnimation(idleAnim, LOOP);
+    screen.begin();
+    screen.play(idleAnim, LOOP);
     Serial.println("Move hand closer/farther to control speed");
 }
 
@@ -51,7 +51,7 @@ void loop() {
             int speed = map(dist * 10, minDist * 10, maxDist * 10, 
                            fastSpeed, slowSpeed);
             
-            film.setSpeed(speed);
+            screen.setSpeed(speed);
             
             Serial.print(dist);
             Serial.print(" cm → ");
@@ -61,5 +61,5 @@ void loop() {
         lastRead = millis();
     }
     
-    film.update();
+    screen.update();
 }

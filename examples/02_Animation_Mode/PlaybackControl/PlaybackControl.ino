@@ -16,7 +16,7 @@
 #include "TinyFilmFestival.h"
 #include "animation.h"
 
-TinyFilmFestival film;
+TinyScreen screen;
 Animation myAnim = animation;
 
 // Demo cycling
@@ -26,7 +26,7 @@ const int demoDuration = 4000;
 
 void setup() {
     Serial.begin(9600);
-    film.begin();
+    screen.begin();
     
     Serial.print("Animation has ");
     Serial.print(myAnim.getFrameCount());
@@ -43,42 +43,42 @@ void loop() {
         lastChange = millis();
     }
     
-    film.update();
+    screen.update();
 }
 
 void startDemo(int mode) {
     switch (mode) {
         case 0:
             // LOOP: continuous forward playback
-            film.startAnimation(myAnim, LOOP);
-            film.restoreOriginalSpeed();
+            screen.play(myAnim, LOOP);
+            screen.restoreOriginalSpeed();
             Serial.println("Mode: LOOP (normal speed)");
             break;
             
         case 1:
             // BOOMERANG: forward then backward
-            film.startAnimation(myAnim, BOOMERANG);
+            screen.play(myAnim, BOOMERANG);
             Serial.println("Mode: BOOMERANG");
             break;
             
         case 2:
             // Fast speed
-            film.startAnimation(myAnim, LOOP);
-            film.setSpeed(30);
+            screen.play(myAnim, LOOP);
+            screen.setSpeed(30);
             Serial.println("Mode: LOOP (fast - 30ms)");
             break;
             
         case 3:
             // Slow speed
-            film.startAnimation(myAnim, LOOP);
-            film.setSpeed(200);
+            screen.play(myAnim, LOOP);
+            screen.setSpeed(200);
             Serial.println("Mode: LOOP (slow - 200ms)");
             break;
             
         case 4:
             // Partial playback: frames 2-5 only
-            film.startAnimation(myAnim, LOOP, 2, 5);
-            film.restoreOriginalSpeed();
+            screen.play(myAnim, LOOP, 2, 5);
+            screen.restoreOriginalSpeed();
             Serial.println("Mode: LOOP (frames 2-5 only)");
             break;
     }
