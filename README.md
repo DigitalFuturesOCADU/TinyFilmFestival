@@ -17,12 +17,14 @@ A library for the Arduino UNO R4 WiFi's built-in 12×8 LED Matrix. One class, th
 ## Quick Start
 
 ### Animation Mode
+Play pre-made frame animations created in the LED Matrix Editor.
+
 ```cpp
 #include "TinyFilmFestival.h"
-#include "animation.h"          // From LED Matrix Editor
+#include "idle.h"               // Your animation file
 
 TinyScreen screen;
-Animation myAnim = animation;
+Animation myAnim = idle;        // Variable name from .h file
 
 void setup() {
     screen.begin();
@@ -35,6 +37,8 @@ void loop() {
 ```
 
 ### Canvas Mode
+Draw graphics in real-time using code — perfect for dynamic visualizations.
+
 ```cpp
 #include "TinyFilmFestival.h"
 
@@ -57,12 +61,14 @@ void loop() {
 ```
 
 ### Hybrid Mode
+Combine both — play an animation and draw additional elements on top.
+
 ```cpp
 #include "TinyFilmFestival.h"
-#include "animation.h"
+#include "idle.h"
 
 TinyScreen screen;
-Animation myAnim = animation;
+Animation myAnim = idle;
 
 void setup() {
     screen.begin();
@@ -85,6 +91,26 @@ void loop() {
 1. Open Arduino IDE → **Sketch** → **Include Library** → **Manage Libraries**
 2. Search: `TinyFilmFestival`
 3. Click **Install** → Choose **INSTALL ALL** when prompted
+
+---
+
+## How It Works
+
+TinyFilmFestival wraps the Arduino LED Matrix and ArduinoGraphics libraries into a single unified `TinyScreen` class. You only need one include and one object to access all features.
+
+**Animation files** come from the [LED Matrix Editor](https://ledmatrix-editor.arduino.cc/) — a web tool where you draw frames visually and export `.h` files. These files contain frame data and timing that `TinyScreen` plays back automatically.
+
+**Canvas drawing** uses the same graphics primitives as ArduinoGraphics (`point`, `line`, `rect`, `circle`, `text`) but through the `TinyScreen` wrapper, so you don't need separate includes.
+
+### Documentation
+
+| Guide | What's inside |
+|-------|---------------|
+| [Animation Mode API](AnimationMode_API.md) | `play()`, `pause()`, `setSpeed()`, layering multiple animations |
+| [Canvas Mode API](CanvasMode_API.md) | `point()`, `line()`, `rect()`, `circle()`, `text()`, scrolling |
+| [Hybrid Mode API](HybridMode_API.md) | `beginOverlay()` / `endOverlay()` for drawing over animations |
+| [LED Matrix Editor Guide](editor-guide.md) | How to create and export `.h` animation files |
+| [Example Animations](exampleAnimations/) | Pre-made `.h` files ready to use in your projects |
 
 ---
 
@@ -129,18 +155,6 @@ Find these in **File → Examples → TinyFilmFestival**
 | Example | Description |
 |---------|-------------|
 | **InteractiveCharacter** | Complete project: 4-zone proximity character with sparkle effects |
-
----
-
-## Documentation
-
-| Guide | Description |
-|-------|-------------|
-| [Animation Mode API](AnimationMode_API.md) | Playback, speed control, layering |
-| [Canvas Mode API](CanvasMode_API.md) | Drawing primitives, shapes, text |
-| [Hybrid Mode API](HybridMode_API.md) | Overlays on animations |
-| [LED Matrix Editor Guide](editor-guide.md) | Creating `.h` animation files |
-| [Example Animations](exampleAnimations/) | Pre-made animations to use |
 
 ---
 
