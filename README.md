@@ -109,6 +109,7 @@ Find these in **File → Examples → TinyFilmFestival**
 |---------|-------------|
 | **MovingShapes** | Motion patterns mirroring animation modes (continuous, single-pass, bounce) |
 | **LayeredGraphics** | Multiple independent animated elements drawn in layers |
+| **ScrollingText** | Static and scrolling text display |
 
 ### 04_Hybrid_Mode
 | Example | Description |

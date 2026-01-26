@@ -179,7 +179,45 @@ public:
     void point(int x, int y);              // Pixel on (alias)
     void line(int x1, int y1, int x2, int y2);
     void rect(int x, int y, int width, int height);
-    void circle(int cx, int cy, int radius);
+    void circle(int cx, int cy, int diameter);
+    void ellipse(int cx, int cy, int width, int height);
+    
+    // Style control
+    void stroke(uint8_t r, uint8_t g, uint8_t b);
+    void stroke(uint32_t color);
+    void noStroke();
+    void fill(uint8_t r, uint8_t g, uint8_t b);
+    void fill(uint32_t color);
+    void noFill();
+    void background(uint8_t r, uint8_t g, uint8_t b);
+    void background(uint32_t color);
+    
+    // Text methods
+    void text(const char* str, int x, int y);
+    void text(const String& str, int x, int y);
+    void textFont(const Font& font);
+    int textFontWidth();
+    int textFontHeight();
+    
+    // Scrolling text
+    void beginText(int x = 0, int y = 0);
+    void beginText(int x, int y, uint8_t r, uint8_t g, uint8_t b);
+    void beginText(int x, int y, uint32_t color);
+    void endText(int scrollDirection = NO_SCROLL);
+    void textScrollSpeed(unsigned long speed);
+    
+    // Print interface (works after beginText)
+    size_t print(const char* str);
+    size_t print(const String& str);
+    size_t print(char c);
+    size_t print(int n);
+    size_t println();
+    size_t println(const char* str);
+    size_t println(const String& str);
+    
+    // Matrix info
+    int width() { return matrix.width(); }
+    int height() { return matrix.height(); }
     
     //--- Hybrid Mode (draw over animation) ---
     void beginOverlay();

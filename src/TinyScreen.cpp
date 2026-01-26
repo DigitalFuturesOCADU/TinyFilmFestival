@@ -351,9 +351,120 @@ void TinyScreen::rect(int x, int y, int width, int height) {
     matrix.rect(x, y, width, height);
 }
 
-void TinyScreen::circle(int cx, int cy, int radius) {
-    // ArduinoGraphics circle uses center and radius
-    matrix.circle(cx, cy, radius);
+void TinyScreen::circle(int cx, int cy, int diameter) {
+    matrix.circle(cx, cy, diameter);
+}
+
+void TinyScreen::ellipse(int cx, int cy, int width, int height) {
+    matrix.ellipse(cx, cy, width, height);
+}
+
+//--- Style Control ---
+
+void TinyScreen::stroke(uint8_t r, uint8_t g, uint8_t b) {
+    matrix.stroke(r, g, b);
+}
+
+void TinyScreen::stroke(uint32_t color) {
+    matrix.stroke(color);
+}
+
+void TinyScreen::noStroke() {
+    matrix.noStroke();
+}
+
+void TinyScreen::fill(uint8_t r, uint8_t g, uint8_t b) {
+    matrix.fill(r, g, b);
+}
+
+void TinyScreen::fill(uint32_t color) {
+    matrix.fill(color);
+}
+
+void TinyScreen::noFill() {
+    matrix.noFill();
+}
+
+void TinyScreen::background(uint8_t r, uint8_t g, uint8_t b) {
+    matrix.background(r, g, b);
+}
+
+void TinyScreen::background(uint32_t color) {
+    matrix.background(color);
+}
+
+//--- Text Methods ---
+
+void TinyScreen::text(const char* str, int x, int y) {
+    matrix.text(str, x, y);
+}
+
+void TinyScreen::text(const String& str, int x, int y) {
+    matrix.text(str, x, y);
+}
+
+void TinyScreen::textFont(const Font& font) {
+    matrix.textFont(font);
+}
+
+int TinyScreen::textFontWidth() {
+    return matrix.textFontWidth();
+}
+
+int TinyScreen::textFontHeight() {
+    return matrix.textFontHeight();
+}
+
+//--- Scrolling Text ---
+
+void TinyScreen::beginText(int x, int y) {
+    matrix.beginText(x, y);
+}
+
+void TinyScreen::beginText(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
+    matrix.beginText(x, y, r, g, b);
+}
+
+void TinyScreen::beginText(int x, int y, uint32_t color) {
+    matrix.beginText(x, y, color);
+}
+
+void TinyScreen::endText(int scrollDirection) {
+    matrix.endText(scrollDirection);
+}
+
+void TinyScreen::textScrollSpeed(unsigned long speed) {
+    matrix.textScrollSpeed(speed);
+}
+
+//--- Print Interface ---
+
+size_t TinyScreen::print(const char* str) {
+    return matrix.print(str);
+}
+
+size_t TinyScreen::print(const String& str) {
+    return matrix.print(str);
+}
+
+size_t TinyScreen::print(char c) {
+    return matrix.print(c);
+}
+
+size_t TinyScreen::print(int n) {
+    return matrix.print(n);
+}
+
+size_t TinyScreen::println() {
+    return matrix.println();
+}
+
+size_t TinyScreen::println(const char* str) {
+    return matrix.println(str);
+}
+
+size_t TinyScreen::println(const String& str) {
+    return matrix.println(str);
 }
 
 //--- Hybrid Mode ---
