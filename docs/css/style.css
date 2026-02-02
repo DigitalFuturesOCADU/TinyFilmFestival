@@ -536,20 +536,26 @@ body {
 }
 
 .mode-card {
+    display: block;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 20px;
-    transition: border-color var(--transition);
+    transition: border-color var(--transition), transform var(--transition);
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 }
 
 .mode-card:hover {
     border-color: var(--accent);
+    transform: translateY(-2px);
 }
 
 .mode-card h4 {
     margin: 0 0 8px 0;
     font-size: 16px;
+    color: var(--text-primary);
 }
 
 .mode-card p {

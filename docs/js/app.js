@@ -109,6 +109,15 @@ function loadPage(page, updateHistory = true) {
     if (typeof Prism !== 'undefined') {
         Prism.highlightAll();
     }
+    
+    // Add click handlers for mode cards and other internal links
+    content.querySelectorAll('[data-page]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadPage(el.dataset.page);
+            window.scrollTo(0, 0);
+        });
+    });
 }
 
 // Search index - methods and their locations
@@ -239,26 +248,26 @@ const pages = {
 
         <h2>Four Modes</h2>
         <div class="mode-grid">
-            <div class="mode-card">
+            <a href="#" class="mode-card" data-page="simple-led">
                 <h4>Simple LED</h4>
                 <p>Control individual LEDs like digitalWrite()</p>
                 <code>ledWrite(), ledToggle(), ledClear()</code>
-            </div>
-            <div class="mode-card">
+            </a>
+            <a href="#" class="mode-card" data-page="animation-mode">
                 <h4>Animation Mode</h4>
                 <p>Play pre-made frame animations</p>
                 <code>play(), pause(), setSpeed()</code>
-            </div>
-            <div class="mode-card">
+            </a>
+            <a href="#" class="mode-card" data-page="canvas-mode">
                 <h4>Canvas Mode</h4>
                 <p>Draw with code in real-time</p>
                 <code>beginDraw(), point(), line()</code>
-            </div>
-            <div class="mode-card">
+            </a>
+            <a href="#" class="mode-card" data-page="hybrid-mode">
                 <h4>Hybrid Mode</h4>
                 <p>Draw over animations</p>
                 <code>beginOverlay(), endOverlay()</code>
-            </div>
+            </a>
         </div>
 
         <h2>LED Matrix Layout</h2>
