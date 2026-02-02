@@ -6,6 +6,8 @@
 
 A library for the Arduino UNO R4 WiFi's built-in 12×8 LED Matrix. One class, four modes:
 
+**📚 [View Full Documentation](https://digitalfuturesocadu.github.io/TinyFilmFestival/docs/)**
+
 | Mode | What it does | Key methods |
 |------|--------------|-------------|
 | **Simple LED** | Control individual LEDs | `ledWrite()`, `ledToggle()`, `ledClear()` |
