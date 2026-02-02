@@ -317,7 +317,13 @@ void loop() {
             <li>Go to <strong>Sketch → Include Library → Manage Libraries...</strong></li>
             <li>Search for "TinyFilmFestival"</li>
             <li>Click <strong>Install</strong></li>
+            <li>When prompted, select <strong>"Install all"</strong> to include all required dependencies</li>
         </ol>
+
+        <div class="info-box note">
+            <strong>Important</strong>
+            When the dependency dialog appears, make sure to choose "Install all" (or "Install with dependencies"). This ensures ArduinoGraphics and other required libraries are installed automatically.
+        </div>
 
         <h2>Manual Installation</h2>
         <ol>
