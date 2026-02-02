@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyFilmFestival - Arduino LED Matrix Library</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="menu-toggle" aria-label="Toggle menu">
+            <span class="hamburger"></span>
+        </button>
+        <h1>TinyFilmFestival</h1>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>TinyFilmFestival</h1>
+            <p class="tagline">Arduino LED Matrix Library</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search API..." autocomplete="off">
+            <div id="search-results" class="search-results"></div>
+        </div>
+
+        <div class="nav-section">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="#" data-page="home" class="active">Overview</a></li>
+                <li><a href="#" data-page="installation">Installation</a></li>
+                <li><a href="#" data-page="quick-start">Quick Start</a></li>
+                <li><a href="#" data-page="editor-guide">LED Matrix Editor</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <h3>API Reference</h3>
+            <ul>
+                <li><a href="#" data-page="simple-led">Simple LED Mode</a></li>
+                <li><a href="#" data-page="animation-mode">Animation Mode</a></li>
+                <li><a href="#" data-page="canvas-mode">Canvas Mode</a></li>
+                <li><a href="#" data-page="hybrid-mode">Hybrid Mode</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <h3>Examples</h3>
+            <ul>
+                <li><a href="#" data-page="examples-basics">Basics</a></li>
+                <li><a href="#" data-page="examples-animation">Animation Mode</a></li>
+                <li><a href="#" data-page="examples-canvas">Canvas Mode</a></li>
+                <li><a href="#" data-page="examples-hybrid">Hybrid Mode</a></li>
+                <li><a href="#" data-page="examples-sensors">Sensor Control</a></li>
+                <li><a href="#" data-page="examples-utilities">Utilities</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <h3>Resources</h3>
+            <ul>
+                <li><a href="#" data-page="deprecated">V1 Deprecated Methods</a></li>
+                <li><a href="https://github.com/DigitalFuturesOCADU/TinyFilmFestival" target="_blank">GitHub Repository ↗</a></li>
+                <li><a href="https://ledmatrix-editor.arduino.cc/" target="_blank">LED Matrix Editor ↗</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <!-- Main Content -->
+    <main class="content" id="content">
+        <!-- Content will be loaded dynamically -->
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-arduino.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
