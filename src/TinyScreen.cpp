@@ -206,10 +206,17 @@ bool AnimationLayer::updateFrame() {
 // TinyScreen Implementation
 //==============================================================================
 
-TinyScreen::TinyScreen() : layerCount(1), inOverlay(false) {
+TinyScreen::TinyScreen() : layerCount(1), inOverlay(false), ledBufferDirty(false) {
     combinedFrame[0] = 0;
     combinedFrame[1] = 0;
     combinedFrame[2] = 0;
+    
+    // Initialize LED buffer to all off
+    for (int x = 0; x < 12; x++) {
+        for (int y = 0; y < 8; y++) {
+            ledBuffer[x][y] = 0;
+        }
+    }
 }
 
 bool TinyScreen::begin() {
@@ -361,36 +368,39 @@ void TinyScreen::ellipse(int cx, int cy, int width, int height) {
 
 //--- Style Control ---
 
-void TinyScreen::stroke(uint8_t r, uint8_t g, uint8_t b) {
-    matrix.stroke(r, g, b);
-}
+// ON/OFF constants (defined in header) work directly with these methods
+// ON = 0xFFFFFF, OFF = 0x000000
 
 void TinyScreen::stroke(uint32_t color) {
     matrix.stroke(color);
 }
 
-void TinyScreen::noStroke() {
-    matrix.noStroke();
-}
-
-void TinyScreen::fill(uint8_t r, uint8_t g, uint8_t b) {
-    matrix.fill(r, g, b);
+void TinyScreen::stroke(uint8_t r, uint8_t g, uint8_t b) {
+    matrix.stroke(r, g, b);
 }
 
 void TinyScreen::fill(uint32_t color) {
     matrix.fill(color);
 }
 
-void TinyScreen::noFill() {
-    matrix.noFill();
+void TinyScreen::fill(uint8_t r, uint8_t g, uint8_t b) {
+    matrix.fill(r, g, b);
+}
+
+void TinyScreen::background(uint32_t color) {
+    matrix.background(color);
 }
 
 void TinyScreen::background(uint8_t r, uint8_t g, uint8_t b) {
     matrix.background(r, g, b);
 }
 
-void TinyScreen::background(uint32_t color) {
-    matrix.background(color);
+void TinyScreen::noStroke() {
+    matrix.noStroke();
+}
+
+void TinyScreen::noFill() {
+    matrix.noFill();
 }
 
 //--- Text Methods ---
@@ -511,4 +521,219 @@ bool CombinedFilmFestival::addFilm(TinyScreen& film) {
     if (count >= MAX_LAYERS) return false;
     count++;
     return true;
+}
+
+//==============================================================================
+// TinyScreen LED Control Methods (Proposal 2)
+//==============================================================================
+
+void TinyScreen::indexToXY(int index, int& x, int& y) {
+    // Matrix is 12 columns x 8 rows = 96 LEDs
+    // Index 0 is top-left (0,0), index 95 is bottom-right (11,7)
+    index = constrain(index, 0, 95);
+    x = index % 12;
+    y = index / 12;
+}
+
+void TinyScreen::led(int x, int y, bool state) {
+    if (x < 0 || x >= 12 || y < 0 || y >= 8) return;
+    
+    ledBuffer[x][y] = state ? 1 : 0;
+    ledBufferDirty = true;
+    show();  // Auto-display for immediate feedback
+}
+
+void TinyScreen::led(int ledNum, bool state) {
+    int x, y;
+    indexToXY(ledNum, x, y);
+    led(x, y, state);
+}
+
+bool TinyScreen::getLed(int x, int y) {
+    if (x < 0 || x >= 12 || y < 0 || y >= 8) return false;
+    return ledBuffer[x][y] != 0;
+}
+
+bool TinyScreen::getLed(int ledNum) {
+    int x, y;
+    indexToXY(ledNum, x, y);
+    return getLed(x, y);
+}
+
+void TinyScreen::toggle(int x, int y) {
+    if (x < 0 || x >= 12 || y < 0 || y >= 8) return;
+    
+    ledBuffer[x][y] = ledBuffer[x][y] ? 0 : 1;
+    ledBufferDirty = true;
+    show();
+}
+
+void TinyScreen::toggle(int ledNum) {
+    int x, y;
+    indexToXY(ledNum, x, y);
+    toggle(x, y);
+}
+
+void TinyScreen::clearLeds() {
+    for (int x = 0; x < 12; x++) {
+        for (int y = 0; y < 8; y++) {
+            ledBuffer[x][y] = 0;
+        }
+    }
+    ledBufferDirty = true;
+    show();
+}
+
+void TinyScreen::show() {
+    if (!ledBufferDirty) return;
+    
+    // Convert buffer to frame format and display
+    // The LED matrix uses 3 x 32-bit words to store 12x8 = 96 bits
+    uint32_t frame[3] = {0, 0, 0};
+    
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 12; x++) {
+            if (ledBuffer[x][y]) {
+                int bitIndex = y * 12 + x;
+                int wordIndex = bitIndex / 32;
+                int bitPosition = 31 - (bitIndex % 32);
+                frame[wordIndex] |= (1UL << bitPosition);
+            }
+        }
+    }
+    
+    matrix.loadFrame(frame);
+    ledBufferDirty = false;
+}
+
+//==============================================================================
+// Standalone LED Functions (Proposal 1)
+//==============================================================================
+
+// Internal default TinyScreen instance for standalone functions
+static TinyScreen* _defaultScreen = nullptr;
+
+static TinyScreen& getDefaultScreen() {
+    if (_defaultScreen == nullptr) {
+        _defaultScreen = new TinyScreen();
+    }
+    return *_defaultScreen;
+}
+
+void ledBegin() {
+    getDefaultScreen().begin();
+}
+
+void ledWrite(int x, int y, bool state) {
+    getDefaultScreen().led(x, y, state);
+}
+
+void ledWrite(int ledNum, bool state) {
+    getDefaultScreen().led(ledNum, state);
+}
+
+bool ledRead(int x, int y) {
+    return getDefaultScreen().getLed(x, y);
+}
+
+bool ledRead(int ledNum) {
+    return getDefaultScreen().getLed(ledNum);
+}
+
+void ledToggle(int x, int y) {
+    getDefaultScreen().toggle(x, y);
+}
+
+void ledToggle(int ledNum) {
+    getDefaultScreen().toggle(ledNum);
+}
+
+void ledClear() {
+    getDefaultScreen().clearLeds();
+}
+
+void ledShow() {
+    getDefaultScreen().show();
+}
+
+TinyScreen& getLedMatrix() {
+    return getDefaultScreen();
+}
+
+//------------------------------------------------------------------------------
+// Animation Utilities Implementation
+//------------------------------------------------------------------------------
+
+float oscillate(float min, float max, unsigned long periodMs) {
+    // Use millis() to create a continuous sine wave
+    float t = (float)(millis() % periodMs) / (float)periodMs;
+    float sineValue = sin(t * 2.0f * PI);  // -1 to 1
+    float normalized = (sineValue + 1.0f) / 2.0f;  // 0 to 1
+    return min + normalized * (max - min);
+}
+
+int oscillateInt(int min, int max, unsigned long periodMs) {
+    return (int)round(oscillate((float)min, (float)max, periodMs));
+}
+
+//------------------------------------------------------------------------------
+// Ease Class Implementation
+//------------------------------------------------------------------------------
+
+Ease::Ease(float initial) 
+    : _current(initial), _start(initial), _target(initial), 
+      _startTime(0), _duration(0), _active(false) {
+}
+
+void Ease::to(float target, unsigned long durationMs) {
+    _start = _current;
+    _target = target;
+    _startTime = millis();
+    _duration = durationMs;
+    _active = true;
+}
+
+float Ease::value() {
+    if (!_active) {
+        return _current;
+    }
+    
+    unsigned long elapsed = millis() - _startTime;
+    
+    if (elapsed >= _duration) {
+        // Animation complete
+        _current = _target;
+        _active = false;
+        return _current;
+    }
+    
+    // Linear interpolation
+    float t = (float)elapsed / (float)_duration;
+    _current = _start + t * (_target - _start);
+    return _current;
+}
+
+int Ease::intValue() {
+    return (int)round(value());
+}
+
+bool Ease::done() {
+    // Call value() to update state, then check
+    value();
+    return !_active;
+}
+
+bool Ease::moving() {
+    value();
+    return _active;
+}
+
+void Ease::jump(float v) {
+    _current = v;
+    _target = v;
+    _active = false;
+}
+
+float Ease::target() {
+    return _target;
 }

@@ -8,11 +8,23 @@ AnimationLayer	KEYWORD1
 AnimationState	KEYWORD1
 PlayMode	KEYWORD1
 CombinedFilmFestival	KEYWORD1
+Ease	KEYWORD1
 
 # Methods and Functions (KEYWORD2)
 
 # Initialization
 begin	KEYWORD2
+
+# Animation Utilities
+oscillate	KEYWORD2
+oscillateInt	KEYWORD2
+to	KEYWORD2
+value	KEYWORD2
+intValue	KEYWORD2
+done	KEYWORD2
+moving	KEYWORD2
+jump	KEYWORD2
+target	KEYWORD2
 
 # Animation Playback
 play	KEYWORD2
@@ -68,6 +80,20 @@ rect	KEYWORD2
 circle	KEYWORD2
 ellipse	KEYWORD2
 
+# Simple LED Control (digitalWrite-style)
+led	KEYWORD2
+getLed	KEYWORD2
+toggle	KEYWORD2
+show	KEYWORD2
+clearLeds	KEYWORD2
+ledBegin	KEYWORD2
+ledWrite	KEYWORD2
+ledRead	KEYWORD2
+ledToggle	KEYWORD2
+ledClear	KEYWORD2
+ledShow	KEYWORD2
+getLedMatrix	KEYWORD2
+
 # Canvas Mode - Text
 text	KEYWORD2
 textFont	KEYWORD2
@@ -108,6 +134,10 @@ IDLE	LITERAL1
 PLAYING	LITERAL1
 PAUSED	LITERAL1
 COMPLETED	LITERAL1
+
+# LED States (simple ON/OFF)
+ON	LITERAL1
+OFF	LITERAL1
 
 # Scroll Directions
 NO_SCROLL	LITERAL1

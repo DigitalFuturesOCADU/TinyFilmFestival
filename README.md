@@ -4,17 +4,79 @@
 |------------------------------------|------------------------------------|
 | ![Load](images/load.gif)           | ![Pow](images/pow.gif)             |
 
-A library for the Arduino UNO R4 WiFi's built-in 12×8 LED Matrix. One class, three modes:
+A library for the Arduino UNO R4 WiFi's built-in 12×8 LED Matrix. One class, four modes:
 
 | Mode | What it does | Key methods |
 |------|--------------|-------------|
+| **Simple LED** | Control individual LEDs | `ledWrite()`, `ledToggle()`, `ledClear()` |
 | **Animation** | Play pre-made frames | `play()`, `pause()`, `setSpeed()` |
 | **Canvas** | Draw with code | `beginDraw()`, `point()`, `line()` |
 | **Hybrid** | Draw over animations | `beginOverlay()`, `endOverlay()` |
 
 ---
 
+## LED Matrix Layout
+
+The R4 WiFi has a 12×8 LED matrix (96 LEDs total). Use (x, y) coordinates or linear index:
+
+```
+     x=0  x=1  x=2  x=3  x=4  x=5  x=6  x=7  x=8  x=9  x=10 x=11
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+y=0 |  0 |  1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |  9 | 10 | 11 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+y=1 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+y=2 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+y=3 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+y=4 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+y=5 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 | 71 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+y=6 | 72 | 73 | 74 | 75 | 76 | 77 | 78 | 79 | 80 | 81 | 82 | 83 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+y=7 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+
+
+Numbers inside = linear index for ledWrite(index, state)
+```
+
+---
+
 ## Quick Start
+
+### Simple LED Mode
+Control individual LEDs like `digitalWrite()` — the simplest way to get started.
+
+```cpp
+#include "TinyFilmFestival.h"
+
+void setup() {
+    ledBegin();                   // Initialize matrix
+    
+    ledWrite(0, 0, HIGH);         // Top-left ON
+    ledWrite(11, 7, HIGH);        // Bottom-right ON
+    ledToggle(0, 0);              // Toggle top-left OFF
+}
+
+void loop() {
+    ledWrite(5, 3, HIGH);         // Center ON
+    delay(500);
+    ledWrite(5, 3, LOW);          // Center OFF
+    delay(500);
+}
+```
+
+**Simple LED Functions:**
+| Function | Description |
+|----------|-------------|
+| `ledBegin()` | Initialize the matrix (call once in setup) |
+| `ledWrite(x, y, state)` | Set LED at (x,y) to HIGH or LOW |
+| `ledWrite(index, state)` | Set LED by linear index (0-95) |
+| `ledRead(x, y)` | Read current state of LED |
+| `ledToggle(x, y)` | Toggle LED on/off |
+| `ledClear()` | Turn off all LEDs |
 
 ### Animation Mode
 Play pre-made frame animations created in the LED Matrix Editor.
@@ -59,6 +121,8 @@ void loop() {
     delay(100);
 }
 ```
+
+See [Canvas Mode API](CanvasMode_API.md) for detailed drawing primitives with visual diagrams.
 
 ### Hybrid Mode
 Combine both — play an animation and draw additional elements on top.
@@ -121,8 +185,9 @@ Find these in **File → Examples → TinyFilmFestival**
 ### 01_Basics
 | Example | Description |
 |---------|-------------|
-| **FirstAnimation** | Simplest Animation Mode example — load and play |
-| **FirstCanvas** | Simplest Canvas Mode example — bouncing dot |
+| **SimpleLED** | Simplest example — control individual LEDs like digitalWrite |
+| **FirstAnimation** | Animation Mode — load and play a pre-made animation |
+| **FirstCanvas** | Canvas Mode — bouncing dot drawn with code |
 
 ### 02_Animation_Mode
 | Example | Description |

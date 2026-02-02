@@ -3,6 +3,42 @@
 // Combines Animation Mode + Canvas Mode in one simple interface
 #pragma once
 
+//------------------------------------------------------------------------------
+// LED Matrix Layout (12 columns x 8 rows = 96 LEDs)
+//------------------------------------------------------------------------------
+//
+//  Coordinate System: led(x, y, state) or ledWrite(x, y, state)
+//
+//       x=0  x=1  x=2  x=3  x=4  x=5  x=6  x=7  x=8  x=9  x=10 x=11
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//  y=0 |  0 |  1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |  9 | 10 | 11 |
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//  y=1 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 |
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//  y=2 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 |
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//  y=3 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 |
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//  y=4 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 |
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//  y=5 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 | 71 |
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//  y=6 | 72 | 73 | 74 | 75 | 76 | 77 | 78 | 79 | 80 | 81 | 82 | 83 |
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//  y=7 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95 |
+//      +----+----+----+----+----+----+----+----+----+----+----+----+
+//
+//  Numbers inside = linear index for led(index, state) or ledWrite(index, state)
+//
+//  Examples:
+//    ledWrite(0, 0, HIGH);   // Top-left corner
+//    ledWrite(11, 0, HIGH);  // Top-right corner  
+//    ledWrite(0, 7, HIGH);   // Bottom-left corner
+//    ledWrite(11, 7, HIGH);  // Bottom-right corner
+//    ledWrite(41, HIGH);     // Center LED (same as x=5, y=3)
+//
+//------------------------------------------------------------------------------
+
 // ArduinoGraphics MUST be included before Arduino_LED_Matrix
 // for drawing methods to work properly
 #include "ArduinoGraphics.h"
@@ -27,6 +63,14 @@ enum PlayMode {
 static const PlayMode ONCE = PLAY_ONCE;
 static const PlayMode LOOP = PLAY_LOOP;
 static const PlayMode BOOMERANG = PLAY_BOOMERANG;
+
+//------------------------------------------------------------------------------
+// LED State Constants - Simple ON/OFF for monochrome matrix
+//------------------------------------------------------------------------------
+// ON = lit LED (white), OFF = unlit LED (black)
+// These work with stroke(), fill(), background() and ledWrite()
+static const uint32_t ON = 0xFFFFFF;
+static const uint32_t OFF = 0x000000;
 
 //------------------------------------------------------------------------------
 // AnimationState - Current state of an animation
@@ -182,15 +226,16 @@ public:
     void circle(int cx, int cy, int diameter);
     void ellipse(int cx, int cy, int width, int height);
     
-    // Style control
+    // Style control - use ON/OFF for simplicity (they're just hex constants)
+    // stroke(ON) = turn on, stroke(OFF) = turn off
+    void stroke(uint32_t color);              // Use ON, OFF, or hex color
     void stroke(uint8_t r, uint8_t g, uint8_t b);
-    void stroke(uint32_t color);
-    void noStroke();
+    void fill(uint32_t color);                // Use ON, OFF, or hex color
     void fill(uint8_t r, uint8_t g, uint8_t b);
-    void fill(uint32_t color);
-    void noFill();
+    void background(uint32_t color);          // Use ON, OFF, or hex color
     void background(uint8_t r, uint8_t g, uint8_t b);
-    void background(uint32_t color);
+    void noStroke();
+    void noFill();
     
     // Text methods
     void text(const char* str, int x, int y);
@@ -241,6 +286,23 @@ public:
     //--- Direct matrix access (advanced) ---
     ArduinoLEDMatrix& getMatrix() { return matrix; }
     void displayFrame(const uint32_t frame[3]);
+    
+    //--- Simple LED Control (digitalWrite-style) ---
+    void led(int x, int y, bool state);           // Set LED at (x,y) on/off
+    void led(int ledNum, bool state);             // Set LED by linear index (0-95)
+    bool getLed(int x, int y);                    // Read LED state at (x,y)
+    bool getLed(int ledNum);                      // Read LED state by linear index
+    void toggle(int x, int y);                    // Toggle LED at (x,y)
+    void toggle(int ledNum);                      // Toggle LED by linear index
+    void show();                                  // Push buffered LED changes to display
+    void clearLeds();                             // Turn off all LEDs
+    
+private:
+    uint8_t ledBuffer[12][8];                     // Internal buffer for LED states
+    bool ledBufferDirty;                          // Track if buffer needs display update
+    
+    // Helper to convert linear index to x,y
+    void indexToXY(int index, int& x, int& y);
 };
 
 //------------------------------------------------------------------------------
@@ -249,6 +311,80 @@ public:
 
 // TinyFilmFestival now maps to TinyScreen
 using TinyFilmFestival = TinyScreen;
+
+//------------------------------------------------------------------------------
+// Standalone LED Functions (digitalWrite-style convenience)
+//------------------------------------------------------------------------------
+
+// These functions use a default internal TinyScreen instance
+// Call ledBegin() once in setup(), then use ledWrite() like digitalWrite()
+void ledBegin();                                  // Initialize the LED matrix
+void ledWrite(int x, int y, bool state);          // Set LED at (x,y) - like digitalWrite
+void ledWrite(int ledNum, bool state);            // Set LED by index (0-95)
+bool ledRead(int x, int y);                       // Read LED state at (x,y)
+bool ledRead(int ledNum);                         // Read LED state by index
+void ledToggle(int x, int y);                     // Toggle LED at (x,y)
+void ledToggle(int ledNum);                       // Toggle LED by index
+void ledClear();                                  // Turn off all LEDs
+void ledShow();                                   // Push changes to display (auto-called by ledWrite)
+
+// Get the internal TinyScreen instance (for mixing with other features)
+TinyScreen& getLedMatrix();
+
+//------------------------------------------------------------------------------
+// Animation Utilities - Smooth value control
+//------------------------------------------------------------------------------
+
+// Oscillate: Returns a value that smoothly cycles between min and max
+// Uses a sine wave, period is the time for one complete cycle in milliseconds
+// Example: oscillate(0, 100, 2000) cycles 0→100→0 over 2 seconds
+float oscillate(float min, float max, unsigned long periodMs);
+
+// Integer version for convenience
+int oscillateInt(int min, int max, unsigned long periodMs);
+
+//------------------------------------------------------------------------------
+// Ease Class - Smooth linear interpolation to target values
+//------------------------------------------------------------------------------
+
+class Ease {
+private:
+    float _current;
+    float _start;
+    float _target;
+    unsigned long _startTime;
+    unsigned long _duration;
+    bool _active;
+    
+public:
+    // Create with initial value (default 0)
+    Ease(float initial = 0);
+    
+    // Start moving to a target value over duration (milliseconds)
+    void to(float target, unsigned long durationMs);
+    
+    // Get current interpolated value (auto-updates based on time)
+    float value();
+    
+    // Get current value as integer (rounded)
+    int intValue();
+    
+    // Check if animation is complete
+    bool done();
+    
+    // Check if currently animating
+    bool moving();
+    
+    // Instantly jump to a value (no animation)
+    void jump(float v);
+    
+    // Get the target value
+    float target();
+};
+
+//------------------------------------------------------------------------------
+// Backward Compatibility Aliases
+//------------------------------------------------------------------------------
 
 // CombinedFilmFestival is deprecated but still works
 class CombinedFilmFestival {
