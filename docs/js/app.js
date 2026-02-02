@@ -48,11 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.classList.remove('visible');
     });
 
-    // Navigation
+    // Navigation - regular links
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const page = link.dataset.page;
+            
+            // Check if this is an expandable toggle
+            if (link.classList.contains('nav-expand-toggle')) {
+                const parent = link.closest('.nav-expandable');
+                parent.classList.toggle('expanded');
+                // Don't navigate, just expand
+                return;
+            }
             
             // Update active state
             navLinks.forEach(l => l.classList.remove('active'));
@@ -1448,5 +1456,651 @@ screen.play(myAnim, LOOP, 2, 6);</code></pre>
             <tr><td><code>PLAY_LOOP</code></td><td><code>LOOP</code></td><td>Loop continuously</td></tr>
             <tr><td><code>PLAY_BOOMERANG</code></td><td><code>BOOMERANG</code></td><td>Ping-pong</td></tr>
         </table>
+    `,
+
+    // Individual Examples - Basics
+    'example-simple-led': `
+        <h1>SimpleLED Example</h1>
+        <p class="example-breadcrumb">Examples → Basics → SimpleLED</p>
+        <p>The most basic example — control individual LEDs like <code>digitalWrite()</code>.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+void setup() {
+    ledBegin();                   // Initialize matrix
+    
+    ledWrite(0, 0, HIGH);         // Top-left ON
+    ledWrite(11, 7, HIGH);        // Bottom-right ON
+    ledToggle(0, 0);              // Toggle top-left OFF
+}
+
+void loop() {
+    ledWrite(5, 3, HIGH);         // Center ON
+    delay(500);
+    ledWrite(5, 3, LOW);          // Center OFF
+    delay(500);
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Initializing the LED matrix with <code>ledBegin()</code></li>
+            <li>Turning LEDs on/off with <code>ledWrite()</code></li>
+            <li>Using <code>ledToggle()</code> to flip LED state</li>
+            <li>Coordinate system: (0,0) is top-left, (11,7) is bottom-right</li>
+        </ul>
+    `,
+
+    'example-first-animation': `
+        <h1>FirstAnimation Example</h1>
+        <p class="example-breadcrumb">Examples → Basics → FirstAnimation</p>
+        <p>Load and play a pre-made animation file from the LED Matrix Editor.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "animation.h"
+
+TinyScreen screen;
+Animation myAnim = animation;
+
+void setup() {
+    screen.begin();
+    
+    // Play animation in a loop
+    // Try also: ONCE (play once) or BOOMERANG (forward/backward)
+    screen.play(myAnim, LOOP);
+}
+
+void loop() {
+    screen.update();
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Including an animation <code>.h</code> file</li>
+            <li>Creating a <code>TinyScreen</code> object</li>
+            <li>Wrapping raw animation data in an <code>Animation</code> object</li>
+            <li>Playing with <code>LOOP</code> mode</li>
+            <li>Calling <code>update()</code> every loop</li>
+        </ul>
+    `,
+
+    'example-first-canvas': `
+        <h1>FirstCanvas Example</h1>
+        <p class="example-breadcrumb">Examples → Basics → FirstCanvas</p>
+        <p>Draw graphics with code using Processing-style commands.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+
+void setup() {
+    screen.begin();
+}
+
+void loop() {
+    screen.beginDraw();
+    screen.clear();
+    
+    screen.stroke(ON);
+    screen.line(0, 0, 11, 7);     // Diagonal line
+    
+    screen.endDraw();
+    delay(100);
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Using <code>beginDraw()</code> and <code>endDraw()</code></li>
+            <li>Clearing the display with <code>clear()</code></li>
+            <li>Setting stroke state with <code>stroke(ON)</code></li>
+            <li>Drawing a line between two points</li>
+        </ul>
+    `,
+
+    // Individual Examples - Animation Mode
+    'example-layered-animations': `
+        <h1>LayeredAnimations Example</h1>
+        <p class="example-breadcrumb">Examples → Animation Mode → LayeredAnimations</p>
+        <p>Stack multiple animations on different layers for complex visual effects.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "landscape.h"
+#include "fiz.h"
+
+TinyScreen screen;
+Animation bgAnim = landscape;
+Animation fgAnim = fiz;
+
+void setup() {
+    screen.begin();
+    screen.addLayer();                        // Add layer 1
+    
+    screen.play(bgAnim, LOOP);                // Layer 0 (background)
+    screen.playOnLayer(1, fgAnim, LOOP);      // Layer 1 (foreground)
+}
+
+void loop() {
+    screen.update();
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Adding animation layers with <code>addLayer()</code></li>
+            <li>Playing animations on specific layers</li>
+            <li>Layer 0 is the background, higher layers render on top</li>
+            <li>Each layer can have independent speed and playback control</li>
+        </ul>
+    `,
+
+    'example-playback-control': `
+        <h1>PlaybackControl Example</h1>
+        <p class="example-breadcrumb">Examples → Animation Mode → PlaybackControl</p>
+        <p>Control animation playback via Serial commands — pause, resume, change speed.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "animation.h"
+
+TinyScreen screen;
+Animation anim = animation;
+
+void setup() {
+    Serial.begin(9600);
+    screen.begin();
+    screen.play(anim, LOOP);
+    
+    Serial.println("Commands: p=pause, r=resume, +=faster, -=slower");
+}
+
+void loop() {
+    screen.update();
+    
+    if (Serial.available()) {
+        char c = Serial.read();
+        
+        switch (c) {
+            case 'p': screen.pause(); break;
+            case 'r': screen.resume(); break;
+            case '+': screen.setSpeed(screen.getCurrentSpeed() + 0.5); break;
+            case '-': screen.setSpeed(max(0.1, screen.getCurrentSpeed() - 0.5)); break;
+        }
+    }
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Pausing and resuming animations</li>
+            <li>Dynamically changing playback speed</li>
+            <li>Reading current speed with <code>getCurrentSpeed()</code></li>
+            <li>Serial communication for debugging</li>
+        </ul>
+    `,
+
+    // Individual Examples - Canvas Mode
+    'example-scrolling-text': `
+        <h1>ScrollingText Example</h1>
+        <p class="example-breadcrumb">Examples → Canvas Mode → ScrollingText</p>
+        <p>Display scrolling text across the LED matrix.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+
+void setup() {
+    screen.begin();
+}
+
+void loop() {
+    screen.beginDraw();
+    
+    screen.stroke(ON);
+    screen.textScrollSpeed(100);
+    
+    screen.beginText(0, 0);
+    screen.print("Hello World!");
+    screen.endText();
+    
+    screen.endDraw();
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Using text drawing methods</li>
+            <li>Setting scroll speed with <code>textScrollSpeed()</code></li>
+            <li>Using <code>beginText()</code> and <code>endText()</code> for text blocks</li>
+            <li>Text automatically scrolls when wider than display</li>
+        </ul>
+    `,
+
+    'example-moving-shapes': `
+        <h1>MovingShapes Example</h1>
+        <p class="example-breadcrumb">Examples → Canvas Mode → MovingShapes</p>
+        <p>Animate shapes moving across the display.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+int x = 0;
+
+void setup() {
+    screen.begin();
+}
+
+void loop() {
+    screen.beginDraw();
+    screen.clear();
+    
+    screen.stroke(ON);
+    screen.noFill();
+    screen.circle(x, 3, 2);
+    
+    screen.endDraw();
+    
+    x = (x + 1) % 12;
+    delay(100);
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Creating animated graphics with code</li>
+            <li>Using <code>circle()</code> to draw circles</li>
+            <li>Using <code>noFill()</code> for outline-only shapes</li>
+            <li>Wrapping position with modulo operator</li>
+        </ul>
+    `,
+
+    'example-layered-graphics': `
+        <h1>LayeredGraphics Example</h1>
+        <p class="example-breadcrumb">Examples → Canvas Mode → LayeredGraphics</p>
+        <p>Draw multiple layers of graphics in a single frame.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+
+void setup() {
+    screen.begin();
+}
+
+void loop() {
+    screen.beginDraw();
+    screen.clear();
+    
+    // Background pattern
+    for (int i = 0; i < 12; i += 2) {
+        screen.point(i, 7);
+    }
+    
+    // Moving foreground
+    static int pos = 0;
+    screen.rect(pos, 2, 3, 3);
+    pos = (pos + 1) % 10;
+    
+    screen.endDraw();
+    delay(150);
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Drawing multiple elements in one frame</li>
+            <li>Using loops to create patterns</li>
+            <li>Combining static and animated elements</li>
+            <li>Using <code>static</code> variables for persistence</li>
+        </ul>
+    `,
+
+    // Individual Examples - Hybrid Mode
+    'example-animation-overlay': `
+        <h1>AnimationWithOverlay Example</h1>
+        <p class="example-breadcrumb">Examples → Hybrid Mode → AnimationWithOverlay</p>
+        <p>Draw dynamic content over a playing animation.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "landscape.h"
+
+TinyScreen screen;
+Animation bgAnim = landscape;
+
+void setup() {
+    screen.begin();
+    screen.play(bgAnim, LOOP);
+}
+
+void loop() {
+    screen.update();
+    
+    // Draw blinking indicator over animation
+    screen.beginOverlay();
+    if ((millis() / 500) % 2 == 0) {
+        screen.point(11, 0);
+    }
+    screen.endOverlay();
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Using <code>beginOverlay()</code> instead of <code>beginDraw()</code></li>
+            <li>Overlay preserves the animation frame underneath</li>
+            <li>Creating blinking effects with <code>millis()</code></li>
+            <li>Combining pre-made animations with dynamic elements</li>
+        </ul>
+    `,
+
+    // Individual Examples - Sensor Control
+    'example-button-play-pause': `
+        <h1>Button_PlayPause Example</h1>
+        <p class="example-breadcrumb">Examples → Sensor Control → Button_PlayPause</p>
+        <p>Use a button to pause and resume an animation.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "idle.h"
+
+TinyScreen screen;
+Animation anim = idle;
+
+const int buttonPin = 2;
+bool lastState = HIGH;
+bool paused = false;
+
+void setup() {
+    pinMode(buttonPin, INPUT_PULLUP);
+    screen.begin();
+    screen.play(anim, LOOP);
+}
+
+void loop() {
+    bool state = digitalRead(buttonPin);
+    
+    // Button pressed (falling edge)
+    if (state == LOW && lastState == HIGH) {
+        if (paused) {
+            screen.resume();
+            paused = false;
+        } else {
+            screen.pause();
+            paused = true;
+        }
+    }
+    
+    lastState = state;
+    screen.update();
+}</code></pre>
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>Pushbutton connected to pin 2 and GND</li>
+        </ul>
+    `,
+
+    'example-button-content-switch': `
+        <h1>Button_ContentSwitch Example</h1>
+        <p class="example-breadcrumb">Examples → Sensor Control → Button_ContentSwitch</p>
+        <p>Switch between two animations based on button state.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "idle.h"
+#include "go.h"
+
+TinyScreen screen;
+Animation idleAnim = idle;
+Animation goAnim = go;
+
+const int buttonPin = 2;
+
+void setup() {
+    pinMode(buttonPin, INPUT_PULLUP);
+    screen.begin();
+    screen.play(idleAnim, LOOP);
+}
+
+void loop() {
+    bool pressed = (digitalRead(buttonPin) == LOW);
+    
+    static bool wasPressed = false;
+    if (pressed && !wasPressed) {
+        screen.play(goAnim, LOOP);
+    } else if (!pressed && wasPressed) {
+        screen.play(idleAnim, LOOP);
+    }
+    wasPressed = pressed;
+    
+    screen.update();
+}</code></pre>
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>Pushbutton connected to pin 2 and GND</li>
+        </ul>
+    `,
+
+    'example-distance-speed': `
+        <h1>Distance_SpeedControl Example</h1>
+        <p class="example-breadcrumb">Examples → Sensor Control → Distance_SpeedControl</p>
+        <p>Control animation speed with an ultrasonic distance sensor.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "idle.h"
+
+TinyScreen screen;
+Animation anim = idle;
+
+const int trigPin = 9;
+const int echoPin = 10;
+
+void setup() {
+    pinMode(trigPin, OUTPUT);
+    pinMode(echoPin, INPUT);
+    
+    screen.begin();
+    screen.play(anim, LOOP);
+}
+
+void loop() {
+    // Measure distance
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    
+    long duration = pulseIn(echoPin, HIGH);
+    int distance = duration * 0.034 / 2;  // cm
+    
+    // Map distance to speed (closer = faster)
+    float speed = map(constrain(distance, 5, 50), 5, 50, 30, 5) / 10.0;
+    screen.setSpeed(speed);
+    
+    screen.update();
+}</code></pre>
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>HC-SR04 ultrasonic sensor (trig on pin 9, echo on pin 10)</li>
+        </ul>
+    `,
+
+    'example-distance-zone': `
+        <h1>Distance_ZoneSwitch Example</h1>
+        <p class="example-breadcrumb">Examples → Sensor Control → Distance_ZoneSwitch</p>
+        <p>Switch animations based on distance zones.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "idle.h"
+#include "go.h"
+
+TinyScreen screen;
+Animation idleAnim = idle;
+Animation goAnim = go;
+
+const int trigPin = 9;
+const int echoPin = 10;
+
+void setup() {
+    pinMode(trigPin, OUTPUT);
+    pinMode(echoPin, INPUT);
+    
+    screen.begin();
+    screen.play(idleAnim, LOOP);
+}
+
+void loop() {
+    int distance = measureDistance();
+    
+    static bool wasClose = false;
+    bool isClose = (distance < 30);
+    
+    if (isClose && !wasClose) {
+        screen.play(goAnim, LOOP);
+    } else if (!isClose && wasClose) {
+        screen.play(idleAnim, LOOP);
+    }
+    wasClose = isClose;
+    
+    screen.update();
+}
+
+int measureDistance() {
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    return pulseIn(echoPin, HIGH) * 0.034 / 2;
+}</code></pre>
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>HC-SR04 ultrasonic sensor</li>
+        </ul>
+    `,
+
+    'example-pressure-speed': `
+        <h1>Pressure_SpeedControl Example</h1>
+        <p class="example-breadcrumb">Examples → Sensor Control → Pressure_SpeedControl</p>
+        <p>Control animation speed with a pressure/force sensor.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "idle.h"
+
+TinyScreen screen;
+Animation anim = idle;
+
+const int pressurePin = A0;
+
+void setup() {
+    screen.begin();
+    screen.play(anim, LOOP);
+}
+
+void loop() {
+    int pressure = analogRead(pressurePin);
+    
+    // Map pressure to speed (more pressure = faster)
+    float speed = map(pressure, 0, 1023, 5, 30) / 10.0;
+    screen.setSpeed(speed);
+    
+    screen.update();
+}</code></pre>
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
+            <li>10K pull-down resistor</li>
+        </ul>
+    `,
+
+    // Individual Examples - Utilities
+    'example-ease-demo': `
+        <h1>EaseDemo Example</h1>
+        <p class="example-breadcrumb">Examples → Utilities → EaseDemo</p>
+        <p>Demonstrate easing functions for smooth animations.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+
+void setup() {
+    screen.begin();
+}
+
+// Simple ease-in-out function
+float easeInOut(float t) {
+    return t < 0.5 
+        ? 2 * t * t 
+        : 1 - pow(-2 * t + 2, 2) / 2;
+}
+
+void loop() {
+    static float t = 0;
+    
+    screen.beginDraw();
+    screen.clear();
+    
+    float eased = easeInOut(t);
+    int x = eased * 11;
+    screen.point(x, 3);
+    
+    screen.endDraw();
+    
+    t += 0.02;
+    if (t > 1) t = 0;
+    
+    delay(20);
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Using mathematical easing functions</li>
+            <li>Creating smooth, non-linear motion</li>
+            <li>Normalizing time to 0-1 range</li>
+        </ul>
+    `,
+
+    'example-oscillator-demo': `
+        <h1>OscillatorDemo Example</h1>
+        <p class="example-breadcrumb">Examples → Utilities → OscillatorDemo</p>
+        <p>Use sine waves for oscillating animations.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+
+void setup() {
+    screen.begin();
+}
+
+void loop() {
+    screen.beginDraw();
+    screen.clear();
+    
+    // Draw sine wave
+    for (int x = 0; x < 12; x++) {
+        float phase = millis() / 200.0;
+        int y = 3 + sin(x * 0.5 + phase) * 3;
+        screen.point(x, y);
+    }
+    
+    screen.endDraw();
+    delay(30);
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Using <code>sin()</code> for wave patterns</li>
+            <li>Time-based animation with <code>millis()</code></li>
+            <li>Creating organic, flowing motion</li>
+        </ul>
+    `,
+
+    'example-smooth-animation': `
+        <h1>SmoothAnimation Example</h1>
+        <p class="example-breadcrumb">Examples → Utilities → SmoothAnimation</p>
+        <p>Create smooth motion using linear interpolation (lerp).</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+
+float currentX = 0;
+float targetX = 11;
+float smoothing = 0.1;
+
+void setup() {
+    screen.begin();
+}
+
+void loop() {
+    // Smooth interpolation toward target
+    currentX += (targetX - currentX) * smoothing;
+    
+    screen.beginDraw();
+    screen.clear();
+    screen.point((int)currentX, 3);
+    screen.endDraw();
+    
+    // Switch direction when close to target
+    if (abs(currentX - targetX) < 0.1) {
+        targetX = (targetX > 5) ? 0 : 11;
+    }
+    
+    delay(30);
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Linear interpolation (lerp) for smooth movement</li>
+            <li>Using a smoothing factor to control speed</li>
+            <li>Detecting when target is reached</li>
+            <li>Creating "eased" motion without explicit easing functions</li>
+        </ul>
     `
 };
