@@ -1,15 +1,19 @@
 /*
- * TinyFilmFestival V2 - Distance Zone Switch
- * 05_Sensor_Control/Distance_ZoneSwitch
+ * TinyFilmFestival V2 - Distance Threshold (Hybrid)
+ * 04_Hybrid_Mode/Distance_Threshold
  * 
- * Switch animations based on distance zones.
- * Creates an "interactive zone" effect around the display.
+ * Switch overlay styles based on distance zones.
+ * Animation plays continuously — overlay changes with proximity.
  * 
  * Hardware:
  * - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
  * - HC-SR04 ultrasonic sensor (Trigger: A0, Echo: A1)
  * 
  * Library: EasyUltrasonic by George Spulber
+ * 
+ * Concept: THRESHOLDS
+ * Different overlay patterns indicate interaction zones 
+ * while animation runs.
  * 
  * LED Matrix Layout (12 columns x 8 rows):
  * 
@@ -36,52 +40,63 @@
 #include "TinyFilmFestival.h"
 #include <EasyUltrasonic.h>
 #include "idle.h"
-#include "go.h"
 
 TinyScreen screen;
 Animation idleAnim = idle;
-Animation goAnim = go;
 
 // Distance sensor
 const int trigPin = A0;
 const int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
-// Zone threshold
-const float threshold = 40.0;   // cm - switch point
+const float FAR_THRESHOLD = 60.0;
+const float MID_THRESHOLD = 30.0;
 
 unsigned long lastRead = 0;
-const int readInterval = 100;
-bool inCloseZone = false;
+const int readInterval = 50;
+float currentDist = 100;
 
 void setup() {
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
     screen.play(idleAnim, LOOP);
-    Serial.println("Move closer than 40cm to trigger 'go' animation");
+    Serial.println("Hybrid Distance Threshold Demo");
+    Serial.println("Animation always plays, overlay shows distance:");
+    Serial.println("  Far: corner dot");
+    Serial.println("  Mid: corner dots");
+    Serial.println("  Close: full border");
 }
 
 void loop() {
+    screen.update();
+    
     if (millis() - lastRead > readInterval) {
         float dist = ultrasonic.getDistanceCM();
-        
         if (dist > 0) {
-            bool nowClose = (dist < threshold);
-            
-            // Only switch when crossing threshold
-            if (nowClose && !inCloseZone) {
-                screen.play(goAnim, LOOP);
-                Serial.println("CLOSE - playing: go");
-            } else if (!nowClose && inCloseZone) {
-                screen.play(idleAnim, LOOP);
-                Serial.println("FAR - playing: idle");
-            }
-            
-            inCloseZone = nowClose;
+            currentDist = dist;
         }
         lastRead = millis();
     }
     
-    screen.update();
+    screen.beginOverlay();
+    
+    if (currentDist > FAR_THRESHOLD) {
+        // Far: single corner indicator
+        screen.point(11, 0);
+    } else if (currentDist > MID_THRESHOLD) {
+        // Middle: edge indicators (four corners)
+        screen.point(0, 0);
+        screen.point(11, 0);
+        screen.point(0, 7);
+        screen.point(11, 7);
+    } else {
+        // Close: full border frame
+        screen.line(0, 0, 11, 0);   // top
+        screen.line(0, 7, 11, 7);   // bottom
+        screen.line(0, 0, 0, 7);    // left
+        screen.line(11, 0, 11, 7);  // right
+    }
+    
+    screen.endOverlay();
 }

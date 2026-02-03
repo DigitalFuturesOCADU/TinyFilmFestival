@@ -1,15 +1,19 @@
 /*
- * TinyFilmFestival V2 - Distance Zone Switch
- * 05_Sensor_Control/Distance_ZoneSwitch
+ * TinyFilmFestival V2 - Distance Map
+ * 02_Animation_Mode/Distance_Map
  * 
- * Switch animations based on distance zones.
- * Creates an "interactive zone" effect around the display.
+ * Map distance sensor values directly to animation speed.
+ * Closer = faster, farther = slower.
  * 
  * Hardware:
  * - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
  * - HC-SR04 ultrasonic sensor (Trigger: A0, Echo: A1)
  * 
  * Library: EasyUltrasonic by George Spulber
+ * 
+ * Concept: MAP
+ * The map() function converts a value from one range to another.
+ * This creates smooth, continuous control rather than discrete steps.
  * 
  * LED Matrix Layout (12 columns x 8 rows):
  * 
@@ -36,30 +40,33 @@
 #include "TinyFilmFestival.h"
 #include <EasyUltrasonic.h>
 #include "idle.h"
-#include "go.h"
 
 TinyScreen screen;
 Animation idleAnim = idle;
-Animation goAnim = go;
 
 // Distance sensor
 const int trigPin = A0;
 const int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
-// Zone threshold
-const float threshold = 40.0;   // cm - switch point
+// Define the input range (distance in cm)
+const float MIN_DISTANCE = 5.0;    // Closest expected distance
+const float MAX_DISTANCE = 100.0;  // Farthest expected distance
+
+// Define the output range (speed multiplier x10 for integer math)
+const int MIN_SPEED = 5;   // 0.5x speed when far
+const int MAX_SPEED = 30;  // 3.0x speed when close
 
 unsigned long lastRead = 0;
-const int readInterval = 100;
-bool inCloseZone = false;
+const int readInterval = 50;  // Faster reads for smoother response
 
 void setup() {
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
     screen.play(idleAnim, LOOP);
-    Serial.println("Move closer than 40cm to trigger 'go' animation");
+    Serial.println("Distance Map Demo");
+    Serial.println("Move hand closer = faster animation");
 }
 
 void loop() {
@@ -67,18 +74,21 @@ void loop() {
         float dist = ultrasonic.getDistanceCM();
         
         if (dist > 0) {
-            bool nowClose = (dist < threshold);
+            // Constrain distance to expected range
+            dist = constrain(dist, MIN_DISTANCE, MAX_DISTANCE);
             
-            // Only switch when crossing threshold
-            if (nowClose && !inCloseZone) {
-                screen.play(goAnim, LOOP);
-                Serial.println("CLOSE - playing: go");
-            } else if (!nowClose && inCloseZone) {
-                screen.play(idleAnim, LOOP);
-                Serial.println("FAR - playing: idle");
-            }
+            // Map distance to speed (inverted: closer = faster)
+            // Use integer math then convert to float
+            int speedValue = map(dist * 10, MIN_DISTANCE * 10, MAX_DISTANCE * 10, 
+                                 MAX_SPEED, MIN_SPEED);
+            float speed = speedValue / 10.0;
             
-            inCloseZone = nowClose;
+            screen.setSpeed(speed);
+            
+            Serial.print(dist);
+            Serial.print(" cm -> ");
+            Serial.print(speed);
+            Serial.println("x speed");
         }
         lastRead = millis();
     }

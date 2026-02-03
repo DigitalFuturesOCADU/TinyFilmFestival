@@ -188,6 +188,13 @@ const searchIndex = [
     { method: 'OFF', description: 'LED/pixel off state', page: 'canvas-mode', category: 'Constants' },
     { method: 'HIGH', description: 'LED on (Simple LED mode)', page: 'simple-led', category: 'Constants' },
     { method: 'LOW', description: 'LED off (Simple LED mode)', page: 'simple-led', category: 'Constants' },
+    
+    // Sensor Concepts
+    { method: 'threshold', description: 'Use distance zones to switch between animations or modes', page: 'example-anim-distance-threshold', category: 'Sensor Control' },
+    { method: 'map()', description: 'Map sensor values to animation speed or size', page: 'example-anim-distance-map', category: 'Sensor Control' },
+    { method: 'distance sensor', description: 'HC-SR04 ultrasonic distance sensor examples', page: 'example-anim-distance-threshold', category: 'Sensor Control' },
+    { method: 'pressure sensor', description: 'FSR force sensitive resistor examples', page: 'example-anim-pressure-threshold', category: 'Sensor Control' },
+    { method: 'constrain()', description: 'Keep sensor values within expected bounds', page: 'example-anim-distance-map', category: 'Sensor Control' },
 ];
 
 function searchAPI(query) {
@@ -1023,303 +1030,61 @@ void loop() {
 
     'examples-animation': `
         <h1>Animation Mode Examples</h1>
+        <p>Examples demonstrating Animation Mode features including layering, playback control, and sensor integration.</p>
 
-        <h2>LayeredAnimations</h2>
-        <p>Stack multiple animations on different layers.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "landscape.h"
-#include "fiz.h"
+        <h2>Core Examples</h2>
+        <ul class="example-list">
+            <li><a href="#" class="example-link" data-page="example-layered-animations"><h5>LayeredAnimations</h5><p>Stack multiple animations on different layers</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-playback-control"><h5>PlaybackControl</h5><p>Pause, resume, and control animation speed</p></a></li>
+        </ul>
 
-TinyScreen screen;
-Animation bgAnim = landscape;
-Animation fgAnim = fiz;
-
-void setup() {
-    screen.begin();
-    screen.addLayer();
-    
-    screen.play(bgAnim, LOOP);
-    screen.playOnLayer(1, fgAnim, LOOP);
-}
-
-void loop() {
-    screen.update();
-}</code></pre>
-
-        <h2>PlaybackControl</h2>
-        <p>Control animation playback — pause, resume, change speed.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "animation.h"
-
-TinyScreen screen;
-Animation anim = animation;
-
-void setup() {
-    Serial.begin(9600);
-    screen.begin();
-    screen.play(anim, LOOP);
-    
-    Serial.println("Commands: p=pause, r=resume, +=faster, -=slower");
-}
-
-void loop() {
-    screen.update();
-    
-    if (Serial.available()) {
-        char c = Serial.read();
-        
-        switch (c) {
-            case 'p': screen.pause(); break;
-            case 'r': screen.resume(); break;
-            case '+': screen.setSpeed(screen.getCurrentSpeed() + 0.5); break;
-            case '-': screen.setSpeed(max(0.1, screen.getCurrentSpeed() - 0.5)); break;
-        }
-    }
-}</code></pre>
+        <h2>Sensor Input Examples</h2>
+        <p>These examples show how to control animations with sensor input. The animation is always running — input changes its behavior.</p>
+        <ul class="example-list">
+            <li><a href="#" class="example-link" data-page="example-anim-distance-threshold"><h5>Distance Threshold</h5><p>Switch between animations based on distance zones</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-anim-distance-map"><h5>Distance Map</h5><p>Map distance to animation speed</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-anim-pressure-threshold"><h5>Pressure Threshold</h5><p>Switch animations based on pressure levels</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-anim-pressure-map"><h5>Pressure Map</h5><p>Map pressure to animation speed</p></a></li>
+        </ul>
     `,
 
     'examples-canvas': `
         <h1>Canvas Mode Examples</h1>
+        <p>Examples demonstrating Canvas Mode drawing features and sensor integration.</p>
 
-        <h2>ScrollingText</h2>
-        <p>Display scrolling text on the matrix.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+        <h2>Core Examples</h2>
+        <ul class="example-list">
+            <li><a href="#" class="example-link" data-page="example-scrolling-text"><h5>ScrollingText</h5><p>Display scrolling text on the matrix</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-moving-shapes"><h5>MovingShapes</h5><p>Animate shapes moving across the display</p></a></li>
+        </ul>
 
-TinyScreen screen;
-
-void setup() {
-    screen.begin();
-}
-
-void loop() {
-    screen.beginDraw();
-    screen.stroke(ON);
-    screen.textScrollSpeed(100);
-    
-    screen.beginText(0, 0);
-    screen.print("Hello World!");
-    screen.endText();
-    
-    screen.endDraw();
-}</code></pre>
-
-        <h2>MovingShapes</h2>
-        <p>Animate shapes moving across the display.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-
-TinyScreen screen;
-int x = 0;
-
-void setup() {
-    screen.begin();
-}
-
-void loop() {
-    screen.beginDraw();
-    screen.clear();
-    
-    screen.stroke(ON);
-    screen.noFill();
-    screen.circle(x, 3, 2);
-    
-    screen.endDraw();
-    
-    x = (x + 1) % 12;
-    delay(100);
-}</code></pre>
-
-        <h2>LayeredGraphics</h2>
-        <p>Draw multiple layers of graphics.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-
-TinyScreen screen;
-
-void setup() {
-    screen.begin();
-}
-
-void loop() {
-    screen.beginDraw();
-    screen.clear();
-    
-    // Background pattern
-    for (int i = 0; i < 12; i += 2) {
-        screen.point(i, 7);
-    }
-    
-    // Moving foreground
-    static int pos = 0;
-    screen.rect(pos, 2, 3, 3);
-    pos = (pos + 1) % 10;
-    
-    screen.endDraw();
-    delay(150);
-}</code></pre>
+        <h2>Sensor Input Examples</h2>
+        <p>These examples show how to control canvas graphics with sensor input. Graphics are always drawn — input changes what's displayed.</p>
+        <ul class="example-list">
+            <li><a href="#" class="example-link" data-page="example-canvas-distance-threshold"><h5>Distance Threshold</h5><p>Switch between graphic modes based on distance</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-canvas-distance-map"><h5>Distance Map</h5><p>Map distance to shape size</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-canvas-pressure-threshold"><h5>Pressure Threshold</h5><p>Switch graphics based on pressure levels</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-canvas-pressure-map"><h5>Pressure Map</h5><p>Map pressure to bar graph height</p></a></li>
+        </ul>
     `,
 
     'examples-hybrid': `
         <h1>Hybrid Mode Examples</h1>
+        <p>Examples demonstrating Hybrid Mode overlay features and sensor integration.</p>
 
-        <h2>AnimationWithOverlay</h2>
-        <p>Draw dynamic content over a playing animation.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "landscape.h"
+        <h2>Core Examples</h2>
+        <ul class="example-list">
+            <li><a href="#" class="example-link" data-page="example-animation-overlay"><h5>AnimationWithOverlay</h5><p>Draw dynamic content over a playing animation</p></a></li>
+        </ul>
 
-TinyScreen screen;
-Animation bgAnim = landscape;
-
-void setup() {
-    screen.begin();
-    screen.play(bgAnim, LOOP);
-}
-
-void loop() {
-    screen.update();
-    
-    // Draw blinking indicator
-    screen.beginOverlay();
-    if ((millis() / 500) % 2 == 0) {
-        screen.point(11, 0);
-    }
-    screen.endOverlay();
-}</code></pre>
-
-        <h2>Progress Bar Over Animation</h2>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "idle.h"
-
-TinyScreen screen;
-Animation anim = idle;
-int progress = 0;
-
-void setup() {
-    screen.begin();
-    screen.play(anim, LOOP);
-}
-
-void loop() {
-    screen.update();
-    
-    screen.beginOverlay();
-    int barWidth = map(progress, 0, 100, 0, 12);
-    for (int x = 0; x < barWidth; x++) {
-        screen.point(x, 7);
-    }
-    screen.endOverlay();
-    
-    progress = (progress + 1) % 101;
-    delay(50);
-}</code></pre>
-    `,
-
-    'examples-sensors': `
-        <h1>Sensor Control Examples</h1>
-        <p>Control animations with buttons and sensors.</p>
-
-        <h2>Button Play/Pause</h2>
-        <p>Use a button to pause and resume an animation.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "idle.h"
-
-TinyScreen screen;
-Animation anim = idle;
-
-const int buttonPin = 2;
-bool lastState = HIGH;
-bool paused = false;
-
-void setup() {
-    pinMode(buttonPin, INPUT_PULLUP);
-    screen.begin();
-    screen.play(anim, LOOP);
-}
-
-void loop() {
-    bool state = digitalRead(buttonPin);
-    
-    // Button pressed (falling edge)
-    if (state == LOW && lastState == HIGH) {
-        if (paused) {
-            screen.resume();
-            paused = false;
-        } else {
-            screen.pause();
-            paused = true;
-        }
-    }
-    
-    lastState = state;
-    screen.update();
-}</code></pre>
-
-        <h2>Button Content Switch</h2>
-        <p>Switch between animations with a button.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "idle.h"
-#include "go.h"
-
-TinyScreen screen;
-Animation idleAnim = idle;
-Animation goAnim = go;
-
-const int buttonPin = 2;
-
-void setup() {
-    pinMode(buttonPin, INPUT_PULLUP);
-    screen.begin();
-    screen.play(idleAnim, LOOP);
-}
-
-void loop() {
-    bool pressed = (digitalRead(buttonPin) == LOW);
-    
-    static bool wasPressed = false;
-    if (pressed && !wasPressed) {
-        screen.play(goAnim, LOOP);
-    } else if (!pressed && wasPressed) {
-        screen.play(idleAnim, LOOP);
-    }
-    wasPressed = pressed;
-    
-    screen.update();
-}</code></pre>
-
-        <h2>Distance Speed Control</h2>
-        <p>Control animation speed with a distance sensor.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "idle.h"
-
-TinyScreen screen;
-Animation anim = idle;
-
-const int trigPin = 9;
-const int echoPin = 10;
-
-void setup() {
-    pinMode(trigPin, OUTPUT);
-    pinMode(echoPin, INPUT);
-    
-    screen.begin();
-    screen.play(anim, LOOP);
-}
-
-void loop() {
-    // Measure distance
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    
-    long duration = pulseIn(echoPin, HIGH);
-    int distance = duration * 0.034 / 2;  // cm
-    
-    // Map distance to speed (closer = faster)
-    float speed = map(constrain(distance, 5, 50), 5, 50, 30, 5) / 10.0;
-    screen.setSpeed(speed);
-    
-    screen.update();
-}</code></pre>
+        <h2>Sensor Input Examples</h2>
+        <p>These examples show how to control hybrid overlays with sensor input. The animation always plays — input controls the overlay.</p>
+        <ul class="example-list">
+            <li><a href="#" class="example-link" data-page="example-hybrid-distance-threshold"><h5>Distance Threshold</h5><p>Switch overlay styles based on distance zones</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-hybrid-distance-map"><h5>Distance Map</h5><p>Map distance to overlay bar width</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-hybrid-pressure-threshold"><h5>Pressure Threshold</h5><p>Switch overlay patterns based on pressure</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-hybrid-pressure-map"><h5>Pressure Map</h5><p>Map pressure to number of overlay dots</p></a></li>
+        </ul>
     `,
 
     'examples-utilities': `
@@ -1782,200 +1547,260 @@ void loop() {
     `,
 
     // Individual Examples - Sensor Control
-    'example-button-play-pause': `
-        <h1>Button_PlayPause Example</h1>
-        <p class="example-breadcrumb">Examples → Sensor Control → Button_PlayPause</p>
-        <p>Use a button to pause and resume an animation.</p>
+    // Animation Mode - Sensor Examples
+    'example-anim-distance-threshold': `
+        <h1>Animation: Distance Threshold</h1>
+        <p class="example-breadcrumb">Examples → Animation Mode → Distance Threshold</p>
+        <p>Switch between different animations based on distance zones using thresholds. The animation is always playing — distance determines which one.</p>
+        
+        <h2>Concept: Thresholds</h2>
+        <p>Thresholds divide sensor input into discrete zones. Each zone triggers a different mode/state. This creates clear, predictable interactions.</p>
+        
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include &lt;EasyUltrasonic.h&gt;
 #include "idle.h"
+#include "go.h"
 
 TinyScreen screen;
-Animation anim = idle;
+Animation idleAnim = idle;
+Animation goAnim = go;
 
-const int buttonPin = 2;
-bool lastState = HIGH;
-bool paused = false;
+// Distance sensor
+const int trigPin = A0;
+const int echoPin = A1;
+EasyUltrasonic ultrasonic;
+
+// Define threshold distances (in cm)
+const float FAR_THRESHOLD = 60.0;   // Beyond this = idle
+const float CLOSE_THRESHOLD = 30.0; // Closer than this = go
+
+int currentMode = 0;  // 0=far, 1=mid, 2=close
 
 void setup() {
-    pinMode(buttonPin, INPUT_PULLUP);
+    ultrasonic.attach(trigPin, echoPin);
     screen.begin();
-    screen.play(anim, LOOP);
+    screen.play(idleAnim, LOOP);  // Start with idle
 }
 
 void loop() {
-    bool state = digitalRead(buttonPin);
+    float distance = ultrasonic.getDistanceCM();
+    int newMode;
     
-    // Button pressed (falling edge)
-    if (state == LOW && lastState == HIGH) {
-        if (paused) {
-            screen.resume();
-            paused = false;
+    if (distance > 0) {
+        // Determine mode based on thresholds
+        if (distance > FAR_THRESHOLD) {
+            newMode = 0;  // Far away = idle slow
+        } else if (distance > CLOSE_THRESHOLD) {
+            newMode = 1;  // Middle zone = idle fast
         } else {
-            screen.pause();
-            paused = true;
+            newMode = 2;  // Close = go
+        }
+        
+        // Only switch animation when mode changes
+        if (newMode != currentMode) {
+            currentMode = newMode;
+            
+            switch (currentMode) {
+                case 0: 
+                    screen.play(idleAnim, LOOP);
+                    screen.setSpeed(1.0);
+                    break;
+                case 1: 
+                    screen.play(idleAnim, LOOP);
+                    screen.setSpeed(2.0);
+                    break;
+                case 2: 
+                    screen.play(goAnim, LOOP);
+                    break;
+            }
         }
     }
     
-    lastState = state;
     screen.update();
 }</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>Thresholds</strong> create distinct zones from continuous sensor data</li>
+            <li><strong>Mode tracking</strong> prevents constant animation restarts</li>
+            <li>Animation is <strong>never off</strong> — it just changes content</li>
+            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
+        </ul>
+
         <h2>Hardware Required</h2>
         <ul>
             <li>Arduino UNO R4 WiFi</li>
-            <li>Pushbutton connected to pin 2 and GND</li>
+            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
         </ul>
+        
+        <h2>Library Required</h2>
+        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
     `,
 
-    'example-button-content-switch': `
-        <h1>Button_ContentSwitch Example</h1>
-        <p class="example-breadcrumb">Examples → Sensor Control → Button_ContentSwitch</p>
-        <p>Switch between two animations based on button state.</p>
+    'example-anim-distance-map': `
+        <h1>Animation: Distance Map</h1>
+        <p class="example-breadcrumb">Examples → Animation Mode → Distance Map</p>
+        <p>Map distance sensor values directly to animation speed. Closer = faster, farther = slower.</p>
+        
+        <h2>Concept: Map</h2>
+        <p>The <code>map()</code> function converts a value from one range to another. This creates smooth, continuous control rather than discrete steps.</p>
+        
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include &lt;EasyUltrasonic.h&gt;
 #include "idle.h"
-#include "go.h"
 
 TinyScreen screen;
 Animation idleAnim = idle;
-Animation goAnim = go;
 
-const int buttonPin = 2;
+// Distance sensor
+const int trigPin = A0;
+const int echoPin = A1;
+EasyUltrasonic ultrasonic;
+
+// Define the input range (distance in cm)
+const float MIN_DISTANCE = 5.0;
+const float MAX_DISTANCE = 100.0;
+
+// Define the output range (speed multiplier x10)
+const int MIN_SPEED = 5;   // 0.5x speed when far
+const int MAX_SPEED = 30;  // 3.0x speed when close
 
 void setup() {
-    pinMode(buttonPin, INPUT_PULLUP);
+    ultrasonic.attach(trigPin, echoPin);
     screen.begin();
     screen.play(idleAnim, LOOP);
 }
 
 void loop() {
-    bool pressed = (digitalRead(buttonPin) == LOW);
+    float distance = ultrasonic.getDistanceCM();
     
-    static bool wasPressed = false;
-    if (pressed && !wasPressed) {
-        screen.play(goAnim, LOOP);
-    } else if (!pressed && wasPressed) {
-        screen.play(idleAnim, LOOP);
+    if (distance > 0) {
+        // Constrain distance to expected range
+        distance = constrain(distance, MIN_DISTANCE, MAX_DISTANCE);
+        
+        // Map distance to speed (inverted: closer = faster)
+        int speedValue = map(distance * 10, MIN_DISTANCE * 10, 
+                            MAX_DISTANCE * 10, MAX_SPEED, MIN_SPEED);
+        float speed = speedValue / 10.0;
+        
+        screen.setSpeed(speed);
     }
-    wasPressed = pressed;
     
     screen.update();
 }</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>map(value, inMin, inMax, outMin, outMax)</strong> scales values between ranges</li>
+            <li><strong>constrain()</strong> keeps values within expected bounds</li>
+            <li>Inverted mapping: small distance → high speed</li>
+            <li>Animation <strong>never stops</strong> — speed continuously adjusts</li>
+        </ul>
+
         <h2>Hardware Required</h2>
         <ul>
             <li>Arduino UNO R4 WiFi</li>
-            <li>Pushbutton connected to pin 2 and GND</li>
+            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
         </ul>
+        
+        <h2>Library Required</h2>
+        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
     `,
 
-    'example-distance-speed': `
-        <h1>Distance_SpeedControl Example</h1>
-        <p class="example-breadcrumb">Examples → Sensor Control → Distance_SpeedControl</p>
-        <p>Control animation speed with an ultrasonic distance sensor.</p>
+    'example-anim-pressure-threshold': `
+        <h1>Animation: Pressure Threshold</h1>
+        <p class="example-breadcrumb">Examples → Animation Mode → Pressure Threshold</p>
+        <p>Switch between animations based on pressure levels. Light touch, medium press, and hard press trigger different animations.</p>
+        
+        <h2>Concept: Thresholds</h2>
+        <p>Multiple thresholds create multiple interaction zones from a single pressure sensor.</p>
+        
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "idle.h"
+#include "calm.h"
+#include "active.h"
+#include "intense.h"
 
 TinyScreen screen;
-Animation anim = idle;
-
-const int trigPin = 9;
-const int echoPin = 10;
-
-void setup() {
-    pinMode(trigPin, OUTPUT);
-    pinMode(echoPin, INPUT);
-    
-    screen.begin();
-    screen.play(anim, LOOP);
-}
-
-void loop() {
-    // Measure distance
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    
-    long duration = pulseIn(echoPin, HIGH);
-    int distance = duration * 0.034 / 2;  // cm
-    
-    // Map distance to speed (closer = faster)
-    float speed = map(constrain(distance, 5, 50), 5, 50, 30, 5) / 10.0;
-    screen.setSpeed(speed);
-    
-    screen.update();
-}</code></pre>
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>HC-SR04 ultrasonic sensor (trig on pin 9, echo on pin 10)</li>
-        </ul>
-    `,
-
-    'example-distance-zone': `
-        <h1>Distance_ZoneSwitch Example</h1>
-        <p class="example-breadcrumb">Examples → Sensor Control → Distance_ZoneSwitch</p>
-        <p>Switch animations based on distance zones.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "idle.h"
-#include "go.h"
-
-TinyScreen screen;
-Animation idleAnim = idle;
-Animation goAnim = go;
-
-const int trigPin = 9;
-const int echoPin = 10;
-
-void setup() {
-    pinMode(trigPin, OUTPUT);
-    pinMode(echoPin, INPUT);
-    
-    screen.begin();
-    screen.play(idleAnim, LOOP);
-}
-
-void loop() {
-    int distance = measureDistance();
-    
-    static bool wasClose = false;
-    bool isClose = (distance < 30);
-    
-    if (isClose && !wasClose) {
-        screen.play(goAnim, LOOP);
-    } else if (!isClose && wasClose) {
-        screen.play(idleAnim, LOOP);
-    }
-    wasClose = isClose;
-    
-    screen.update();
-}
-
-int measureDistance() {
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    return pulseIn(echoPin, HIGH) * 0.034 / 2;
-}</code></pre>
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>HC-SR04 ultrasonic sensor</li>
-        </ul>
-    `,
-
-    'example-pressure-speed': `
-        <h1>Pressure_SpeedControl Example</h1>
-        <p class="example-breadcrumb">Examples → Sensor Control → Pressure_SpeedControl</p>
-        <p>Control animation speed with a pressure/force sensor.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "idle.h"
-
-TinyScreen screen;
-Animation anim = idle;
+Animation calmAnim = calm;
+Animation activeAnim = active;
+Animation intenseAnim = intense;
 
 const int pressurePin = A0;
+
+// Define pressure thresholds (0-1023 range)
+const int LIGHT_THRESHOLD = 200;   // Below = calm
+const int MEDIUM_THRESHOLD = 600;  // Between = active
+                                   // Above = intense
+
+int currentMode = 0;
+
+void setup() {
+    screen.begin();
+    screen.play(calmAnim, LOOP);  // Start calm
+}
+
+void loop() {
+    int pressure = analogRead(pressurePin);
+    int newMode;
+    
+    // Determine mode based on pressure thresholds
+    if (pressure < LIGHT_THRESHOLD) {
+        newMode = 0;  // Light/no pressure = calm
+    } else if (pressure < MEDIUM_THRESHOLD) {
+        newMode = 1;  // Medium pressure = active
+    } else {
+        newMode = 2;  // High pressure = intense
+    }
+    
+    // Only switch when mode changes
+    if (newMode != currentMode) {
+        currentMode = newMode;
+        
+        switch (currentMode) {
+            case 0: screen.play(calmAnim, LOOP); break;
+            case 1: screen.play(activeAnim, LOOP); break;
+            case 2: screen.play(intenseAnim, LOOP); break;
+        }
+    }
+    
+    screen.update();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>Analog thresholds</strong> (0-1023) divide pressure into zones</li>
+            <li><strong>Mode variable</strong> tracks current state to prevent restart flicker</li>
+            <li>Animation is <strong>always running</strong> — pressure selects which one</li>
+            <li>Three expressive states tied to physical interaction intensity</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
+            <li>10K pull-down resistor</li>
+        </ul>
+    `,
+
+    'example-anim-pressure-map': `
+        <h1>Animation: Pressure Map</h1>
+        <p class="example-breadcrumb">Examples → Animation Mode → Pressure Map</p>
+        <p>Map pressure sensor values directly to animation speed. More pressure = faster animation.</p>
+        
+        <h2>Concept: Map</h2>
+        <p>Continuous mapping creates a direct, responsive connection between physical input and visual output.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "animation.h"
+
+TinyScreen screen;
+Animation anim = animation;
+
+const int pressurePin = A0;
+
+// Define the output speed range (x10 for precision)
+const int MIN_SPEED = 5;   // 0.5x when no pressure
+const int MAX_SPEED = 40;  // 4.0x at full pressure
 
 void setup() {
     screen.begin();
@@ -1985,12 +1810,539 @@ void setup() {
 void loop() {
     int pressure = analogRead(pressurePin);
     
-    // Map pressure to speed (more pressure = faster)
-    float speed = map(pressure, 0, 1023, 5, 30) / 10.0;
-    screen.setSpeed(speed);
+    // Map pressure (0-1023) to speed
+    int speedValue = map(pressure, 0, 1023, MIN_SPEED, MAX_SPEED);
+    float speed = speedValue / 10.0;
     
+    screen.setSpeed(speed);
     screen.update();
 }</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>Direct mapping</strong> from analog input (0-1023) to speed</li>
+            <li>Animation <strong>never stops</strong> — just speeds up with pressure</li>
+            <li>Simple, intuitive interaction: press harder = faster</li>
+            <li>Multiply by 10, divide by 10 pattern for float precision</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
+            <li>10K pull-down resistor</li>
+        </ul>
+    `,
+
+    // Canvas Mode - Sensor Examples
+    'example-canvas-distance-threshold': `
+        <h1>Canvas: Distance Threshold</h1>
+        <p class="example-breadcrumb">Examples → Canvas Mode → Distance Threshold</p>
+        <p>Switch between different graphic patterns based on distance zones. The display is always active — distance determines what's drawn.</p>
+        
+        <h2>Concept: Thresholds</h2>
+        <p>Different visual modes create distinct feedback for each interaction zone.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include &lt;EasyUltrasonic.h&gt;
+
+TinyScreen screen;
+
+const int trigPin = A0;
+const int echoPin = A1;
+EasyUltrasonic ultrasonic;
+
+const float FAR_THRESHOLD = 60.0;
+const float MID_THRESHOLD = 30.0;
+
+void setup() {
+    ultrasonic.attach(trigPin, echoPin);
+    screen.begin();
+}
+
+void loop() {
+    float distance = ultrasonic.getDistanceCM();
+    
+    screen.beginDraw();
+    screen.clear();
+    screen.stroke(ON);
+    
+    if (distance <= 0) {
+        // No reading
+        screen.point(0, 0);
+    } else if (distance > FAR_THRESHOLD) {
+        // Far: single dot in center
+        screen.point(5, 3);
+    } else if (distance > MID_THRESHOLD) {
+        // Middle: expanding circle
+        screen.noFill();
+        screen.circle(5, 3, 2);
+    } else {
+        // Close: filled rectangle
+        screen.fill(ON);
+        screen.rect(2, 1, 8, 6);
+    }
+    
+    screen.endDraw();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>Visual modes</strong> tied to distance zones</li>
+            <li>Graphics <strong>always drawn</strong> — content changes by zone</li>
+            <li>Clear visual feedback: dot → circle → rectangle</li>
+            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
+        </ul>
+        
+        <h2>Library Required</h2>
+        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
+    `,
+
+    'example-canvas-distance-map': `
+        <h1>Canvas: Distance Map</h1>
+        <p class="example-breadcrumb">Examples → Canvas Mode → Distance Map</p>
+        <p>Map distance directly to the size of a shape. Closer = bigger circle.</p>
+        
+        <h2>Concept: Map</h2>
+        <p>Mapping distance to a visual property creates responsive, continuous feedback.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include &lt;EasyUltrasonic.h&gt;
+
+TinyScreen screen;
+
+const int trigPin = A0;
+const int echoPin = A1;
+EasyUltrasonic ultrasonic;
+
+const float MIN_DISTANCE = 5.0;
+const float MAX_DISTANCE = 80.0;
+const int MIN_RADIUS = 1;
+const int MAX_RADIUS = 4;
+
+int currentRadius = 1;
+
+void setup() {
+    ultrasonic.attach(trigPin, echoPin);
+    screen.begin();
+}
+
+void loop() {
+    float distance = ultrasonic.getDistanceCM();
+    
+    if (distance > 0) {
+        distance = constrain(distance, MIN_DISTANCE, MAX_DISTANCE);
+        // Map distance to radius (closer = bigger)
+        currentRadius = map(distance * 10, MIN_DISTANCE * 10, 
+                           MAX_DISTANCE * 10, MAX_RADIUS * 10, MIN_RADIUS * 10) / 10;
+    }
+    
+    screen.beginDraw();
+    screen.clear();
+    screen.stroke(ON);
+    screen.fill(ON);
+    screen.circle(5, 3, currentRadius);
+    screen.endDraw();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>map()</strong> converts distance to visual size</li>
+            <li>Inverted: closer distance → larger radius</li>
+            <li>Circle <strong>always visible</strong> — size continuously changes</li>
+            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
+        </ul>
+        
+        <h2>Library Required</h2>
+        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
+    `,
+
+    'example-canvas-pressure-threshold': `
+        <h1>Canvas: Pressure Threshold</h1>
+        <p class="example-breadcrumb">Examples → Canvas Mode → Pressure Threshold</p>
+        <p>Switch between graphic styles based on pressure levels. No press, light press, and hard press show different patterns.</p>
+        
+        <h2>Concept: Thresholds</h2>
+        <p>Different visual states provide clear feedback for distinct pressure levels.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+
+const int pressurePin = A0;
+
+const int LIGHT_THRESHOLD = 200;
+const int HARD_THRESHOLD = 600;
+
+void setup() {
+    screen.begin();
+}
+
+void loop() {
+    int pressure = analogRead(pressurePin);
+    
+    screen.beginDraw();
+    screen.clear();
+    screen.stroke(ON);
+    
+    if (pressure < LIGHT_THRESHOLD) {
+        // No/light pressure: horizontal line
+        screen.line(0, 3, 11, 3);
+    } else if (pressure < HARD_THRESHOLD) {
+        // Medium pressure: cross pattern
+        screen.line(0, 3, 11, 3);
+        screen.line(5, 0, 5, 7);
+    } else {
+        // Hard pressure: X pattern fills screen
+        screen.line(0, 0, 11, 7);
+        screen.line(11, 0, 0, 7);
+        screen.line(0, 3, 11, 3);
+        screen.line(5, 0, 5, 7);
+    }
+    
+    screen.endDraw();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>Visual complexity</strong> increases with pressure</li>
+            <li>Graphics <strong>always shown</strong> — pattern changes with pressure</li>
+            <li>Additive design: each level adds more elements</li>
+            <li>Clear haptic-to-visual feedback</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
+            <li>10K pull-down resistor</li>
+        </ul>
+    `,
+
+    'example-canvas-pressure-map': `
+        <h1>Canvas: Pressure Map</h1>
+        <p class="example-breadcrumb">Examples → Canvas Mode → Pressure Map</p>
+        <p>Map pressure to a bar graph height. More pressure = taller bar.</p>
+        
+        <h2>Concept: Map</h2>
+        <p>Direct mapping creates an intuitive visual meter for pressure.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+
+const int pressurePin = A0;
+
+void setup() {
+    screen.begin();
+}
+
+void loop() {
+    int pressure = analogRead(pressurePin);
+    
+    // Map pressure to bar height (0-8 pixels)
+    int barHeight = map(pressure, 0, 1023, 0, 8);
+    
+    screen.beginDraw();
+    screen.clear();
+    screen.stroke(ON);
+    screen.fill(ON);
+    
+    // Draw bar from bottom up
+    if (barHeight > 0) {
+        screen.rect(4, 8 - barHeight, 4, barHeight);
+    }
+    
+    // Always show baseline
+    screen.line(0, 7, 11, 7);
+    
+    screen.endDraw();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>map()</strong> converts pressure (0-1023) to height (0-8)</li>
+            <li>Bar graph provides <strong>visual feedback</strong> of pressure level</li>
+            <li>Baseline always visible — <strong>never blank</strong></li>
+            <li>Classic meter/gauge visualization</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
+            <li>10K pull-down resistor</li>
+        </ul>
+    `,
+
+    // Hybrid Mode - Sensor Examples
+    'example-hybrid-distance-threshold': `
+        <h1>Hybrid: Distance Threshold</h1>
+        <p class="example-breadcrumb">Examples → Hybrid Mode → Distance Threshold</p>
+        <p>Switch overlay styles based on distance zones. Animation plays continuously — overlay changes with proximity.</p>
+        
+        <h2>Concept: Thresholds</h2>
+        <p>Different overlay patterns indicate interaction zones while animation runs.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include &lt;EasyUltrasonic.h&gt;
+#include "idle.h"
+
+TinyScreen screen;
+Animation idleAnim = idle;
+
+const int trigPin = A0;
+const int echoPin = A1;
+EasyUltrasonic ultrasonic;
+
+const float FAR_THRESHOLD = 60.0;
+const float MID_THRESHOLD = 30.0;
+float currentDist = 100;
+
+void setup() {
+    ultrasonic.attach(trigPin, echoPin);
+    screen.begin();
+    screen.play(idleAnim, LOOP);
+}
+
+void loop() {
+    screen.update();
+    
+    float dist = ultrasonic.getDistanceCM();
+    if (dist > 0) currentDist = dist;
+    
+    screen.beginOverlay();
+    
+    if (currentDist > FAR_THRESHOLD) {
+        // Far: single corner indicator
+        screen.point(11, 0);
+    } else if (currentDist > MID_THRESHOLD) {
+        // Middle: edge indicators
+        screen.point(0, 0);
+        screen.point(11, 0);
+        screen.point(0, 7);
+        screen.point(11, 7);
+    } else {
+        // Close: full border
+        screen.line(0, 0, 11, 0);
+        screen.line(0, 7, 11, 7);
+        screen.line(0, 0, 0, 7);
+        screen.line(11, 0, 11, 7);
+    }
+    
+    screen.endOverlay();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li>Animation <strong>always plays</strong> underneath</li>
+            <li><strong>Overlay intensity</strong> increases with proximity</li>
+            <li>Border appears progressively: dot → corners → full frame</li>
+            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
+        </ul>
+        
+        <h2>Library Required</h2>
+        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
+    `,
+
+    'example-hybrid-distance-map': `
+        <h1>Hybrid: Distance Map</h1>
+        <p class="example-breadcrumb">Examples → Hybrid Mode → Distance Map</p>
+        <p>Map distance to a progress bar overlay width. Closer = longer bar over the animation.</p>
+        
+        <h2>Concept: Map</h2>
+        <p>Continuous mapping creates a dynamic overlay that responds smoothly to distance.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include &lt;EasyUltrasonic.h&gt;
+#include "idle.h"
+
+TinyScreen screen;
+Animation idleAnim = idle;
+
+const int trigPin = A0;
+const int echoPin = A1;
+EasyUltrasonic ultrasonic;
+
+const float MIN_DISTANCE = 5.0;
+const float MAX_DISTANCE = 80.0;
+float smoothDist = 40.0;
+
+void setup() {
+    ultrasonic.attach(trigPin, echoPin);
+    screen.begin();
+    screen.play(idleAnim, LOOP);
+}
+
+void loop() {
+    screen.update();
+    
+    float dist = ultrasonic.getDistanceCM();
+    if (dist > 0) {
+        smoothDist = smoothDist * 0.8 + dist * 0.2;
+    }
+    
+    float clamped = constrain(smoothDist, MIN_DISTANCE, MAX_DISTANCE);
+    
+    // Map distance to bar width (closer = wider)
+    int barWidth = map(clamped, MIN_DISTANCE, MAX_DISTANCE, 12, 1);
+    
+    screen.beginOverlay();
+    
+    // Draw progress bar on bottom row
+    for (int x = 0; x < barWidth; x++) {
+        screen.point(x, 7);
+    }
+    
+    screen.endOverlay();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>map()</strong> converts distance to overlay width</li>
+            <li>Animation <strong>continues playing</strong> under the bar</li>
+            <li>Progress bar shows proximity level</li>
+            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
+        </ul>
+        
+        <h2>Library Required</h2>
+        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
+    `,
+
+    'example-hybrid-pressure-threshold': `
+        <h1>Hybrid: Pressure Threshold</h1>
+        <p class="example-breadcrumb">Examples → Hybrid Mode → Pressure Threshold</p>
+        <p>Switch overlay patterns based on pressure levels. Animation always runs — overlay indicates pressure state.</p>
+        
+        <h2>Concept: Thresholds</h2>
+        <p>Overlay patterns show interaction intensity without interrupting the animation.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "background.h"
+
+TinyScreen screen;
+Animation bgAnim = background;
+
+const int pressurePin = A0;
+
+const int LIGHT_THRESHOLD = 200;
+const int HARD_THRESHOLD = 600;
+
+void setup() {
+    screen.begin();
+    screen.play(bgAnim, LOOP);
+}
+
+void loop() {
+    screen.update();
+    
+    int pressure = analogRead(pressurePin);
+    
+    screen.beginOverlay();
+    
+    if (pressure < LIGHT_THRESHOLD) {
+        // No pressure: minimal indicator
+        screen.point(5, 0);
+    } else if (pressure < HARD_THRESHOLD) {
+        // Medium: top row dots
+        screen.point(3, 0);
+        screen.point(5, 0);
+        screen.point(7, 0);
+    } else {
+        // Hard: top row full
+        screen.line(0, 0, 11, 0);
+    }
+    
+    screen.endOverlay();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li>Animation <strong>never stops</strong> — overlay changes</li>
+            <li><strong>Progressive feedback</strong>: dot → dots → line</li>
+            <li>Overlay shows pressure state non-intrusively</li>
+            <li>Clear visual indication of interaction level</li>
+        </ul>
+
+        <h2>Hardware Required</h2>
+        <ul>
+            <li>Arduino UNO R4 WiFi</li>
+            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
+            <li>10K pull-down resistor</li>
+        </ul>
+    `,
+
+    'example-hybrid-pressure-map': `
+        <h1>Hybrid: Pressure Map</h1>
+        <p class="example-breadcrumb">Examples → Hybrid Mode → Pressure Map</p>
+        <p>Map pressure to the number of overlay dots. More pressure = more dots appearing over the animation.</p>
+        
+        <h2>Concept: Map</h2>
+        <p>Continuous mapping creates responsive visual feedback layered on animation.</p>
+        
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "background.h"
+
+TinyScreen screen;
+Animation bgAnim = background;
+
+const int pressurePin = A0;
+
+void setup() {
+    screen.begin();
+    screen.play(bgAnim, LOOP);
+}
+
+void loop() {
+    screen.update();
+    
+    int pressure = analogRead(pressurePin);
+    
+    // Map pressure to number of dots (0-12)
+    int numDots = map(pressure, 0, 1023, 0, 12);
+    
+    screen.beginOverlay();
+    
+    // Draw dots across top row
+    for (int x = 0; x < numDots; x++) {
+        screen.point(x, 0);
+    }
+    
+    screen.endOverlay();
+}</code></pre>
+
+        <h2>Key Concepts</h2>
+        <ul>
+            <li><strong>map()</strong> converts pressure to dot count</li>
+            <li>Animation <strong>continues underneath</strong></li>
+            <li>Dot meter shows pressure intensity</li>
+            <li>Smooth visual response to physical input</li>
+        </ul>
+
         <h2>Hardware Required</h2>
         <ul>
             <li>Arduino UNO R4 WiFi</li>

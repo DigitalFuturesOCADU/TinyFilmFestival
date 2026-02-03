@@ -1,15 +1,19 @@
 /*
- * TinyFilmFestival V2 - Distance Zone Switch
- * 05_Sensor_Control/Distance_ZoneSwitch
+ * TinyFilmFestival V2 - Distance Threshold
+ * 02_Animation_Mode/Distance_Threshold
  * 
- * Switch animations based on distance zones.
- * Creates an "interactive zone" effect around the display.
+ * Switch between animations based on distance zones (thresholds).
+ * The animation is always playing — distance determines which one.
  * 
  * Hardware:
  * - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
  * - HC-SR04 ultrasonic sensor (Trigger: A0, Echo: A1)
  * 
  * Library: EasyUltrasonic by George Spulber
+ * 
+ * Concept: THRESHOLDS
+ * Thresholds divide sensor input into discrete zones.
+ * Each zone triggers a different mode/state.
  * 
  * LED Matrix Layout (12 columns x 8 rows):
  * 
@@ -47,19 +51,26 @@ const int trigPin = A0;
 const int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
-// Zone threshold
-const float threshold = 40.0;   // cm - switch point
+// Define threshold distances (in cm)
+const float FAR_THRESHOLD = 60.0;   // Beyond this = idle
+const float CLOSE_THRESHOLD = 30.0; // Closer than this = go (fast)
+                                    // Between = idle (medium speed)
+
+int currentMode = 0;  // 0=far(idle), 1=mid(idle fast), 2=close(go)
 
 unsigned long lastRead = 0;
 const int readInterval = 100;
-bool inCloseZone = false;
 
 void setup() {
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
     screen.play(idleAnim, LOOP);
-    Serial.println("Move closer than 40cm to trigger 'go' animation");
+    Serial.println("Distance Threshold Demo");
+    Serial.println("Move hand to switch animations:");
+    Serial.println("  Far (>60cm): idle slow");
+    Serial.println("  Mid (30-60cm): idle fast");  
+    Serial.println("  Close (<30cm): go");
 }
 
 void loop() {
@@ -67,18 +78,39 @@ void loop() {
         float dist = ultrasonic.getDistanceCM();
         
         if (dist > 0) {
-            bool nowClose = (dist < threshold);
+            int newMode;
             
-            // Only switch when crossing threshold
-            if (nowClose && !inCloseZone) {
-                screen.play(goAnim, LOOP);
-                Serial.println("CLOSE - playing: go");
-            } else if (!nowClose && inCloseZone) {
-                screen.play(idleAnim, LOOP);
-                Serial.println("FAR - playing: idle");
+            // Determine mode based on thresholds
+            if (dist > FAR_THRESHOLD) {
+                newMode = 0;  // Far away = idle slow
+            } else if (dist > CLOSE_THRESHOLD) {
+                newMode = 1;  // Middle zone = idle fast
+            } else {
+                newMode = 2;  // Close = go
             }
             
-            inCloseZone = nowClose;
+            // Only switch animation when mode changes
+            if (newMode != currentMode) {
+                currentMode = newMode;
+                
+                switch (currentMode) {
+                    case 0: 
+                        screen.play(idleAnim, LOOP);
+                        screen.setSpeed(1.0);
+                        Serial.println("FAR - idle (slow)");
+                        break;
+                    case 1: 
+                        screen.play(idleAnim, LOOP);
+                        screen.setSpeed(2.0);
+                        Serial.println("MID - idle (fast)");
+                        break;
+                    case 2: 
+                        screen.play(goAnim, LOOP);
+                        screen.setSpeed(1.0);
+                        Serial.println("CLOSE - go");
+                        break;
+                }
+            }
         }
         lastRead = millis();
     }

@@ -1,15 +1,17 @@
 /*
- * TinyFilmFestival V2 - Distance Zone Switch
- * 05_Sensor_Control/Distance_ZoneSwitch
+ * TinyFilmFestival V2 - Pressure Map (Canvas)
+ * 03_Canvas_Mode/Pressure_Map
  * 
- * Switch animations based on distance zones.
- * Creates an "interactive zone" effect around the display.
+ * Map pressure to a bar graph height.
+ * More pressure = taller bar.
  * 
  * Hardware:
  * - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
- * - HC-SR04 ultrasonic sensor (Trigger: A0, Echo: A1)
+ * - FSR (Force Sensitive Resistor) on analog pin A0
+ * - 10K pull-down resistor
  * 
- * Library: EasyUltrasonic by George Spulber
+ * Concept: MAP
+ * Direct mapping creates an intuitive visual meter for pressure.
  * 
  * LED Matrix Layout (12 columns x 8 rows):
  * 
@@ -34,54 +36,36 @@
  */
 
 #include "TinyFilmFestival.h"
-#include <EasyUltrasonic.h>
-#include "idle.h"
-#include "go.h"
 
 TinyScreen screen;
-Animation idleAnim = idle;
-Animation goAnim = go;
 
-// Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
-
-// Zone threshold
-const float threshold = 40.0;   // cm - switch point
-
-unsigned long lastRead = 0;
-const int readInterval = 100;
-bool inCloseZone = false;
+const int pressurePin = A0;
 
 void setup() {
     Serial.begin(9600);
-    ultrasonic.attach(trigPin, echoPin);
     screen.begin();
-    screen.play(idleAnim, LOOP);
-    Serial.println("Move closer than 40cm to trigger 'go' animation");
+    Serial.println("Canvas Pressure Map Demo");
+    Serial.println("Press harder = taller bar");
 }
 
 void loop() {
-    if (millis() - lastRead > readInterval) {
-        float dist = ultrasonic.getDistanceCM();
-        
-        if (dist > 0) {
-            bool nowClose = (dist < threshold);
-            
-            // Only switch when crossing threshold
-            if (nowClose && !inCloseZone) {
-                screen.play(goAnim, LOOP);
-                Serial.println("CLOSE - playing: go");
-            } else if (!nowClose && inCloseZone) {
-                screen.play(idleAnim, LOOP);
-                Serial.println("FAR - playing: idle");
-            }
-            
-            inCloseZone = nowClose;
-        }
-        lastRead = millis();
+    int pressure = analogRead(pressurePin);
+    
+    // Map pressure to bar height (0-8 pixels)
+    int barHeight = map(pressure, 0, 1023, 0, 8);
+    
+    screen.beginDraw();
+    screen.clear();
+    screen.stroke(ON);
+    screen.fill(ON);
+    
+    // Draw bar from bottom up (centered horizontally)
+    if (barHeight > 0) {
+        screen.rect(4, 8 - barHeight, 4, barHeight);
     }
     
-    screen.update();
+    // Always show baseline indicator
+    screen.line(0, 7, 11, 7);
+    
+    screen.endDraw();
 }

@@ -1,15 +1,18 @@
 /*
- * TinyFilmFestival V2 - Distance Zone Switch
- * 05_Sensor_Control/Distance_ZoneSwitch
+ * TinyFilmFestival V2 - Distance Threshold (Canvas)
+ * 03_Canvas_Mode/Distance_Threshold
  * 
- * Switch animations based on distance zones.
- * Creates an "interactive zone" effect around the display.
+ * Switch between graphic patterns based on distance zones.
+ * The display is always active — distance determines what's drawn.
  * 
  * Hardware:
  * - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
  * - HC-SR04 ultrasonic sensor (Trigger: A0, Echo: A1)
  * 
  * Library: EasyUltrasonic by George Spulber
+ * 
+ * Concept: THRESHOLDS
+ * Different visual modes create distinct feedback for each interaction zone.
  * 
  * LED Matrix Layout (12 columns x 8 rows):
  * 
@@ -35,53 +38,60 @@
 
 #include "TinyFilmFestival.h"
 #include <EasyUltrasonic.h>
-#include "idle.h"
-#include "go.h"
 
 TinyScreen screen;
-Animation idleAnim = idle;
-Animation goAnim = go;
 
 // Distance sensor
 const int trigPin = A0;
 const int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
-// Zone threshold
-const float threshold = 40.0;   // cm - switch point
+const float FAR_THRESHOLD = 60.0;
+const float MID_THRESHOLD = 30.0;
 
 unsigned long lastRead = 0;
-const int readInterval = 100;
-bool inCloseZone = false;
+const int readInterval = 50;
 
 void setup() {
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
-    screen.play(idleAnim, LOOP);
-    Serial.println("Move closer than 40cm to trigger 'go' animation");
+    Serial.println("Canvas Distance Threshold Demo");
+    Serial.println("Move hand to change graphics:");
+    Serial.println("  Far: single dot");
+    Serial.println("  Mid: circle outline");
+    Serial.println("  Close: filled rectangle");
 }
 
 void loop() {
+    float dist = 0;
+    
     if (millis() - lastRead > readInterval) {
-        float dist = ultrasonic.getDistanceCM();
-        
-        if (dist > 0) {
-            bool nowClose = (dist < threshold);
-            
-            // Only switch when crossing threshold
-            if (nowClose && !inCloseZone) {
-                screen.play(goAnim, LOOP);
-                Serial.println("CLOSE - playing: go");
-            } else if (!nowClose && inCloseZone) {
-                screen.play(idleAnim, LOOP);
-                Serial.println("FAR - playing: idle");
-            }
-            
-            inCloseZone = nowClose;
-        }
+        dist = ultrasonic.getDistanceCM();
         lastRead = millis();
     }
     
-    screen.update();
+    screen.beginDraw();
+    screen.clear();
+    screen.stroke(ON);
+    
+    if (dist <= 0) {
+        // No reading - show error indicator
+        screen.point(0, 0);
+        screen.point(11, 7);
+    } else if (dist > FAR_THRESHOLD) {
+        // Far: single dot in center
+        screen.point(5, 3);
+        screen.point(6, 4);
+    } else if (dist > MID_THRESHOLD) {
+        // Middle: circle outline
+        screen.noFill();
+        screen.circle(5, 3, 2);
+    } else {
+        // Close: filled rectangle
+        screen.fill(ON);
+        screen.rect(2, 1, 8, 6);
+    }
+    
+    screen.endDraw();
 }

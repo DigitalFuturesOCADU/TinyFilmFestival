@@ -9,7 +9,7 @@
  * - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
  * - HC-SR04 ultrasonic sensor (Trigger: A0, Echo: A1)
  * 
- * Library: HCSR04 by Martin Sosic
+ * Library: EasyUltrasonic by George Spulber
  * 
  * LED Matrix Layout (12 columns x 8 rows):
  * 
@@ -34,7 +34,7 @@
  */
 
 #include "TinyFilmFestival.h"
-#include "HCSR04.h"
+#include <EasyUltrasonic.h>
 #include "idle.h"
 
 TinyScreen screen;
@@ -43,7 +43,7 @@ Animation idleAnim = idle;
 // Distance sensor
 const int trigPin = A0;
 const int echoPin = A1;
-UltraSonicDistanceSensor sensor(trigPin, echoPin, 200);
+EasyUltrasonic ultrasonic;
 
 // Speed mapping
 const float minDist = 5.0;      // cm - closest reading
@@ -56,6 +56,7 @@ const int readInterval = 100;   // ms between sensor reads
 
 void setup() {
     Serial.begin(9600);
+    ultrasonic.attach(trigPin, echoPin);
     screen.begin();
     screen.play(idleAnim, LOOP);
     Serial.println("Move hand closer/farther to control speed");
@@ -64,7 +65,7 @@ void setup() {
 void loop() {
     // Read sensor at intervals
     if (millis() - lastRead > readInterval) {
-        float dist = sensor.measureDistanceCm();
+        float dist = ultrasonic.getDistanceCM();
         
         if (dist > 0) {
             // Constrain and map distance to speed

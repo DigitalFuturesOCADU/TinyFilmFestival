@@ -1,15 +1,18 @@
 /*
- * TinyFilmFestival V2 - Distance Zone Switch
- * 05_Sensor_Control/Distance_ZoneSwitch
+ * TinyFilmFestival V2 - Pressure Threshold (Hybrid)
+ * 04_Hybrid_Mode/Pressure_Threshold
  * 
- * Switch animations based on distance zones.
- * Creates an "interactive zone" effect around the display.
+ * Switch overlay patterns based on pressure levels.
+ * Animation always runs — overlay indicates pressure state.
  * 
  * Hardware:
  * - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
- * - HC-SR04 ultrasonic sensor (Trigger: A0, Echo: A1)
+ * - FSR (Force Sensitive Resistor) on analog pin A0
+ * - 10K pull-down resistor
  * 
- * Library: EasyUltrasonic by George Spulber
+ * Concept: THRESHOLDS
+ * Overlay patterns show interaction intensity without 
+ * interrupting the animation.
  * 
  * LED Matrix Layout (12 columns x 8 rows):
  * 
@@ -34,54 +37,46 @@
  */
 
 #include "TinyFilmFestival.h"
-#include <EasyUltrasonic.h>
 #include "idle.h"
-#include "go.h"
 
 TinyScreen screen;
 Animation idleAnim = idle;
-Animation goAnim = go;
 
-// Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
+const int pressurePin = A0;
 
-// Zone threshold
-const float threshold = 40.0;   // cm - switch point
-
-unsigned long lastRead = 0;
-const int readInterval = 100;
-bool inCloseZone = false;
+const int LIGHT_THRESHOLD = 200;
+const int HARD_THRESHOLD = 600;
 
 void setup() {
     Serial.begin(9600);
-    ultrasonic.attach(trigPin, echoPin);
     screen.begin();
     screen.play(idleAnim, LOOP);
-    Serial.println("Move closer than 40cm to trigger 'go' animation");
+    Serial.println("Hybrid Pressure Threshold Demo");
+    Serial.println("Animation plays, overlay shows pressure:");
+    Serial.println("  Light: center dot");
+    Serial.println("  Medium: three dots");
+    Serial.println("  Hard: full top line");
 }
 
 void loop() {
-    if (millis() - lastRead > readInterval) {
-        float dist = ultrasonic.getDistanceCM();
-        
-        if (dist > 0) {
-            bool nowClose = (dist < threshold);
-            
-            // Only switch when crossing threshold
-            if (nowClose && !inCloseZone) {
-                screen.play(goAnim, LOOP);
-                Serial.println("CLOSE - playing: go");
-            } else if (!nowClose && inCloseZone) {
-                screen.play(idleAnim, LOOP);
-                Serial.println("FAR - playing: idle");
-            }
-            
-            inCloseZone = nowClose;
-        }
-        lastRead = millis();
+    screen.update();
+    
+    int pressure = analogRead(pressurePin);
+    
+    screen.beginOverlay();
+    
+    if (pressure < LIGHT_THRESHOLD) {
+        // No pressure: minimal indicator
+        screen.point(5, 0);
+    } else if (pressure < HARD_THRESHOLD) {
+        // Medium: top row dots
+        screen.point(3, 0);
+        screen.point(5, 0);
+        screen.point(7, 0);
+    } else {
+        // Hard: top row full
+        screen.line(0, 0, 11, 0);
     }
     
-    screen.update();
+    screen.endOverlay();
 }

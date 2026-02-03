@@ -1,15 +1,18 @@
 /*
- * TinyFilmFestival V2 - Distance Zone Switch
- * 05_Sensor_Control/Distance_ZoneSwitch
+ * TinyFilmFestival V2 - Pressure Map
+ * 02_Animation_Mode/Pressure_Map
  * 
- * Switch animations based on distance zones.
- * Creates an "interactive zone" effect around the display.
+ * Map pressure sensor values directly to animation speed.
+ * More pressure = faster animation. Animation never stops.
  * 
  * Hardware:
  * - Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
- * - HC-SR04 ultrasonic sensor (Trigger: A0, Echo: A1)
+ * - FSR (Force Sensitive Resistor) on analog pin A0
+ * - 10K pull-down resistor
  * 
- * Library: EasyUltrasonic by George Spulber
+ * Concept: MAP
+ * Continuous mapping creates a direct, responsive connection between 
+ * physical input and visual output.
  * 
  * LED Matrix Layout (12 columns x 8 rows):
  * 
@@ -34,53 +37,43 @@
  */
 
 #include "TinyFilmFestival.h"
-#include <EasyUltrasonic.h>
 #include "idle.h"
-#include "go.h"
 
 TinyScreen screen;
 Animation idleAnim = idle;
-Animation goAnim = go;
 
-// Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
+const int pressurePin = A0;
 
-// Zone threshold
-const float threshold = 40.0;   // cm - switch point
-
-unsigned long lastRead = 0;
-const int readInterval = 100;
-bool inCloseZone = false;
+// Define the output speed range (x10 for precision with integer math)
+const int MIN_SPEED = 5;   // 0.5x when no pressure
+const int MAX_SPEED = 40;  // 4.0x at full pressure
 
 void setup() {
     Serial.begin(9600);
-    ultrasonic.attach(trigPin, echoPin);
     screen.begin();
     screen.play(idleAnim, LOOP);
-    Serial.println("Move closer than 40cm to trigger 'go' animation");
+    Serial.println("Pressure Map Demo");
+    Serial.println("Press harder = faster animation");
 }
 
 void loop() {
-    if (millis() - lastRead > readInterval) {
-        float dist = ultrasonic.getDistanceCM();
-        
-        if (dist > 0) {
-            bool nowClose = (dist < threshold);
-            
-            // Only switch when crossing threshold
-            if (nowClose && !inCloseZone) {
-                screen.play(goAnim, LOOP);
-                Serial.println("CLOSE - playing: go");
-            } else if (!nowClose && inCloseZone) {
-                screen.play(idleAnim, LOOP);
-                Serial.println("FAR - playing: idle");
-            }
-            
-            inCloseZone = nowClose;
-        }
-        lastRead = millis();
+    int pressure = analogRead(pressurePin);
+    
+    // Map pressure (0-1023) to speed (0.5x - 4.0x)
+    int speedValue = map(pressure, 0, 1023, MIN_SPEED, MAX_SPEED);
+    float speed = speedValue / 10.0;
+    
+    screen.setSpeed(speed);
+    
+    // Debug output (less frequent to not spam serial)
+    static unsigned long lastPrint = 0;
+    if (millis() - lastPrint > 200) {
+        Serial.print("Pressure: ");
+        Serial.print(pressure);
+        Serial.print(" -> ");
+        Serial.print(speed);
+        Serial.println("x speed");
+        lastPrint = millis();
     }
     
     screen.update();
