@@ -34,7 +34,7 @@ void setup() {
 
 void loop() {
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);
     screen.stroke(ON);
     
     // Three dots at different oscillation speeds

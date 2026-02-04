@@ -72,7 +72,7 @@ void loop() {
     }
     
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);
     screen.stroke(ON);
     
     if (dist <= 0) {

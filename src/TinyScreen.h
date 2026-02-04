@@ -171,6 +171,35 @@ private:
     uint32_t combinedFrame[3];
     bool inOverlay;
     
+    // Canvas mode buffering (flicker-free drawing)
+    uint8_t canvasBuffer[8][12];      // [row][col] pixel buffer
+    bool inCanvasDraw;                 // Currently in beginDraw/endDraw block
+    bool strokeEnabled;
+    bool fillEnabled;
+    uint8_t strokeValue;               // 1 = ON, 0 = OFF
+    uint8_t fillValue;                 // 1 = ON, 0 = OFF
+    
+    // Text rendering state
+    uint8_t textSize;                  // 1 = normal (3x5), 2 = double (6x10)
+    int scrollOffset;                  // Current scroll position
+    unsigned long scrollSpeed;         // Ms per pixel
+    unsigned long lastScrollTime;      // Last scroll update time
+    
+    // Display rotation (0, 90, 180, 270 degrees)
+    uint8_t rotation;                  // 0=0°, 1=90°, 2=180°, 3=270°
+    
+    // Display invert
+    bool invertDisplay;                // If true, flip all pixels
+    
+    // Internal drawing helpers
+    void bufferPoint(int x, int y, uint8_t value);
+    void bufferLine(int x1, int y1, int x2, int y2);
+    void bufferRect(int x, int y, int w, int h);
+    void bufferCircle(int cx, int cy, int r);
+    void bufferToFrame(uint32_t frame[3]);
+    void bufferCharScaled(char c, int x, int y, uint8_t value, int scale);
+    void frameToBuffer(const uint32_t frame[3]);  // Load frame into canvas buffer
+    
     // For backward compatibility - primary layer access
     AnimationLayer& primary() { return layers[0]; }
     const AnimationLayer& primary() const { return layers[0]; }
@@ -217,6 +246,10 @@ public:
     void beginDraw();
     void endDraw();
     void clear();
+    void setRotation(int degrees);        // 0, 90, 180, or 270
+    int getRotation();                    // Returns current rotation in degrees
+    void setInvert(bool invert);          // Invert all pixels (flip ON/OFF)
+    bool getInvert();                     // Returns current invert state
     
     // Drawing primitives
     void set(int x, int y, bool on);      // Single pixel
@@ -237,14 +270,27 @@ public:
     void noStroke();
     void noFill();
     
-    // Text methods
+    // Text methods - renders to canvas buffer (works with beginDraw/endDraw)
+    // Built-in 3x5 font (4 pixels per char with spacing)
     void text(const char* str, int x, int y);
     void text(const String& str, int x, int y);
+    void textChar(char c, int x, int y);      // Draw single character
+    void setTextSize(int size);               // 1 = 3x5 (default), 2 = 6x10 (scaled)
+    
+    // Scrolling text - works with buffered drawing
+    // Call in loop, auto-updates scroll position
+    void scrollText(const char* str, int y, int direction = SCROLL_LEFT);
+    void scrollText(const String& str, int y, int direction = SCROLL_LEFT);
+    void setScrollSpeed(unsigned long ms);    // Milliseconds per pixel scroll
+    void resetScroll();                       // Reset scroll position to start
+    int getScrollOffset();                    // Get current scroll offset
+    
+    // Legacy text methods (use ArduinoGraphics - won't work with buffered drawing)
     void textFont(const Font& font);
     int textFontWidth();
     int textFontHeight();
     
-    // Scrolling text
+    // Legacy scrolling text (ArduinoGraphics - won't work with buffered drawing)
     void beginText(int x = 0, int y = 0);
     void beginText(int x, int y, uint8_t r, uint8_t g, uint8_t b);
     void beginText(int x, int y, uint32_t color);
@@ -303,6 +349,9 @@ private:
     
     // Helper to convert linear index to x,y
     void indexToXY(int index, int& x, int& y);
+    
+    // Canvas buffer to frame conversion helper
+    void canvasBufferToFrame(uint32_t frame[3]);
 };
 
 //------------------------------------------------------------------------------

@@ -55,7 +55,7 @@ void loop() {
     int barHeight = map(pressure, 0, 1023, 0, 8);
     
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);
     screen.stroke(ON);
     screen.fill(ON);
     

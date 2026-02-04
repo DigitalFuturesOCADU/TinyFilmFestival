@@ -52,7 +52,7 @@ void loop() {
     screen.beginDraw();
     
     // Clear the screen (set all pixels off)
-    screen.clear();
+    screen.background(OFF);
     
     // Draw a single point at the current position
     screen.point(x, 4);  // y=4 is the middle row

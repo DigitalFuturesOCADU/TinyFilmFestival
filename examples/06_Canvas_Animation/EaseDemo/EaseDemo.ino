@@ -1,6 +1,19 @@
 /*
- * Smooth Animation Example
- * Demonstrates oscillate() and Ease for smooth motion
+ * TinyFilmFestival - Canvas Animation - EaseDemo
+ * 
+ * Shows smooth linear interpolation to target positions.
+ * The Ease class provides smooth motion between values over time.
+ * 
+ * This example demonstrates:
+ *   - Creating Ease objects for position control
+ *   - Setting targets with to(value, duration)
+ *   - Checking completion with done()
+ *   - Reading current value with intValue()
+ * 
+ * Mode: Canvas
+ * 
+ * Hardware Required:
+ *   - Arduino UNO R4 WiFi
  * 
  * LED Matrix Layout (12x8):
  *
@@ -28,36 +41,50 @@
 
 TinyScreen screen;
 
-// Ease objects for smooth position control
-Ease xPos(0);    // Horizontal position, starts at 0
-Ease yPos(3);    // Vertical position, starts at middle
+// Create Ease objects for x and y position
+Ease x(0);   // Start at left
+Ease y(0);   // Start at top
+
+// Target positions (corners and center)
+const int targets[][2] = {
+    {0, 0},    // Top-left
+    {11, 0},   // Top-right
+    {11, 7},   // Bottom-right
+    {0, 7},    // Bottom-left
+    {5, 3}     // Center
+};
+const int numTargets = 5;
+int currentTarget = 0;
+
+unsigned long lastMove = 0;
 
 void setup() {
     screen.begin();
     
-    // Start first animation: move to right side over 2 seconds
-    xPos.to(11, 2000);
+    // Start moving to first target
+    x.to(targets[0][0], 1000);
+    y.to(targets[0][1], 1000);
+    lastMove = millis();
 }
 
 void loop() {
-    // When horizontal movement finishes, start a new target
-    if (xPos.done()) {
-        // Ping-pong between left and right
-        if (xPos.target() > 5) {
-            xPos.to(0, 2000);   // Move left over 2 seconds
-        } else {
-            xPos.to(11, 2000);  // Move right over 2 seconds
+    // When both x and y are done, wait a moment then move to next target
+    if (x.done() && y.done()) {
+        if (millis() - lastMove > 500) {  // Pause for 500ms
+            // Move to next target
+            currentTarget = (currentTarget + 1) % numTargets;
+            x.to(targets[currentTarget][0], 800);  // 800ms to reach target
+            y.to(targets[currentTarget][1], 800);
+            lastMove = millis();
         }
+    } else {
+        lastMove = millis();
     }
     
-    // Use oscillate() for continuous vertical wave motion
-    // Smoothly cycles between y=1 and y=6 over 1.5 seconds
-    int y = oscillateInt(1, 6, 1500);
-    
-    // Draw the moving dot
+    // Draw the smoothly moving dot
     screen.beginDraw();
     screen.background(OFF);
     screen.stroke(ON);
-    screen.point(xPos.intValue(), y);
+    screen.point(x.intValue(), y.intValue());
     screen.endDraw();
 }

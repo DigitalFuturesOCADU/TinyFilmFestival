@@ -79,7 +79,7 @@ void loop() {
     }
     
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);
     screen.stroke(ON);
     screen.fill(ON);
     screen.circle(5, 3, currentRadius);

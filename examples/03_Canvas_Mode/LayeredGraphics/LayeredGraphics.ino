@@ -39,10 +39,9 @@
  *     +----+----+----+----+----+----+----+----+----+----+----+----+
  */
 
-#include "ArduinoGraphics.h"
-#include "Arduino_LED_Matrix.h"
+#include "TinyFilmFestival.h"
 
-ArduinoLEDMatrix matrix;
+TinyScreen screen;
 
 // === Layer 1: Slow horizontal scan line (background) ===
 int scanY = 0;
@@ -63,7 +62,7 @@ unsigned long lastRingUpdate = 0;
 const int RING_SPEED = 120;  // Medium: 120ms per step
 
 void setup() {
-    matrix.begin();
+    screen.begin();
 }
 
 void loop() {
@@ -97,19 +96,19 @@ void loop() {
     }
     
     // Draw all layers
-    matrix.beginDraw();
-    matrix.clear();
-    matrix.stroke(0xFFFFFF);
+    screen.beginDraw();
+    screen.background(OFF);
+    screen.stroke(ON);
     
     // Layer 1: Horizontal scan line
-    matrix.line(0, scanY, 11, scanY);
+    screen.line(0, scanY, 11, scanY);
     
     // Layer 2: Bouncing dot
-    matrix.point(dotX, 4);
+    screen.point(dotX, 4);
     
     // Layer 3: Pulsing ring (outline only)
-    matrix.noFill();
-    matrix.circle(6, 4, ringSize * 2);
+    screen.noFill();
+    screen.circle(6, 4, ringSize * 2);
     
-    matrix.endDraw();
+    screen.endDraw();
 }

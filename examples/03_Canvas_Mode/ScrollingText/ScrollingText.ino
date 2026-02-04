@@ -31,32 +31,58 @@
 
 TinyScreen screen;
 
+int phase = 0;
+unsigned long phaseStart;
+
 void setup() {
     screen.begin();
-    
-    // Display static text first
-    screen.beginDraw();
-    screen.stroke(0xFFFFFF);
-    screen.textFont(Font_4x6);
-    screen.text("Hi!", 1, 1);
-    screen.endDraw();
-    
-    delay(2000);
+    phaseStart = millis();
 }
 
 void loop() {
-    // Scroll text left
-    screen.textScrollSpeed(100);
-    screen.beginText(0, 1, 0xFFFFFF);
-    screen.print("  Hello Arduino R4!  ");
-    screen.endText(SCROLL_LEFT);
+    unsigned long elapsed = millis() - phaseStart;
     
-    delay(500);
-    
-    // Scroll text right
-    screen.beginText(0, 1, 0xFFFFFF);
-    screen.print("  TinyFilmFestival  ");
-    screen.endText(SCROLL_RIGHT);
-    
-    delay(500);
+    switch (phase) {
+        case 0:
+            // Static text for 3 seconds
+            screen.beginDraw();
+            screen.stroke(ON);
+            screen.text("Hi!", 1, 2);
+            screen.endDraw();
+            
+            if (elapsed > 3000) {
+                phase = 1;
+                phaseStart = millis();
+                screen.resetScroll();
+                screen.setScrollSpeed(80);  // 80ms per pixel
+            }
+            break;
+            
+        case 1:
+            // Scroll left for 8 seconds
+            screen.beginDraw();
+            screen.stroke(ON);
+            screen.scrollText("HELLO WORLD", 2, SCROLL_LEFT);
+            screen.endDraw();
+            
+            if (elapsed > 8000) {
+                phase = 2;
+                phaseStart = millis();
+                screen.resetScroll();
+            }
+            break;
+            
+        case 2:
+            // Scroll right for 8 seconds  
+            screen.beginDraw();
+            screen.stroke(ON);
+            screen.scrollText("ARDUINO", 2, SCROLL_RIGHT);
+            screen.endDraw();
+            
+            if (elapsed > 8000) {
+                phase = 0;
+                phaseStart = millis();
+            }
+            break;
+    }
 }

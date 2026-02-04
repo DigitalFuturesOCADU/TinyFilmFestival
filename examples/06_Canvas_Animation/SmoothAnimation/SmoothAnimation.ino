@@ -1,6 +1,19 @@
 /*
- * Smooth Animation Example
- * Demonstrates oscillate() and Ease for smooth motion
+ * TinyFilmFestival - Canvas Animation - SmoothAnimation
+ * 
+ * Demonstrates combining oscillate() and Ease for smooth motion.
+ * Uses Ease for horizontal ping-pong and oscillate for vertical wave.
+ * 
+ * This example demonstrates:
+ *   - Combining Ease and oscillate() together
+ *   - Ease for controlled point-to-point motion
+ *   - oscillate() for continuous cyclic motion
+ *   - Checking done() to trigger new targets
+ * 
+ * Mode: Canvas
+ * 
+ * Hardware Required:
+ *   - Arduino UNO R4 WiFi
  * 
  * LED Matrix Layout (12x8):
  *

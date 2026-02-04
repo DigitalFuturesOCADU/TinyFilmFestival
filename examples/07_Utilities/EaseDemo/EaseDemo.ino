@@ -71,7 +71,7 @@ void loop() {
     
     // Draw the smoothly moving dot
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);
     screen.stroke(ON);
     screen.point(x.intValue(), y.intValue());
     screen.endDraw();

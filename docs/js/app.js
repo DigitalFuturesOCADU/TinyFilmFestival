@@ -146,6 +146,8 @@ const searchIndex = [
     { method: 'isComplete()', description: 'Check if ONCE mode finished', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'getCurrentFrame()', description: 'Get current frame number', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'getTotalFrames()', description: 'Get total number of frames', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'setInvert(bool)', description: 'Invert all pixels on display', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'getInvert()', description: 'Check if display is inverted', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'addLayer()', description: 'Add a new animation layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'playOnLayer(layer, anim, mode)', description: 'Play animation on specific layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'setSpeedOnLayer(layer, speed)', description: 'Set speed for specific layer', page: 'animation-mode', category: 'Animation Mode' },
@@ -156,8 +158,7 @@ const searchIndex = [
     // Canvas Mode
     { method: 'beginDraw()', description: 'Begin a drawing operation', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'endDraw()', description: 'End drawing and display result', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'clear()', description: 'Clear the display', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'background(state)', description: 'Set background state (ON/OFF)', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'background(state)', description: 'Set background state (ON/OFF) - use instead of clear()', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'stroke(state)', description: 'Set outline state for shapes', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'noStroke()', description: 'Disable outlines', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'fill(state)', description: 'Set fill state for shapes', page: 'canvas-mode', category: 'Canvas Mode' },
@@ -165,20 +166,32 @@ const searchIndex = [
     { method: 'point(x, y)', description: 'Draw a single point', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'line(x1, y1, x2, y2)', description: 'Draw a line between two points', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'rect(x, y, width, height)', description: 'Draw a rectangle', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'circle(cx, cy, radius)', description: 'Draw a circle', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'circle(cx, cy, diameter)', description: 'Draw a circle', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'ellipse(cx, cy, width, height)', description: 'Draw an ellipse', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'text(string, x, y)', description: 'Draw text at position', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'textScrollSpeed(speed)', description: 'Set scroll speed for text', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'beginText(x, y)', description: 'Begin text block', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'endText()', description: 'End text block', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'print()', description: 'Print text', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'println()', description: 'Print text with newline', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'setTextSize(size)', description: 'Set text size (1 or 2)', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'scrollText(string, x, y)', description: 'Draw scrolling text', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'setScrollSpeed(ms)', description: 'Set scroll speed in milliseconds', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'resetScroll()', description: 'Reset scroll position to start', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'setRotation(degrees)', description: 'Set display rotation (0, 90, 180, 270)', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'getRotation()', description: 'Get current rotation in degrees', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'setInvert(bool)', description: 'Invert all pixels on display', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'getInvert()', description: 'Check if display is inverted', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'width()', description: 'Get matrix width (12)', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'height()', description: 'Get matrix height (8)', page: 'canvas-mode', category: 'Canvas Mode' },
     
     // Hybrid Mode
     { method: 'beginOverlay()', description: 'Begin overlay drawing (preserves animation)', page: 'hybrid-mode', category: 'Hybrid Mode' },
     { method: 'endOverlay()', description: 'End overlay and display combined result', page: 'hybrid-mode', category: 'Hybrid Mode' },
+    
+    // Canvas Animation Utilities
+    { method: 'Ease(start)', description: 'Create easing object with start value', page: 'example-ease-demo', category: 'Canvas Animation' },
+    { method: 'ease.to(target, duration)', description: 'Animate to target over duration ms', page: 'example-ease-demo', category: 'Canvas Animation' },
+    { method: 'ease.intValue()', description: 'Get current value as integer', page: 'example-ease-demo', category: 'Canvas Animation' },
+    { method: 'ease.done()', description: 'Check if animation is complete', page: 'example-ease-demo', category: 'Canvas Animation' },
+    { method: 'ease.target()', description: 'Get the target value', page: 'example-ease-demo', category: 'Canvas Animation' },
+    { method: 'oscillateInt(min, max, period)', description: 'Get oscillating integer value', page: 'example-oscillator-demo', category: 'Canvas Animation' },
+    { method: 'oscillateFloat(min, max, period)', description: 'Get oscillating float value', page: 'example-oscillator-demo', category: 'Canvas Animation' },
     
     // Constants
     { method: 'LOOP', description: 'Play animation continuously', page: 'animation-mode', category: 'Constants' },
@@ -188,13 +201,6 @@ const searchIndex = [
     { method: 'OFF', description: 'LED/pixel off state', page: 'canvas-mode', category: 'Constants' },
     { method: 'HIGH', description: 'LED on (Simple LED mode)', page: 'simple-led', category: 'Constants' },
     { method: 'LOW', description: 'LED off (Simple LED mode)', page: 'simple-led', category: 'Constants' },
-    
-    // Sensor Concepts
-    { method: 'threshold', description: 'Use distance zones to switch between animations or modes', page: 'example-anim-distance-threshold', category: 'Sensor Control' },
-    { method: 'map()', description: 'Map sensor values to animation speed or size', page: 'example-anim-distance-map', category: 'Sensor Control' },
-    { method: 'distance sensor', description: 'HC-SR04 ultrasonic distance sensor examples', page: 'example-anim-distance-threshold', category: 'Sensor Control' },
-    { method: 'pressure sensor', description: 'FSR force sensitive resistor examples', page: 'example-anim-pressure-threshold', category: 'Sensor Control' },
-    { method: 'constrain()', description: 'Keep sensor values within expected bounds', page: 'example-anim-distance-map', category: 'Sensor Control' },
 ];
 
 function searchAPI(query) {
@@ -379,6 +385,9 @@ void loop() {
         <p>Control individual LEDs like <code>digitalWrite()</code> — the simplest way to get started.</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
+unsigned long lastBlink = 0;
+bool ledState = false;
+
 void setup() {
     ledBegin();                   // Initialize matrix
     
@@ -388,10 +397,12 @@ void setup() {
 }
 
 void loop() {
-    ledWrite(5, 3, HIGH);         // Center ON
-    delay(500);
-    ledWrite(5, 3, LOW);          // Center OFF
-    delay(500);
+    // Non-blocking blink using millis()
+    if (millis() - lastBlink >= 500) {
+        lastBlink = millis();
+        ledState = !ledState;
+        ledWrite(5, 3, ledState ? HIGH : LOW);
+    }
 }</code></pre>
 
         <h2>Animation Mode</h2>
@@ -423,7 +434,8 @@ void setup() {
 
 void loop() {
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);       // Clear to black
+    screen.stroke(ON);
     screen.point(5, 3);           // Draw a point
     screen.line(0, 0, 11, 7);     // Draw a line
     screen.endDraw();
@@ -446,6 +458,7 @@ void loop() {
     screen.update();
     
     screen.beginOverlay();
+    screen.stroke(ON);
     screen.point(11, 0);          // Status indicator
     screen.endOverlay();
 }</code></pre>
@@ -729,11 +742,26 @@ screen.playOnLayer(1, foregroundAnim, LOOP);  // Layer 1 (foreground)</code></pr
             <tr><td><code>resumeLayer(layer)</code></td><td>Resume specific layer</td></tr>
             <tr><td><code>stopLayer(layer)</code></td><td>Stop specific layer</td></tr>
         </table>
+
+        <h2>Display Transform</h2>
+        
+        <div class="api-method">
+            <h3>setInvert(bool)</h3>
+            <p>Invert all pixels on the display (swap ON and OFF). Works in Animation Mode.</p>
+            <pre><code class="language-cpp">screen.setInvert(true);    // Inverted display
+screen.setInvert(false);   // Normal display</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>getInvert()</h3>
+            <p>Check if display is currently inverted.</p>
+            <pre><code class="language-cpp">bool inverted = screen.getInvert();</code></pre>
+        </div>
     `,
 
     'canvas-mode': `
         <h1>Canvas Mode API</h1>
-        <p>Draw directly to the LED matrix using code. Generate graphics in real-time.</p>
+        <p>Draw directly to the LED matrix using code. Generate graphics in real-time with a double-buffered drawing system.</p>
 
         <h2>Overview</h2>
         <p>Canvas Mode is perfect for:</p>
@@ -759,7 +787,8 @@ void setup() {
 
 void loop() {
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);   // Clear to black
+    screen.stroke(ON);
     // Draw something here
     screen.endDraw();
 }</code></pre>
@@ -770,22 +799,17 @@ void loop() {
             <h3>beginDraw() / endDraw()</h3>
             <p>Begin and end a drawing operation. All drawing commands go between these calls.</p>
             <pre><code class="language-cpp">screen.beginDraw();
-screen.clear();
+screen.background(OFF);
+screen.stroke(ON);
 screen.point(5, 3);
 screen.endDraw();</code></pre>
         </div>
 
         <div class="api-method">
-            <h3>clear()</h3>
-            <p>Clear the display (all LEDs off).</p>
-            <pre><code class="language-cpp">screen.clear();</code></pre>
-        </div>
-
-        <div class="api-method">
             <h3>background(state)</h3>
-            <p>Set the background state (ON or OFF).</p>
-            <pre><code class="language-cpp">screen.background(OFF);   // Dark background
-screen.background(ON);    // Lit background</code></pre>
+            <p>Fill the entire display with the given state. Use <code>background(OFF)</code> to clear the screen.</p>
+            <pre><code class="language-cpp">screen.background(OFF);   // Dark background (clear)
+screen.background(ON);    // Lit background (all LEDs on)</code></pre>
         </div>
 
         <h2>Style Control</h2>
@@ -794,13 +818,15 @@ screen.background(ON);    // Lit background</code></pre>
             <h3>stroke(state) / noStroke()</h3>
             <p>Set outline state for shapes.</p>
             <pre><code class="language-cpp">screen.stroke(ON);    // Outlines will be lit
-screen.noStroke();    // No outlines</code></pre>
+screen.stroke(OFF);   // Outlines will be dark (erase)
+screen.noStroke();    // No outlines drawn</code></pre>
         </div>
 
         <div class="api-method">
             <h3>fill(state) / noFill()</h3>
             <p>Set fill state for shapes.</p>
-            <pre><code class="language-cpp">screen.fill(ON);      // Shapes will be filled
+            <pre><code class="language-cpp">screen.fill(ON);      // Shapes will be filled (lit)
+screen.fill(OFF);     // Shapes will be filled (dark/erase)
 screen.noFill();      // No fill (outline only)</code></pre>
         </div>
 
@@ -825,9 +851,9 @@ screen.noFill();      // No fill (outline only)</code></pre>
         </div>
 
         <div class="api-method">
-            <h3>circle(cx, cy, radius)</h3>
-            <p>Draw a circle.</p>
-            <pre><code class="language-cpp">screen.circle(5, 3, 2);     // Circle at center</code></pre>
+            <h3>circle(cx, cy, diameter)</h3>
+            <p>Draw a circle with given diameter.</p>
+            <pre><code class="language-cpp">screen.circle(5, 3, 4);     // Circle at center, diameter 4</code></pre>
         </div>
 
         <div class="api-method">
@@ -840,27 +866,64 @@ screen.noFill();      // No fill (outline only)</code></pre>
 
         <div class="api-method">
             <h3>text(string, x, y)</h3>
-            <p>Draw text at position.</p>
-            <pre><code class="language-cpp">screen.text("Hi", 0, 0);</code></pre>
+            <p>Draw text at position using built-in 3x5 font.</p>
+            <pre><code class="language-cpp">screen.text("Hi", 0, 1);</code></pre>
         </div>
 
         <div class="api-method">
-            <h3>textScrollSpeed(speed)</h3>
-            <p>Set scroll speed for text that's wider than the display.</p>
-            <pre><code class="language-cpp">screen.textScrollSpeed(100);   // 100ms per step</code></pre>
+            <h3>setTextSize(size)</h3>
+            <p>Set text size: 1 = normal (3x5), 2 = double (6x10).</p>
+            <pre><code class="language-cpp">screen.setTextSize(1);   // Normal size
+screen.setTextSize(2);   // Double size</code></pre>
         </div>
 
-        <h3>Scrolling Text Example</h3>
-        <pre><code class="language-cpp">screen.beginDraw();
+        <div class="api-method">
+            <h3>scrollText(string, x, y)</h3>
+            <p>Draw scrolling text that automatically moves across the display.</p>
+            <pre><code class="language-cpp">screen.scrollText("Hello World!", 0, 1);</code></pre>
+        </div>
 
-screen.stroke(ON);
-screen.textScrollSpeed(100);
+        <div class="api-method">
+            <h3>setScrollSpeed(ms)</h3>
+            <p>Set scroll speed in milliseconds per pixel.</p>
+            <pre><code class="language-cpp">screen.setScrollSpeed(100);   // 100ms per pixel</code></pre>
+        </div>
 
-screen.beginText(0, 0);
-screen.print("Hello World!");
-screen.endText();
+        <div class="api-method">
+            <h3>resetScroll()</h3>
+            <p>Reset scroll position back to the start.</p>
+            <pre><code class="language-cpp">screen.resetScroll();</code></pre>
+        </div>
 
-screen.endDraw();</code></pre>
+        <h2>Display Transform</h2>
+
+        <div class="api-method">
+            <h3>setRotation(degrees)</h3>
+            <p>Rotate the display output. Valid values: 0, 90, 180, 270.</p>
+            <pre><code class="language-cpp">screen.setRotation(0);     // Normal (default)
+screen.setRotation(90);    // Rotated 90° clockwise
+screen.setRotation(180);   // Upside down
+screen.setRotation(270);   // Rotated 270° clockwise</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>getRotation()</h3>
+            <p>Get the current rotation in degrees.</p>
+            <pre><code class="language-cpp">int rot = screen.getRotation();  // Returns 0, 90, 180, or 270</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>setInvert(bool)</h3>
+            <p>Invert all pixels on the display (swap ON and OFF).</p>
+            <pre><code class="language-cpp">screen.setInvert(true);    // Inverted display
+screen.setInvert(false);   // Normal display</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>getInvert()</h3>
+            <p>Check if display is currently inverted.</p>
+            <pre><code class="language-cpp">bool inverted = screen.getInvert();</code></pre>
+        </div>
 
         <h2>Matrix Info</h2>
         <table>
@@ -951,6 +1014,7 @@ screen.endOverlay();</code></pre>
 TinyScreen screen;
 Animation loadAnim = loading;
 int progress = 0;
+unsigned long lastUpdate = 0;
 
 void setup() {
     screen.begin();
@@ -960,15 +1024,25 @@ void setup() {
 void loop() {
     screen.update();
     
+    // Update progress every 50ms (non-blocking)
+    if (millis() - lastUpdate >= 50) {
+        lastUpdate = millis();
+        progress = (progress + 1) % 101;
+    }
+    
     // Draw progress bar on bottom row
     screen.beginOverlay();
+    screen.stroke(ON);
     int barWidth = map(progress, 0, 100, 0, 12);
     screen.line(0, 7, barWidth - 1, 7);
     screen.endOverlay();
-    
-    progress = (progress + 1) % 101;
-    delay(50);
 }</code></pre>
+
+        <h2>Display Transform</h2>
+        <p>Transform methods work with both the animation and overlay:</p>
+        <pre><code class="language-cpp">screen.setRotation(180);   // Flip display upside down
+screen.setInvert(true);    // Invert all pixels</code></pre>
+        <p>See <a href="#" class="page-link" data-page="canvas-mode">Canvas Mode API</a> for full transform documentation.</p>
     `,
 
     'examples-basics': `
@@ -979,16 +1053,21 @@ void loop() {
         <p>The most basic example — control individual LEDs.</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
+unsigned long lastBlink = 0;
+bool ledState = false;
+
 void setup() {
     ledBegin();
     ledWrite(0, 0, HIGH);     // Top-left ON
 }
 
 void loop() {
-    ledWrite(5, 3, HIGH);
-    delay(500);
-    ledWrite(5, 3, LOW);
-    delay(500);
+    // Non-blocking blink
+    if (millis() - lastBlink >= 500) {
+        lastBlink = millis();
+        ledState = !ledState;
+        ledWrite(5, 3, ledState ? HIGH : LOW);
+    }
 }</code></pre>
 
         <h2>FirstAnimation</h2>
@@ -1020,166 +1099,82 @@ void setup() {
 
 void loop() {
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);
     screen.stroke(ON);
     screen.line(0, 0, 11, 7);
     screen.endDraw();
-    delay(100);
 }</code></pre>
     `,
 
     'examples-animation': `
         <h1>Animation Mode Examples</h1>
-        <p>Examples demonstrating Animation Mode features including layering, playback control, and sensor integration.</p>
+        <p>Examples demonstrating Animation Mode features including layering and playback control.</p>
 
-        <h2>Core Examples</h2>
+        <h2>Examples</h2>
         <ul class="example-list">
             <li><a href="#" class="example-link" data-page="example-layered-animations"><h5>LayeredAnimations</h5><p>Stack multiple animations on different layers</p></a></li>
             <li><a href="#" class="example-link" data-page="example-playback-control"><h5>PlaybackControl</h5><p>Pause, resume, and control animation speed</p></a></li>
-        </ul>
-
-        <h2>Sensor Input Examples</h2>
-        <p>These examples show how to control animations with sensor input. The animation is always running — input changes its behavior.</p>
-        <ul class="example-list">
-            <li><a href="#" class="example-link" data-page="example-anim-distance-threshold"><h5>Distance Threshold</h5><p>Switch between animations based on distance zones</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-anim-distance-map"><h5>Distance Map</h5><p>Map distance to animation speed</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-anim-pressure-threshold"><h5>Pressure Threshold</h5><p>Switch animations based on pressure levels</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-anim-pressure-map"><h5>Pressure Map</h5><p>Map pressure to animation speed</p></a></li>
         </ul>
     `,
 
     'examples-canvas': `
         <h1>Canvas Mode Examples</h1>
-        <p>Examples demonstrating Canvas Mode drawing features and sensor integration.</p>
+        <p>Examples demonstrating Canvas Mode drawing features.</p>
 
-        <h2>Core Examples</h2>
+        <h2>Examples</h2>
         <ul class="example-list">
             <li><a href="#" class="example-link" data-page="example-scrolling-text"><h5>ScrollingText</h5><p>Display scrolling text on the matrix</p></a></li>
             <li><a href="#" class="example-link" data-page="example-moving-shapes"><h5>MovingShapes</h5><p>Animate shapes moving across the display</p></a></li>
-        </ul>
-
-        <h2>Sensor Input Examples</h2>
-        <p>These examples show how to control canvas graphics with sensor input. Graphics are always drawn — input changes what's displayed.</p>
-        <ul class="example-list">
-            <li><a href="#" class="example-link" data-page="example-canvas-distance-threshold"><h5>Distance Threshold</h5><p>Switch between graphic modes based on distance</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-canvas-distance-map"><h5>Distance Map</h5><p>Map distance to shape size</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-canvas-pressure-threshold"><h5>Pressure Threshold</h5><p>Switch graphics based on pressure levels</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-canvas-pressure-map"><h5>Pressure Map</h5><p>Map pressure to bar graph height</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-layered-graphics"><h5>LayeredGraphics</h5><p>Multiple animated elements at different speeds</p></a></li>
         </ul>
     `,
 
     'examples-hybrid': `
         <h1>Hybrid Mode Examples</h1>
-        <p>Examples demonstrating Hybrid Mode overlay features and sensor integration.</p>
+        <p>Examples demonstrating Hybrid Mode overlay features.</p>
 
-        <h2>Core Examples</h2>
+        <h2>Examples</h2>
         <ul class="example-list">
             <li><a href="#" class="example-link" data-page="example-animation-overlay"><h5>AnimationWithOverlay</h5><p>Draw dynamic content over a playing animation</p></a></li>
         </ul>
+    `,
 
-        <h2>Sensor Input Examples</h2>
-        <p>These examples show how to control hybrid overlays with sensor input. The animation always plays — input controls the overlay.</p>
+    'examples-canvas-animation': `
+        <h1>Canvas Animation Examples</h1>
+        <p>Examples demonstrating smooth code-based animations using Ease and oscillate utilities.</p>
+
+        <h2>Ease Class</h2>
+        <p>The <code>Ease</code> class provides smooth interpolation between values over time — perfect for point-to-point motion.</p>
+        <pre><code class="language-cpp">Ease x(0);           // Create with start value
+x.to(11, 2000);      // Animate to 11 over 2 seconds
+x.intValue();        // Get current value as int
+x.done();            // Check if animation complete
+x.target();          // Get target value</code></pre>
+
+        <h2>Oscillate Functions</h2>
+        <p>The <code>oscillateInt()</code> and <code>oscillateFloat()</code> functions create continuous sine wave motion.</p>
+        <pre><code class="language-cpp">int y = oscillateInt(0, 7, 1500);      // Oscillate 0-7 over 1.5 seconds
+float val = oscillateFloat(0.0, 1.0, 1000);  // Oscillate 0.0-1.0 over 1 second</code></pre>
+
+        <h2>Examples</h2>
         <ul class="example-list">
-            <li><a href="#" class="example-link" data-page="example-hybrid-distance-threshold"><h5>Distance Threshold</h5><p>Switch overlay styles based on distance zones</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-hybrid-distance-map"><h5>Distance Map</h5><p>Map distance to overlay bar width</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-hybrid-pressure-threshold"><h5>Pressure Threshold</h5><p>Switch overlay patterns based on pressure</p></a></li>
-            <li><a href="#" class="example-link" data-page="example-hybrid-pressure-map"><h5>Pressure Map</h5><p>Map pressure to number of overlay dots</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-ease-demo"><h5>EaseDemo</h5><p>Smooth motion between target positions using Ease class</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-oscillator-demo"><h5>OscillatorDemo</h5><p>Continuous sine wave motion using oscillateInt()</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-smooth-animation"><h5>SmoothAnimation</h5><p>Combining Ease and oscillate for complex motion</p></a></li>
         </ul>
     `,
 
     'examples-utilities': `
         <h1>Utility Examples</h1>
+        <p>Stress tests and comprehensive feature demonstrations.</p>
 
-        <h2>EaseDemo</h2>
-        <p>Demonstrate easing functions for smooth animations.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-
-TinyScreen screen;
-
-void setup() {
-    screen.begin();
-}
-
-// Simple ease-in-out function
-float easeInOut(float t) {
-    return t < 0.5 
-        ? 2 * t * t 
-        : 1 - pow(-2 * t + 2, 2) / 2;
-}
-
-void loop() {
-    static float t = 0;
-    
-    screen.beginDraw();
-    screen.clear();
-    
-    float eased = easeInOut(t);
-    int x = eased * 11;
-    screen.point(x, 3);
-    
-    screen.endDraw();
-    
-    t += 0.02;
-    if (t > 1) t = 0;
-    
-    delay(20);
-}</code></pre>
-
-        <h2>OscillatorDemo</h2>
-        <p>Use sine waves for oscillating animations.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-
-TinyScreen screen;
-
-void setup() {
-    screen.begin();
-}
-
-void loop() {
-    screen.beginDraw();
-    screen.clear();
-    
-    // Draw sine wave
-    for (int x = 0; x < 12; x++) {
-        float phase = millis() / 200.0;
-        int y = 3 + sin(x * 0.5 + phase) * 3;
-        screen.point(x, y);
-    }
-    
-    screen.endDraw();
-    delay(30);
-}</code></pre>
-
-        <h2>SmoothAnimation</h2>
-        <p>Create smooth motion using interpolation.</p>
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-
-TinyScreen screen;
-
-float currentX = 0;
-float targetX = 11;
-float smoothing = 0.1;
-
-void setup() {
-    screen.begin();
-}
-
-void loop() {
-    // Smooth interpolation toward target
-    currentX += (targetX - currentX) * smoothing;
-    
-    screen.beginDraw();
-    screen.clear();
-    screen.point((int)currentX, 3);
-    screen.endDraw();
-    
-    // Switch direction when close to target
-    if (abs(currentX - targetX) < 0.1) {
-        targetX = (targetX > 5) ? 0 : 11;
-    }
-    
-    delay(30);
-}</code></pre>
+        <h2>Test Sketches</h2>
+        <ul class="example-list">
+            <li><a href="#" class="example-link" data-page="example-drawing-test"><h5>DrawingTest</h5><p>Comprehensive Canvas Mode stress test (15 tests)</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-hybrid-test"><h5>HybridTest</h5><p>Hybrid Mode overlay stress test (9 tests)</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-animation-test"><h5>AnimationTest</h5><p>Animation Mode comprehensive test (12 tests)</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-playback-test"><h5>PlaybackTest</h5><p>Focused playback control test</p></a></li>
+        </ul>
     `,
 
     'deprecated': `
@@ -1245,6 +1240,9 @@ screen.play(myAnim, LOOP, 2, 6);</code></pre>
         <p>The most basic example — control individual LEDs like <code>digitalWrite()</code>.</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
+unsigned long lastToggle = 0;
+bool ledState = false;
+
 void setup() {
     ledBegin();                   // Initialize matrix
     
@@ -1254,16 +1252,19 @@ void setup() {
 }
 
 void loop() {
-    ledWrite(5, 3, HIGH);         // Center ON
-    delay(500);
-    ledWrite(5, 3, LOW);          // Center OFF
-    delay(500);
+    // Non-blocking blink using millis()
+    if (millis() - lastToggle >= 500) {
+        lastToggle = millis();
+        ledState = !ledState;
+        ledWrite(5, 3, ledState ? HIGH : LOW);
+    }
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
             <li>Initializing the LED matrix with <code>ledBegin()</code></li>
             <li>Turning LEDs on/off with <code>ledWrite()</code></li>
             <li>Using <code>ledToggle()</code> to flip LED state</li>
+            <li>Non-blocking timing with <code>millis()</code></li>
             <li>Coordinate system: (0,0) is top-left, (11,7) is bottom-right</li>
         </ul>
     `,
@@ -1313,18 +1314,17 @@ void setup() {
 
 void loop() {
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);   // Clear to black
     
     screen.stroke(ON);
     screen.line(0, 0, 11, 7);     // Diagonal line
     
     screen.endDraw();
-    delay(100);
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
             <li>Using <code>beginDraw()</code> and <code>endDraw()</code></li>
-            <li>Clearing the display with <code>clear()</code></li>
+            <li>Clearing with <code>background(OFF)</code></li>
             <li>Setting stroke state with <code>stroke(ON)</code></li>
             <li>Drawing a line between two points</li>
         </ul>
@@ -1415,99 +1415,164 @@ TinyScreen screen;
 
 void setup() {
     screen.begin();
+    screen.setScrollSpeed(100);  // 100ms per pixel
 }
 
 void loop() {
     screen.beginDraw();
-    
+    screen.background(OFF);
     screen.stroke(ON);
-    screen.textScrollSpeed(100);
-    
-    screen.beginText(0, 0);
-    screen.print("Hello World!");
-    screen.endText();
-    
+    screen.scrollText("Hello World!", 0, 1);
     screen.endDraw();
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
-            <li>Using text drawing methods</li>
-            <li>Setting scroll speed with <code>textScrollSpeed()</code></li>
-            <li>Using <code>beginText()</code> and <code>endText()</code> for text blocks</li>
+            <li>Using <code>scrollText()</code> for auto-scrolling text</li>
+            <li>Setting scroll speed with <code>setScrollSpeed()</code></li>
             <li>Text automatically scrolls when wider than display</li>
+            <li>Built-in 3x5 pixel font</li>
         </ul>
     `,
 
     'example-moving-shapes': `
         <h1>MovingShapes Example</h1>
         <p class="example-breadcrumb">Examples → Canvas Mode → MovingShapes</p>
-        <p>Animate shapes moving across the display.</p>
+        <p>Code-generated animations with different motion behaviors (ONCE, LOOP, BOOMERANG).</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
 TinyScreen screen;
+
+// Motion modes
+enum MotionMode { MODE_ONCE, MODE_LOOP, MODE_BOOMERANG };
+
 int x = 0;
+int direction = 1;
+MotionMode currentMode = MODE_LOOP;
+bool completed = false;
+
+unsigned long lastMove = 0;
+int speed = 80;
 
 void setup() {
+    Serial.begin(9600);
     screen.begin();
+    Serial.println("Send: 1=ONCE, 2=LOOP, 3=BOOMERANG");
 }
 
 void loop() {
+    if (Serial.available()) {
+        char c = Serial.read();
+        if (c == '1') { currentMode = MODE_ONCE; resetAnimation(); }
+        if (c == '2') { currentMode = MODE_LOOP; resetAnimation(); }
+        if (c == '3') { currentMode = MODE_BOOMERANG; resetAnimation(); }
+    }
+    
+    if (millis() - lastMove >= speed && !completed) {
+        updatePosition();
+        lastMove = millis();
+    }
+    
     screen.beginDraw();
-    screen.clear();
-    
+    screen.background(OFF);
+    screen.fill(ON);
     screen.stroke(ON);
-    screen.noFill();
-    screen.circle(x, 3, 2);
-    
+    screen.circle(x, 4, 4);
     screen.endDraw();
+}
+
+void updatePosition() {
+    x += direction;
     
-    x = (x + 1) % 12;
-    delay(100);
+    switch(currentMode) {
+        case MODE_ONCE:
+            if (x >= 10) { x = 10; completed = true; }
+            break;
+        case MODE_LOOP:
+            if (x >= 10) x = 0;
+            break;
+        case MODE_BOOMERANG:
+            if (x >= 10 || x <= 0) direction *= -1;
+            break;
+    }
+}
+
+void resetAnimation() {
+    x = 0; direction = 1; completed = false;
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
-            <li>Creating animated graphics with code</li>
-            <li>Using <code>circle()</code> to draw circles</li>
-            <li>Using <code>noFill()</code> for outline-only shapes</li>
-            <li>Wrapping position with modulo operator</li>
+            <li>Code-based animation matching Animation Mode play modes</li>
+            <li>Non-blocking timing with <code>millis()</code></li>
+            <li>State machine for animation control</li>
+            <li>Serial commands to change modes</li>
         </ul>
     `,
 
     'example-layered-graphics': `
         <h1>LayeredGraphics Example</h1>
         <p class="example-breadcrumb">Examples → Canvas Mode → LayeredGraphics</p>
-        <p>Draw multiple layers of graphics in a single frame.</p>
+        <p>Multiple independent animated elements, each at its own speed.</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
 TinyScreen screen;
+
+// Layer 1: Slow scan line
+int scanY = 0, scanDir = 1;
+unsigned long lastScan = 0;
+const int SCAN_SPEED = 200;
+
+// Layer 2: Fast bouncing dot
+int dotX = 6, dotDir = 1;
+unsigned long lastDot = 0;
+const int DOT_SPEED = 50;
+
+// Layer 3: Pulsing ring
+int ringSize = 2, ringDir = 1;
+unsigned long lastRing = 0;
+const int RING_SPEED = 120;
 
 void setup() {
     screen.begin();
 }
 
 void loop() {
-    screen.beginDraw();
-    screen.clear();
+    unsigned long now = millis();
     
-    // Background pattern
-    for (int i = 0; i < 12; i += 2) {
-        screen.point(i, 7);
+    if (now - lastScan >= SCAN_SPEED) {
+        scanY += scanDir;
+        if (scanY >= 7 || scanY <= 0) scanDir *= -1;
+        lastScan = now;
     }
     
-    // Moving foreground
-    static int pos = 0;
-    screen.rect(pos, 2, 3, 3);
-    pos = (pos + 1) % 10;
+    if (now - lastDot >= DOT_SPEED) {
+        dotX += dotDir;
+        if (dotX >= 11 || dotX <= 0) dotDir *= -1;
+        lastDot = now;
+    }
+    
+    if (now - lastRing >= RING_SPEED) {
+        ringSize += ringDir;
+        if (ringSize >= 4 || ringSize <= 1) ringDir *= -1;
+        lastRing = now;
+    }
+    
+    screen.beginDraw();
+    screen.background(OFF);
+    screen.stroke(ON);
+    
+    screen.line(0, scanY, 11, scanY);  // Scan line
+    screen.point(dotX, 4);              // Bouncing dot
+    screen.noFill();
+    screen.circle(6, 4, ringSize * 2); // Pulsing ring
     
     screen.endDraw();
-    delay(150);
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
-            <li>Drawing multiple elements in one frame</li>
-            <li>Using loops to create patterns</li>
-            <li>Combining static and animated elements</li>
-            <li>Using <code>static</code> variables for persistence</li>
+            <li>Multiple independent animation states</li>
+            <li>Different speeds per element using <code>millis()</code></li>
+            <li>Combining shapes in one frame</li>
+            <li>Non-blocking timing for all layers</li>
         </ul>
     `,
 
@@ -1546,860 +1611,66 @@ void loop() {
         </ul>
     `,
 
-    // Individual Examples - Sensor Control
-    // Animation Mode - Sensor Examples
-    'example-anim-distance-threshold': `
-        <h1>Animation: Distance Threshold</h1>
-        <p class="example-breadcrumb">Examples → Animation Mode → Distance Threshold</p>
-        <p>Switch between different animations based on distance zones using thresholds. The animation is always playing — distance determines which one.</p>
-        
-        <h2>Concept: Thresholds</h2>
-        <p>Thresholds divide sensor input into discrete zones. Each zone triggers a different mode/state. This creates clear, predictable interactions.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include &lt;EasyUltrasonic.h&gt;
-#include "idle.h"
-#include "go.h"
-
-TinyScreen screen;
-Animation idleAnim = idle;
-Animation goAnim = go;
-
-// Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
-
-// Define threshold distances (in cm)
-const float FAR_THRESHOLD = 60.0;   // Beyond this = idle
-const float CLOSE_THRESHOLD = 30.0; // Closer than this = go
-
-int currentMode = 0;  // 0=far, 1=mid, 2=close
-
-void setup() {
-    ultrasonic.attach(trigPin, echoPin);
-    screen.begin();
-    screen.play(idleAnim, LOOP);  // Start with idle
-}
-
-void loop() {
-    float distance = ultrasonic.getDistanceCM();
-    int newMode;
-    
-    if (distance > 0) {
-        // Determine mode based on thresholds
-        if (distance > FAR_THRESHOLD) {
-            newMode = 0;  // Far away = idle slow
-        } else if (distance > CLOSE_THRESHOLD) {
-            newMode = 1;  // Middle zone = idle fast
-        } else {
-            newMode = 2;  // Close = go
-        }
-        
-        // Only switch animation when mode changes
-        if (newMode != currentMode) {
-            currentMode = newMode;
-            
-            switch (currentMode) {
-                case 0: 
-                    screen.play(idleAnim, LOOP);
-                    screen.setSpeed(1.0);
-                    break;
-                case 1: 
-                    screen.play(idleAnim, LOOP);
-                    screen.setSpeed(2.0);
-                    break;
-                case 2: 
-                    screen.play(goAnim, LOOP);
-                    break;
-            }
-        }
-    }
-    
-    screen.update();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>Thresholds</strong> create distinct zones from continuous sensor data</li>
-            <li><strong>Mode tracking</strong> prevents constant animation restarts</li>
-            <li>Animation is <strong>never off</strong> — it just changes content</li>
-            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
-        </ul>
-        
-        <h2>Library Required</h2>
-        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
-    `,
-
-    'example-anim-distance-map': `
-        <h1>Animation: Distance Map</h1>
-        <p class="example-breadcrumb">Examples → Animation Mode → Distance Map</p>
-        <p>Map distance sensor values directly to animation speed. Closer = faster, farther = slower.</p>
-        
-        <h2>Concept: Map</h2>
-        <p>The <code>map()</code> function converts a value from one range to another. This creates smooth, continuous control rather than discrete steps.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include &lt;EasyUltrasonic.h&gt;
-#include "idle.h"
-
-TinyScreen screen;
-Animation idleAnim = idle;
-
-// Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
-
-// Define the input range (distance in cm)
-const float MIN_DISTANCE = 5.0;
-const float MAX_DISTANCE = 100.0;
-
-// Define the output range (speed multiplier x10)
-const int MIN_SPEED = 5;   // 0.5x speed when far
-const int MAX_SPEED = 30;  // 3.0x speed when close
-
-void setup() {
-    ultrasonic.attach(trigPin, echoPin);
-    screen.begin();
-    screen.play(idleAnim, LOOP);
-}
-
-void loop() {
-    float distance = ultrasonic.getDistanceCM();
-    
-    if (distance > 0) {
-        // Constrain distance to expected range
-        distance = constrain(distance, MIN_DISTANCE, MAX_DISTANCE);
-        
-        // Map distance to speed (inverted: closer = faster)
-        int speedValue = map(distance * 10, MIN_DISTANCE * 10, 
-                            MAX_DISTANCE * 10, MAX_SPEED, MIN_SPEED);
-        float speed = speedValue / 10.0;
-        
-        screen.setSpeed(speed);
-    }
-    
-    screen.update();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>map(value, inMin, inMax, outMin, outMax)</strong> scales values between ranges</li>
-            <li><strong>constrain()</strong> keeps values within expected bounds</li>
-            <li>Inverted mapping: small distance → high speed</li>
-            <li>Animation <strong>never stops</strong> — speed continuously adjusts</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
-        </ul>
-        
-        <h2>Library Required</h2>
-        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
-    `,
-
-    'example-anim-pressure-threshold': `
-        <h1>Animation: Pressure Threshold</h1>
-        <p class="example-breadcrumb">Examples → Animation Mode → Pressure Threshold</p>
-        <p>Switch between animations based on pressure levels. Light touch, medium press, and hard press trigger different animations.</p>
-        
-        <h2>Concept: Thresholds</h2>
-        <p>Multiple thresholds create multiple interaction zones from a single pressure sensor.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "calm.h"
-#include "active.h"
-#include "intense.h"
-
-TinyScreen screen;
-Animation calmAnim = calm;
-Animation activeAnim = active;
-Animation intenseAnim = intense;
-
-const int pressurePin = A0;
-
-// Define pressure thresholds (0-1023 range)
-const int LIGHT_THRESHOLD = 200;   // Below = calm
-const int MEDIUM_THRESHOLD = 600;  // Between = active
-                                   // Above = intense
-
-int currentMode = 0;
-
-void setup() {
-    screen.begin();
-    screen.play(calmAnim, LOOP);  // Start calm
-}
-
-void loop() {
-    int pressure = analogRead(pressurePin);
-    int newMode;
-    
-    // Determine mode based on pressure thresholds
-    if (pressure < LIGHT_THRESHOLD) {
-        newMode = 0;  // Light/no pressure = calm
-    } else if (pressure < MEDIUM_THRESHOLD) {
-        newMode = 1;  // Medium pressure = active
-    } else {
-        newMode = 2;  // High pressure = intense
-    }
-    
-    // Only switch when mode changes
-    if (newMode != currentMode) {
-        currentMode = newMode;
-        
-        switch (currentMode) {
-            case 0: screen.play(calmAnim, LOOP); break;
-            case 1: screen.play(activeAnim, LOOP); break;
-            case 2: screen.play(intenseAnim, LOOP); break;
-        }
-    }
-    
-    screen.update();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>Analog thresholds</strong> (0-1023) divide pressure into zones</li>
-            <li><strong>Mode variable</strong> tracks current state to prevent restart flicker</li>
-            <li>Animation is <strong>always running</strong> — pressure selects which one</li>
-            <li>Three expressive states tied to physical interaction intensity</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
-            <li>10K pull-down resistor</li>
-        </ul>
-    `,
-
-    'example-anim-pressure-map': `
-        <h1>Animation: Pressure Map</h1>
-        <p class="example-breadcrumb">Examples → Animation Mode → Pressure Map</p>
-        <p>Map pressure sensor values directly to animation speed. More pressure = faster animation.</p>
-        
-        <h2>Concept: Map</h2>
-        <p>Continuous mapping creates a direct, responsive connection between physical input and visual output.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "animation.h"
-
-TinyScreen screen;
-Animation anim = animation;
-
-const int pressurePin = A0;
-
-// Define the output speed range (x10 for precision)
-const int MIN_SPEED = 5;   // 0.5x when no pressure
-const int MAX_SPEED = 40;  // 4.0x at full pressure
-
-void setup() {
-    screen.begin();
-    screen.play(anim, LOOP);
-}
-
-void loop() {
-    int pressure = analogRead(pressurePin);
-    
-    // Map pressure (0-1023) to speed
-    int speedValue = map(pressure, 0, 1023, MIN_SPEED, MAX_SPEED);
-    float speed = speedValue / 10.0;
-    
-    screen.setSpeed(speed);
-    screen.update();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>Direct mapping</strong> from analog input (0-1023) to speed</li>
-            <li>Animation <strong>never stops</strong> — just speeds up with pressure</li>
-            <li>Simple, intuitive interaction: press harder = faster</li>
-            <li>Multiply by 10, divide by 10 pattern for float precision</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
-            <li>10K pull-down resistor</li>
-        </ul>
-    `,
-
-    // Canvas Mode - Sensor Examples
-    'example-canvas-distance-threshold': `
-        <h1>Canvas: Distance Threshold</h1>
-        <p class="example-breadcrumb">Examples → Canvas Mode → Distance Threshold</p>
-        <p>Switch between different graphic patterns based on distance zones. The display is always active — distance determines what's drawn.</p>
-        
-        <h2>Concept: Thresholds</h2>
-        <p>Different visual modes create distinct feedback for each interaction zone.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include &lt;EasyUltrasonic.h&gt;
-
-TinyScreen screen;
-
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
-
-const float FAR_THRESHOLD = 60.0;
-const float MID_THRESHOLD = 30.0;
-
-void setup() {
-    ultrasonic.attach(trigPin, echoPin);
-    screen.begin();
-}
-
-void loop() {
-    float distance = ultrasonic.getDistanceCM();
-    
-    screen.beginDraw();
-    screen.clear();
-    screen.stroke(ON);
-    
-    if (distance <= 0) {
-        // No reading
-        screen.point(0, 0);
-    } else if (distance > FAR_THRESHOLD) {
-        // Far: single dot in center
-        screen.point(5, 3);
-    } else if (distance > MID_THRESHOLD) {
-        // Middle: expanding circle
-        screen.noFill();
-        screen.circle(5, 3, 2);
-    } else {
-        // Close: filled rectangle
-        screen.fill(ON);
-        screen.rect(2, 1, 8, 6);
-    }
-    
-    screen.endDraw();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>Visual modes</strong> tied to distance zones</li>
-            <li>Graphics <strong>always drawn</strong> — content changes by zone</li>
-            <li>Clear visual feedback: dot → circle → rectangle</li>
-            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
-        </ul>
-        
-        <h2>Library Required</h2>
-        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
-    `,
-
-    'example-canvas-distance-map': `
-        <h1>Canvas: Distance Map</h1>
-        <p class="example-breadcrumb">Examples → Canvas Mode → Distance Map</p>
-        <p>Map distance directly to the size of a shape. Closer = bigger circle.</p>
-        
-        <h2>Concept: Map</h2>
-        <p>Mapping distance to a visual property creates responsive, continuous feedback.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include &lt;EasyUltrasonic.h&gt;
-
-TinyScreen screen;
-
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
-
-const float MIN_DISTANCE = 5.0;
-const float MAX_DISTANCE = 80.0;
-const int MIN_RADIUS = 1;
-const int MAX_RADIUS = 4;
-
-int currentRadius = 1;
-
-void setup() {
-    ultrasonic.attach(trigPin, echoPin);
-    screen.begin();
-}
-
-void loop() {
-    float distance = ultrasonic.getDistanceCM();
-    
-    if (distance > 0) {
-        distance = constrain(distance, MIN_DISTANCE, MAX_DISTANCE);
-        // Map distance to radius (closer = bigger)
-        currentRadius = map(distance * 10, MIN_DISTANCE * 10, 
-                           MAX_DISTANCE * 10, MAX_RADIUS * 10, MIN_RADIUS * 10) / 10;
-    }
-    
-    screen.beginDraw();
-    screen.clear();
-    screen.stroke(ON);
-    screen.fill(ON);
-    screen.circle(5, 3, currentRadius);
-    screen.endDraw();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>map()</strong> converts distance to visual size</li>
-            <li>Inverted: closer distance → larger radius</li>
-            <li>Circle <strong>always visible</strong> — size continuously changes</li>
-            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
-        </ul>
-        
-        <h2>Library Required</h2>
-        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
-    `,
-
-    'example-canvas-pressure-threshold': `
-        <h1>Canvas: Pressure Threshold</h1>
-        <p class="example-breadcrumb">Examples → Canvas Mode → Pressure Threshold</p>
-        <p>Switch between graphic styles based on pressure levels. No press, light press, and hard press show different patterns.</p>
-        
-        <h2>Concept: Thresholds</h2>
-        <p>Different visual states provide clear feedback for distinct pressure levels.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-
-TinyScreen screen;
-
-const int pressurePin = A0;
-
-const int LIGHT_THRESHOLD = 200;
-const int HARD_THRESHOLD = 600;
-
-void setup() {
-    screen.begin();
-}
-
-void loop() {
-    int pressure = analogRead(pressurePin);
-    
-    screen.beginDraw();
-    screen.clear();
-    screen.stroke(ON);
-    
-    if (pressure < LIGHT_THRESHOLD) {
-        // No/light pressure: horizontal line
-        screen.line(0, 3, 11, 3);
-    } else if (pressure < HARD_THRESHOLD) {
-        // Medium pressure: cross pattern
-        screen.line(0, 3, 11, 3);
-        screen.line(5, 0, 5, 7);
-    } else {
-        // Hard pressure: X pattern fills screen
-        screen.line(0, 0, 11, 7);
-        screen.line(11, 0, 0, 7);
-        screen.line(0, 3, 11, 3);
-        screen.line(5, 0, 5, 7);
-    }
-    
-    screen.endDraw();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>Visual complexity</strong> increases with pressure</li>
-            <li>Graphics <strong>always shown</strong> — pattern changes with pressure</li>
-            <li>Additive design: each level adds more elements</li>
-            <li>Clear haptic-to-visual feedback</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
-            <li>10K pull-down resistor</li>
-        </ul>
-    `,
-
-    'example-canvas-pressure-map': `
-        <h1>Canvas: Pressure Map</h1>
-        <p class="example-breadcrumb">Examples → Canvas Mode → Pressure Map</p>
-        <p>Map pressure to a bar graph height. More pressure = taller bar.</p>
-        
-        <h2>Concept: Map</h2>
-        <p>Direct mapping creates an intuitive visual meter for pressure.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-
-TinyScreen screen;
-
-const int pressurePin = A0;
-
-void setup() {
-    screen.begin();
-}
-
-void loop() {
-    int pressure = analogRead(pressurePin);
-    
-    // Map pressure to bar height (0-8 pixels)
-    int barHeight = map(pressure, 0, 1023, 0, 8);
-    
-    screen.beginDraw();
-    screen.clear();
-    screen.stroke(ON);
-    screen.fill(ON);
-    
-    // Draw bar from bottom up
-    if (barHeight > 0) {
-        screen.rect(4, 8 - barHeight, 4, barHeight);
-    }
-    
-    // Always show baseline
-    screen.line(0, 7, 11, 7);
-    
-    screen.endDraw();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>map()</strong> converts pressure (0-1023) to height (0-8)</li>
-            <li>Bar graph provides <strong>visual feedback</strong> of pressure level</li>
-            <li>Baseline always visible — <strong>never blank</strong></li>
-            <li>Classic meter/gauge visualization</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
-            <li>10K pull-down resistor</li>
-        </ul>
-    `,
-
-    // Hybrid Mode - Sensor Examples
-    'example-hybrid-distance-threshold': `
-        <h1>Hybrid: Distance Threshold</h1>
-        <p class="example-breadcrumb">Examples → Hybrid Mode → Distance Threshold</p>
-        <p>Switch overlay styles based on distance zones. Animation plays continuously — overlay changes with proximity.</p>
-        
-        <h2>Concept: Thresholds</h2>
-        <p>Different overlay patterns indicate interaction zones while animation runs.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include &lt;EasyUltrasonic.h&gt;
-#include "idle.h"
-
-TinyScreen screen;
-Animation idleAnim = idle;
-
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
-
-const float FAR_THRESHOLD = 60.0;
-const float MID_THRESHOLD = 30.0;
-float currentDist = 100;
-
-void setup() {
-    ultrasonic.attach(trigPin, echoPin);
-    screen.begin();
-    screen.play(idleAnim, LOOP);
-}
-
-void loop() {
-    screen.update();
-    
-    float dist = ultrasonic.getDistanceCM();
-    if (dist > 0) currentDist = dist;
-    
-    screen.beginOverlay();
-    
-    if (currentDist > FAR_THRESHOLD) {
-        // Far: single corner indicator
-        screen.point(11, 0);
-    } else if (currentDist > MID_THRESHOLD) {
-        // Middle: edge indicators
-        screen.point(0, 0);
-        screen.point(11, 0);
-        screen.point(0, 7);
-        screen.point(11, 7);
-    } else {
-        // Close: full border
-        screen.line(0, 0, 11, 0);
-        screen.line(0, 7, 11, 7);
-        screen.line(0, 0, 0, 7);
-        screen.line(11, 0, 11, 7);
-    }
-    
-    screen.endOverlay();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li>Animation <strong>always plays</strong> underneath</li>
-            <li><strong>Overlay intensity</strong> increases with proximity</li>
-            <li>Border appears progressively: dot → corners → full frame</li>
-            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
-        </ul>
-        
-        <h2>Library Required</h2>
-        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
-    `,
-
-    'example-hybrid-distance-map': `
-        <h1>Hybrid: Distance Map</h1>
-        <p class="example-breadcrumb">Examples → Hybrid Mode → Distance Map</p>
-        <p>Map distance to a progress bar overlay width. Closer = longer bar over the animation.</p>
-        
-        <h2>Concept: Map</h2>
-        <p>Continuous mapping creates a dynamic overlay that responds smoothly to distance.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include &lt;EasyUltrasonic.h&gt;
-#include "idle.h"
-
-TinyScreen screen;
-Animation idleAnim = idle;
-
-const int trigPin = A0;
-const int echoPin = A1;
-EasyUltrasonic ultrasonic;
-
-const float MIN_DISTANCE = 5.0;
-const float MAX_DISTANCE = 80.0;
-float smoothDist = 40.0;
-
-void setup() {
-    ultrasonic.attach(trigPin, echoPin);
-    screen.begin();
-    screen.play(idleAnim, LOOP);
-}
-
-void loop() {
-    screen.update();
-    
-    float dist = ultrasonic.getDistanceCM();
-    if (dist > 0) {
-        smoothDist = smoothDist * 0.8 + dist * 0.2;
-    }
-    
-    float clamped = constrain(smoothDist, MIN_DISTANCE, MAX_DISTANCE);
-    
-    // Map distance to bar width (closer = wider)
-    int barWidth = map(clamped, MIN_DISTANCE, MAX_DISTANCE, 12, 1);
-    
-    screen.beginOverlay();
-    
-    // Draw progress bar on bottom row
-    for (int x = 0; x < barWidth; x++) {
-        screen.point(x, 7);
-    }
-    
-    screen.endOverlay();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>map()</strong> converts distance to overlay width</li>
-            <li>Animation <strong>continues playing</strong> under the bar</li>
-            <li>Progress bar shows proximity level</li>
-            <li>Uses <strong>EasyUltrasonic</strong> library for simple distance reading</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>HC-SR04 ultrasonic sensor (trig A0, echo A1)</li>
-        </ul>
-        
-        <h2>Library Required</h2>
-        <p><a href="https://github.com/SpulberGeorge/EasyUltrasonic" target="_blank">EasyUltrasonic by George Spulber</a></p>
-    `,
-
-    'example-hybrid-pressure-threshold': `
-        <h1>Hybrid: Pressure Threshold</h1>
-        <p class="example-breadcrumb">Examples → Hybrid Mode → Pressure Threshold</p>
-        <p>Switch overlay patterns based on pressure levels. Animation always runs — overlay indicates pressure state.</p>
-        
-        <h2>Concept: Thresholds</h2>
-        <p>Overlay patterns show interaction intensity without interrupting the animation.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "background.h"
-
-TinyScreen screen;
-Animation bgAnim = background;
-
-const int pressurePin = A0;
-
-const int LIGHT_THRESHOLD = 200;
-const int HARD_THRESHOLD = 600;
-
-void setup() {
-    screen.begin();
-    screen.play(bgAnim, LOOP);
-}
-
-void loop() {
-    screen.update();
-    
-    int pressure = analogRead(pressurePin);
-    
-    screen.beginOverlay();
-    
-    if (pressure < LIGHT_THRESHOLD) {
-        // No pressure: minimal indicator
-        screen.point(5, 0);
-    } else if (pressure < HARD_THRESHOLD) {
-        // Medium: top row dots
-        screen.point(3, 0);
-        screen.point(5, 0);
-        screen.point(7, 0);
-    } else {
-        // Hard: top row full
-        screen.line(0, 0, 11, 0);
-    }
-    
-    screen.endOverlay();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li>Animation <strong>never stops</strong> — overlay changes</li>
-            <li><strong>Progressive feedback</strong>: dot → dots → line</li>
-            <li>Overlay shows pressure state non-intrusively</li>
-            <li>Clear visual indication of interaction level</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
-            <li>10K pull-down resistor</li>
-        </ul>
-    `,
-
-    'example-hybrid-pressure-map': `
-        <h1>Hybrid: Pressure Map</h1>
-        <p class="example-breadcrumb">Examples → Hybrid Mode → Pressure Map</p>
-        <p>Map pressure to the number of overlay dots. More pressure = more dots appearing over the animation.</p>
-        
-        <h2>Concept: Map</h2>
-        <p>Continuous mapping creates responsive visual feedback layered on animation.</p>
-        
-        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
-#include "background.h"
-
-TinyScreen screen;
-Animation bgAnim = background;
-
-const int pressurePin = A0;
-
-void setup() {
-    screen.begin();
-    screen.play(bgAnim, LOOP);
-}
-
-void loop() {
-    screen.update();
-    
-    int pressure = analogRead(pressurePin);
-    
-    // Map pressure to number of dots (0-12)
-    int numDots = map(pressure, 0, 1023, 0, 12);
-    
-    screen.beginOverlay();
-    
-    // Draw dots across top row
-    for (int x = 0; x < numDots; x++) {
-        screen.point(x, 0);
-    }
-    
-    screen.endOverlay();
-}</code></pre>
-
-        <h2>Key Concepts</h2>
-        <ul>
-            <li><strong>map()</strong> converts pressure to dot count</li>
-            <li>Animation <strong>continues underneath</strong></li>
-            <li>Dot meter shows pressure intensity</li>
-            <li>Smooth visual response to physical input</li>
-        </ul>
-
-        <h2>Hardware Required</h2>
-        <ul>
-            <li>Arduino UNO R4 WiFi</li>
-            <li>FSR (Force Sensitive Resistor) on analog pin A0</li>
-            <li>10K pull-down resistor</li>
-        </ul>
-    `,
-
-    // Individual Examples - Utilities
+    // Individual Examples - Canvas Animation
     'example-ease-demo': `
         <h1>EaseDemo Example</h1>
-        <p class="example-breadcrumb">Examples → Utilities → EaseDemo</p>
-        <p>Demonstrate easing functions for smooth animations.</p>
+        <p class="example-breadcrumb">Examples → Canvas Animation → EaseDemo</p>
+        <p>Smooth motion between target positions using the Ease class.</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
 TinyScreen screen;
 
+// Create Ease objects for x and y position
+Ease x(0);   // Start at left
+Ease y(0);   // Start at top
+
+// Target positions (corners and center)
+const int targets[][2] = {
+    {0, 0}, {11, 0}, {11, 7}, {0, 7}, {5, 3}
+};
+const int numTargets = 5;
+int currentTarget = 0;
+unsigned long lastMove = 0;
+
 void setup() {
     screen.begin();
-}
-
-// Simple ease-in-out function
-float easeInOut(float t) {
-    return t < 0.5 
-        ? 2 * t * t 
-        : 1 - pow(-2 * t + 2, 2) / 2;
+    x.to(targets[0][0], 1000);
+    y.to(targets[0][1], 1000);
+    lastMove = millis();
 }
 
 void loop() {
-    static float t = 0;
+    // When done, pause then move to next target
+    if (x.done() && y.done()) {
+        if (millis() - lastMove > 500) {
+            currentTarget = (currentTarget + 1) % numTargets;
+            x.to(targets[currentTarget][0], 800);
+            y.to(targets[currentTarget][1], 800);
+            lastMove = millis();
+        }
+    } else {
+        lastMove = millis();
+    }
     
     screen.beginDraw();
-    screen.clear();
-    
-    float eased = easeInOut(t);
-    int x = eased * 11;
-    screen.point(x, 3);
-    
+    screen.background(OFF);
+    screen.stroke(ON);
+    screen.point(x.intValue(), y.intValue());
     screen.endDraw();
-    
-    t += 0.02;
-    if (t > 1) t = 0;
-    
-    delay(20);
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
-            <li>Using mathematical easing functions</li>
-            <li>Creating smooth, non-linear motion</li>
-            <li>Normalizing time to 0-1 range</li>
+            <li>Creating <code>Ease</code> objects with initial values</li>
+            <li>Using <code>to(target, duration)</code> to animate</li>
+            <li>Checking <code>done()</code> to sequence animations</li>
+            <li>Getting current value with <code>intValue()</code></li>
         </ul>
     `,
 
     'example-oscillator-demo': `
         <h1>OscillatorDemo Example</h1>
-        <p class="example-breadcrumb">Examples → Utilities → OscillatorDemo</p>
-        <p>Use sine waves for oscillating animations.</p>
+        <p class="example-breadcrumb">Examples → Canvas Animation → OscillatorDemo</p>
+        <p>Continuous sine wave motion using oscillateInt().</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
 TinyScreen screen;
@@ -2410,64 +1681,149 @@ void setup() {
 
 void loop() {
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);
+    screen.stroke(ON);
     
-    // Draw sine wave
-    for (int x = 0; x < 12; x++) {
-        float phase = millis() / 200.0;
-        int y = 3 + sin(x * 0.5 + phase) * 3;
-        screen.point(x, y);
-    }
+    // Three dots at different oscillation speeds
+    
+    // Slow (3 second period) - left
+    int y1 = oscillateInt(0, 7, 3000);
+    screen.point(2, y1);
+    
+    // Medium (1.5 second period) - middle
+    int y2 = oscillateInt(0, 7, 1500);
+    screen.point(5, y2);
+    
+    // Fast (0.75 second period) - right
+    int y3 = oscillateInt(0, 7, 750);
+    screen.point(9, y3);
     
     screen.endDraw();
-    delay(30);
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
-            <li>Using <code>sin()</code> for wave patterns</li>
-            <li>Time-based animation with <code>millis()</code></li>
-            <li>Creating organic, flowing motion</li>
+            <li>Using <code>oscillateInt(min, max, period)</code></li>
+            <li>Different oscillation speeds</li>
+            <li>Continuous sine wave motion</li>
+            <li>Multiple independent oscillators</li>
         </ul>
     `,
 
     'example-smooth-animation': `
         <h1>SmoothAnimation Example</h1>
-        <p class="example-breadcrumb">Examples → Utilities → SmoothAnimation</p>
-        <p>Create smooth motion using linear interpolation (lerp).</p>
+        <p class="example-breadcrumb">Examples → Canvas Animation → SmoothAnimation</p>
+        <p>Combining Ease and oscillate for complex smooth motion.</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
 TinyScreen screen;
 
-float currentX = 0;
-float targetX = 11;
-float smoothing = 0.1;
+Ease xPos(0);    // Horizontal easing
 
 void setup() {
     screen.begin();
+    xPos.to(11, 2000);  // Start moving right
 }
 
 void loop() {
-    // Smooth interpolation toward target
-    currentX += (targetX - currentX) * smoothing;
-    
-    screen.beginDraw();
-    screen.clear();
-    screen.point((int)currentX, 3);
-    screen.endDraw();
-    
-    // Switch direction when close to target
-    if (abs(currentX - targetX) < 0.1) {
-        targetX = (targetX > 5) ? 0 : 11;
+    // Ping-pong horizontal motion
+    if (xPos.done()) {
+        if (xPos.target() > 5) {
+            xPos.to(0, 2000);
+        } else {
+            xPos.to(11, 2000);
+        }
     }
     
-    delay(30);
+    // Continuous vertical wave
+    int y = oscillateInt(1, 6, 1500);
+    
+    screen.beginDraw();
+    screen.background(OFF);
+    screen.stroke(ON);
+    screen.point(xPos.intValue(), y);
+    screen.endDraw();
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
-            <li>Linear interpolation (lerp) for smooth movement</li>
-            <li>Using a smoothing factor to control speed</li>
-            <li>Detecting when target is reached</li>
-            <li>Creating "eased" motion without explicit easing functions</li>
+            <li>Combining <code>Ease</code> and <code>oscillateInt()</code></li>
+            <li>Ease for controlled point-to-point motion</li>
+            <li>oscillate for continuous cyclic motion</li>
+            <li>Complex motion from simple primitives</li>
         </ul>
-    `
+    `,
+
+    // Utility test examples
+    'example-drawing-test': `
+        <h1>DrawingTest</h1>
+        <p class="example-breadcrumb">Examples → Utilities → DrawingTest</p>
+        <p>Comprehensive Canvas Mode stress test with 15 tests covering all drawing features.</p>
+        
+        <h2>Tests Include</h2>
+        <ul>
+            <li>Filled and stroked circles</li>
+            <li>Diagonal and horizontal/vertical lines</li>
+            <li>Random points</li>
+            <li>Text at different sizes</li>
+            <li>Scrolling text</li>
+            <li>All rotations (0°, 90°, 180°, 270°)</li>
+            <li>Inverted display mode</li>
+        </ul>
+        <p>Each test runs for 2 seconds. Total cycle: 30 seconds.</p>
+    `,
+
+    'example-hybrid-test': `
+        <h1>HybridTest</h1>
+        <p class="example-breadcrumb">Examples → Utilities → HybridTest</p>
+        <p>Hybrid Mode overlay stress test with 9 tests.</p>
+        
+        <h2>Tests Include</h2>
+        <ul>
+            <li>Animation with point overlay</li>
+            <li>Indicator bar overlay</li>
+            <li>Corner frame overlay</li>
+            <li>Moving line overlay</li>
+            <li>Text overlay</li>
+            <li>Inverted rectangle overlay</li>
+            <li>Animation switching with overlay</li>
+            <li>Paused animation with drawing</li>
+            <li>Inverted animation display</li>
+        </ul>
+        <p>Each test runs for 3 seconds. Total cycle: 27 seconds.</p>
+    `,
+
+    'example-animation-test': `
+        <h1>AnimationTest</h1>
+        <p class="example-breadcrumb">Examples → Utilities → AnimationTest</p>
+        <p>Animation Mode comprehensive test with 12 tests.</p>
+        
+        <h2>Tests Include</h2>
+        <ul>
+            <li>LOOP, ONCE, BOOMERANG play modes</li>
+            <li>Speed changes (2x, 0.5x)</li>
+            <li>Pause and resume</li>
+            <li>Stop and restart</li>
+            <li>Frame range playback</li>
+            <li>Animation switching</li>
+            <li>Invert on/off</li>
+            <li>Two-layer animation</li>
+            <li>Independent layer speeds</li>
+            <li>Status reporting</li>
+        </ul>
+        <p>Each test runs for 3 seconds. Total cycle: 36 seconds.</p>
+    `,
+
+    'example-playback-test': `
+        <h1>PlaybackTest</h1>
+        <p class="example-breadcrumb">Examples → Utilities → PlaybackTest</p>
+        <p>Focused playback control test in a 12-second repeating cycle.</p>
+        
+        <h2>Test Sequence</h2>
+        <ol>
+            <li><strong>0-3s:</strong> Play animation at normal speed</li>
+            <li><strong>3-6s:</strong> Pause animation</li>
+            <li><strong>6-9s:</strong> Resume animation</li>
+            <li><strong>9-12s:</strong> Switch to different animation</li>
+        </ol>
+        <p>Cycle repeats indefinitely for continuous testing.</p>
+    `,
 };

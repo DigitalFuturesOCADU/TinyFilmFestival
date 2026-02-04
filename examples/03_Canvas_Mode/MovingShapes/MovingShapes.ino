@@ -45,10 +45,9 @@
  *     +----+----+----+----+----+----+----+----+----+----+----+----+
  */
 
-#include "ArduinoGraphics.h"
-#include "Arduino_LED_Matrix.h"
+#include "TinyFilmFestival.h"
 
-ArduinoLEDMatrix matrix;
+TinyScreen screen;
 
 // Motion modes (mirrors Animation PlayModes)
 enum MotionMode {
@@ -69,7 +68,7 @@ int speed = 80;  // milliseconds per frame
 
 void setup() {
     Serial.begin(9600);
-    matrix.begin();
+    screen.begin();
     
     Serial.println("=== MovingShapes ===");
     Serial.println("Send: 1=ONCE, 2=LOOP, 3=BOOMERANG");
@@ -106,12 +105,12 @@ void loop() {
     }
     
     // Draw the shape
-    matrix.beginDraw();
-    matrix.clear();
-    matrix.fill(0xFFFFFF);    // Filled shape
-    matrix.stroke(0xFFFFFF);  // With outline
-    matrix.circle(x, 4, 4);   // Circle at current x position
-    matrix.endDraw();
+    screen.beginDraw();
+    screen.background(OFF);
+    screen.fill(ON);
+    screen.stroke(ON);
+    screen.circle(x, 4, 4);   // Circle at current x position
+    screen.endDraw();
 }
 
 void updatePosition() {

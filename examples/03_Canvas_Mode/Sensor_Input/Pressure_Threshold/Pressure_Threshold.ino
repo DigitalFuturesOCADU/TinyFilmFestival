@@ -59,7 +59,7 @@ void loop() {
     int pressure = analogRead(pressurePin);
     
     screen.beginDraw();
-    screen.clear();
+    screen.background(OFF);
     screen.stroke(ON);
     
     if (pressure < LIGHT_THRESHOLD) {

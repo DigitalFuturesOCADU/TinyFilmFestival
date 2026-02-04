@@ -1,6 +1,18 @@
 /*
- * Smooth Animation Example
- * Demonstrates oscillate() and Ease for smooth motion
+ * TinyFilmFestival - Canvas Animation - OscillatorDemo
+ * 
+ * Shows different uses of oscillate() for smooth cyclic motion.
+ * The oscillate functions create continuous sine wave motion.
+ * 
+ * This example demonstrates:
+ *   - oscillateInt(min, max, period) for integer values
+ *   - Different oscillation speeds (periods)
+ *   - Multiple independent oscillators
+ * 
+ * Mode: Canvas
+ * 
+ * Hardware Required:
+ *   - Arduino UNO R4 WiFi
  * 
  * LED Matrix Layout (12x8):
  *
@@ -28,36 +40,29 @@
 
 TinyScreen screen;
 
-// Ease objects for smooth position control
-Ease xPos(0);    // Horizontal position, starts at 0
-Ease yPos(3);    // Vertical position, starts at middle
-
 void setup() {
     screen.begin();
-    
-    // Start first animation: move to right side over 2 seconds
-    xPos.to(11, 2000);
 }
 
 void loop() {
-    // When horizontal movement finishes, start a new target
-    if (xPos.done()) {
-        // Ping-pong between left and right
-        if (xPos.target() > 5) {
-            xPos.to(0, 2000);   // Move left over 2 seconds
-        } else {
-            xPos.to(11, 2000);  // Move right over 2 seconds
-        }
-    }
-    
-    // Use oscillate() for continuous vertical wave motion
-    // Smoothly cycles between y=1 and y=6 over 1.5 seconds
-    int y = oscillateInt(1, 6, 1500);
-    
-    // Draw the moving dot
     screen.beginDraw();
     screen.background(OFF);
     screen.stroke(ON);
-    screen.point(xPos.intValue(), y);
+    
+    // Three dots at different oscillation speeds
+    // Each creates a smooth sine wave motion
+    
+    // Slow oscillation (3 second period) - left column
+    int y1 = oscillateInt(0, 7, 3000);
+    screen.point(2, y1);
+    
+    // Medium oscillation (1.5 second period) - middle column
+    int y2 = oscillateInt(0, 7, 1500);
+    screen.point(5, y2);
+    
+    // Fast oscillation (0.75 second period) - right column
+    int y3 = oscillateInt(0, 7, 750);
+    screen.point(9, y3);
+    
     screen.endDraw();
 }

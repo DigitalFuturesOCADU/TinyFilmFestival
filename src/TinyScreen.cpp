@@ -217,6 +217,30 @@ TinyScreen::TinyScreen() : layerCount(1), inOverlay(false), ledBufferDirty(false
             ledBuffer[x][y] = 0;
         }
     }
+    
+    // Initialize canvas buffer
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 12; col++) {
+            canvasBuffer[row][col] = 0;
+        }
+    }
+    inCanvasDraw = false;
+    strokeEnabled = true;
+    fillEnabled = false;
+    strokeValue = 1;
+    fillValue = 1;
+    
+    // Initialize text state
+    textSize = 1;
+    scrollOffset = 0;
+    scrollSpeed = 100;  // 100ms per pixel default
+    lastScrollTime = 0;
+    
+    // Initialize rotation
+    rotation = 0;
+    
+    // Initialize invert
+    invertDisplay = false;
 }
 
 bool TinyScreen::begin() {
@@ -321,111 +345,648 @@ void TinyScreen::update() {
         }
     }
 
+    // Apply invert if enabled
+    if (invertDisplay) {
+        combinedFrame[0] = ~combinedFrame[0];
+        combinedFrame[1] = ~combinedFrame[1];
+        combinedFrame[2] = ~combinedFrame[2];
+    }
+
     // Display combined frame
     matrix.loadFrame(combinedFrame);
 }
 
-//--- Canvas Mode ---
+//==============================================================================
+// Canvas Mode - Buffered Drawing (Flicker-Free)
+//==============================================================================
+
+// Convert canvas buffer to 96-bit frame format with rotation
+void TinyScreen::canvasBufferToFrame(uint32_t frame[3]) {
+    frame[0] = 0;
+    frame[1] = 0;
+    frame[2] = 0;
+    
+    // The LED matrix frame format is 3 x 32-bit words = 96 bits
+    // Bit 0 of frame[0] = LED at position 0 (top-left)
+    // Layout: row-major, 12 columns x 8 rows
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 12; col++) {
+            // Apply rotation to get source coordinates
+            int srcRow, srcCol;
+            switch (rotation) {
+                case 1:  // 90° clockwise
+                    srcRow = 11 - col;
+                    srcCol = row;
+                    break;
+                case 2:  // 180°
+                    srcRow = 7 - row;
+                    srcCol = 11 - col;
+                    break;
+                case 3:  // 270° clockwise (90° counter-clockwise)
+                    srcRow = col;
+                    srcCol = 7 - row;
+                    break;
+                default: // 0° (no rotation)
+                    srcRow = row;
+                    srcCol = col;
+                    break;
+            }
+            
+            // Check bounds and get pixel value
+            bool pixelOn = false;
+            if (srcRow >= 0 && srcRow < 8 && srcCol >= 0 && srcCol < 12) {
+                pixelOn = canvasBuffer[srcRow][srcCol];
+            }
+            
+            if (pixelOn) {
+                int bitIndex = row * 12 + col;
+                if (bitIndex < 32) {
+                    frame[0] |= (1UL << (31 - bitIndex));
+                } else if (bitIndex < 64) {
+                    frame[1] |= (1UL << (63 - bitIndex));
+                } else {
+                    frame[2] |= (1UL << (95 - bitIndex));
+                }
+            }
+        }
+    }
+}
+
+// Set display rotation (0, 90, 180, or 270 degrees)
+void TinyScreen::setRotation(int degrees) {
+    switch (degrees) {
+        case 90:  rotation = 1; break;
+        case 180: rotation = 2; break;
+        case 270: rotation = 3; break;
+        default:  rotation = 0; break;
+    }
+}
+
+// Get current rotation in degrees
+int TinyScreen::getRotation() {
+    return rotation * 90;
+}
+
+// Set display invert (flip all pixels)
+void TinyScreen::setInvert(bool invert) {
+    invertDisplay = invert;
+}
+
+// Get current invert state
+bool TinyScreen::getInvert() {
+    return invertDisplay;
+}
+
+// Load a 96-bit frame into the canvas buffer (for hybrid mode)
+void TinyScreen::frameToBuffer(const uint32_t frame[3]) {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 12; col++) {
+            int bitIndex = row * 12 + col;
+            bool pixelOn = false;
+            if (bitIndex < 32) {
+                pixelOn = (frame[0] & (1UL << (31 - bitIndex))) != 0;
+            } else if (bitIndex < 64) {
+                pixelOn = (frame[1] & (1UL << (63 - bitIndex))) != 0;
+            } else {
+                pixelOn = (frame[2] & (1UL << (95 - bitIndex))) != 0;
+            }
+            canvasBuffer[row][col] = pixelOn ? 1 : 0;
+        }
+    }
+}
 
 void TinyScreen::beginDraw() {
-    matrix.beginDraw();
+    inCanvasDraw = true;
+    // Don't clear buffer here - let user call clear() explicitly if needed
 }
 
 void TinyScreen::endDraw() {
-    matrix.endDraw();
+    if (inCanvasDraw) {
+        // Convert buffer to frame and display
+        uint32_t frame[3];
+        canvasBufferToFrame(frame);
+        
+        // Apply invert if enabled
+        if (invertDisplay) {
+            frame[0] = ~frame[0];
+            frame[1] = ~frame[1];
+            frame[2] = ~frame[2];
+        }
+        
+        matrix.loadFrame(frame);
+        inCanvasDraw = false;
+    }
 }
 
 void TinyScreen::clear() {
-    matrix.clear();
+    // Alias for background(OFF) - clears all pixels
+    background(OFF);
+}
+
+void TinyScreen::bufferPoint(int x, int y, uint8_t value) {
+    if (x >= 0 && x < 12 && y >= 0 && y < 8) {
+        canvasBuffer[y][x] = value;
+    }
 }
 
 void TinyScreen::set(int x, int y, bool on) {
-    // ArduinoLEDMatrix set() expects RGB values
-    // For single-color matrix, use 1,1,1 for on, 0,0,0 for off
-    uint8_t val = on ? 1 : 0;
-    matrix.set(x, y, val, val, val);
+    if (x >= 0 && x < 12 && y >= 0 && y < 8) {
+        canvasBuffer[y][x] = on ? 1 : 0;
+    }
 }
 
 void TinyScreen::point(int x, int y) {
-    matrix.point(x, y);
+    if (strokeEnabled) {
+        bufferPoint(x, y, strokeValue);
+    }
+}
+
+// Bresenham's line algorithm
+void TinyScreen::bufferLine(int x1, int y1, int x2, int y2) {
+    int dx = abs(x2 - x1);
+    int dy = abs(y2 - y1);
+    int sx = (x1 < x2) ? 1 : -1;
+    int sy = (y1 < y2) ? 1 : -1;
+    int err = dx - dy;
+    
+    while (true) {
+        bufferPoint(x1, y1, strokeValue);
+        
+        if (x1 == x2 && y1 == y2) break;
+        
+        int e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x1 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y1 += sy;
+        }
+    }
 }
 
 void TinyScreen::line(int x1, int y1, int x2, int y2) {
-    matrix.line(x1, y1, x2, y2);
+    if (strokeEnabled) {
+        bufferLine(x1, y1, x2, y2);
+    }
+}
+
+void TinyScreen::bufferRect(int x, int y, int w, int h) {
+    // Fill first if enabled
+    if (fillEnabled) {
+        for (int row = y; row < y + h; row++) {
+            for (int col = x; col < x + w; col++) {
+                bufferPoint(col, row, fillValue);
+            }
+        }
+    }
+    
+    // Stroke (outline) if enabled
+    if (strokeEnabled) {
+        // Top and bottom edges
+        for (int col = x; col < x + w; col++) {
+            bufferPoint(col, y, strokeValue);
+            bufferPoint(col, y + h - 1, strokeValue);
+        }
+        // Left and right edges
+        for (int row = y; row < y + h; row++) {
+            bufferPoint(x, row, strokeValue);
+            bufferPoint(x + w - 1, row, strokeValue);
+        }
+    }
 }
 
 void TinyScreen::rect(int x, int y, int width, int height) {
-    matrix.rect(x, y, width, height);
+    bufferRect(x, y, width, height);
+}
+
+// Midpoint circle algorithm
+void TinyScreen::bufferCircle(int cx, int cy, int r) {
+    if (r <= 0) {
+        if (fillEnabled) bufferPoint(cx, cy, fillValue);
+        else if (strokeEnabled) bufferPoint(cx, cy, strokeValue);
+        return;
+    }
+    
+    int x = r;
+    int y = 0;
+    int err = 1 - r;
+    
+    while (x >= y) {
+        // Draw 8 octants for outline
+        if (strokeEnabled && !fillEnabled) {
+            bufferPoint(cx + x, cy + y, strokeValue);
+            bufferPoint(cx - x, cy + y, strokeValue);
+            bufferPoint(cx + x, cy - y, strokeValue);
+            bufferPoint(cx - x, cy - y, strokeValue);
+            bufferPoint(cx + y, cy + x, strokeValue);
+            bufferPoint(cx - y, cy + x, strokeValue);
+            bufferPoint(cx + y, cy - x, strokeValue);
+            bufferPoint(cx - y, cy - x, strokeValue);
+        }
+        
+        // Fill horizontal spans if fill enabled
+        if (fillEnabled) {
+            for (int i = cx - x; i <= cx + x; i++) {
+                bufferPoint(i, cy + y, fillValue);
+                bufferPoint(i, cy - y, fillValue);
+            }
+            for (int i = cx - y; i <= cx + y; i++) {
+                bufferPoint(i, cy + x, fillValue);
+                bufferPoint(i, cy - x, fillValue);
+            }
+        }
+        
+        y++;
+        if (err < 0) {
+            err += 2 * y + 1;
+        } else {
+            x--;
+            err += 2 * (y - x) + 1;
+        }
+    }
 }
 
 void TinyScreen::circle(int cx, int cy, int diameter) {
-    matrix.circle(cx, cy, diameter);
+    int radius = diameter / 2;
+    bufferCircle(cx, cy, radius);
 }
 
 void TinyScreen::ellipse(int cx, int cy, int width, int height) {
-    matrix.ellipse(cx, cy, width, height);
+    // Simple ellipse using parametric approach
+    int a = width / 2;   // semi-major axis
+    int b = height / 2;  // semi-minor axis
+    
+    if (a <= 0 || b <= 0) {
+        if (fillEnabled) bufferPoint(cx, cy, fillValue);
+        else if (strokeEnabled) bufferPoint(cx, cy, strokeValue);
+        return;
+    }
+    
+    // Midpoint ellipse algorithm
+    int x = 0;
+    int y = b;
+    
+    // Region 1
+    int d1 = (b * b) - (a * a * b) + (a * a / 4);
+    int dx = 2 * b * b * x;
+    int dy = 2 * a * a * y;
+    
+    while (dx < dy) {
+        if (strokeEnabled && !fillEnabled) {
+            bufferPoint(cx + x, cy + y, strokeValue);
+            bufferPoint(cx - x, cy + y, strokeValue);
+            bufferPoint(cx + x, cy - y, strokeValue);
+            bufferPoint(cx - x, cy - y, strokeValue);
+        }
+        if (fillEnabled) {
+            for (int i = cx - x; i <= cx + x; i++) {
+                bufferPoint(i, cy + y, fillValue);
+                bufferPoint(i, cy - y, fillValue);
+            }
+        }
+        
+        x++;
+        dx += 2 * b * b;
+        if (d1 < 0) {
+            d1 += dx + b * b;
+        } else {
+            y--;
+            dy -= 2 * a * a;
+            d1 += dx - dy + b * b;
+        }
+    }
+    
+    // Region 2
+    int d2 = b * b * (x * x + x) + a * a * (y - 1) * (y - 1) - a * a * b * b;
+    
+    while (y >= 0) {
+        if (strokeEnabled && !fillEnabled) {
+            bufferPoint(cx + x, cy + y, strokeValue);
+            bufferPoint(cx - x, cy + y, strokeValue);
+            bufferPoint(cx + x, cy - y, strokeValue);
+            bufferPoint(cx - x, cy - y, strokeValue);
+        }
+        if (fillEnabled) {
+            for (int i = cx - x; i <= cx + x; i++) {
+                bufferPoint(i, cy + y, fillValue);
+                bufferPoint(i, cy - y, fillValue);
+            }
+        }
+        
+        y--;
+        dy -= 2 * a * a;
+        if (d2 > 0) {
+            d2 += a * a - dy;
+        } else {
+            x++;
+            dx += 2 * b * b;
+            d2 += dx - dy + a * a;
+        }
+    }
 }
 
 //--- Style Control ---
 
-// ON/OFF constants (defined in header) work directly with these methods
-// ON = 0xFFFFFF, OFF = 0x000000
-
 void TinyScreen::stroke(uint32_t color) {
-    matrix.stroke(color);
+    strokeEnabled = true;
+    strokeValue = (color != 0) ? 1 : 0;
+    matrix.stroke(color);  // Keep for text rendering
 }
 
 void TinyScreen::stroke(uint8_t r, uint8_t g, uint8_t b) {
+    strokeEnabled = true;
+    strokeValue = (r != 0 || g != 0 || b != 0) ? 1 : 0;
     matrix.stroke(r, g, b);
 }
 
 void TinyScreen::fill(uint32_t color) {
-    matrix.fill(color);
+    fillEnabled = true;
+    fillValue = (color != 0) ? 1 : 0;
+    matrix.fill(color);  // Keep for text rendering
 }
 
 void TinyScreen::fill(uint8_t r, uint8_t g, uint8_t b) {
+    fillEnabled = true;
+    fillValue = (r != 0 || g != 0 || b != 0) ? 1 : 0;
     matrix.fill(r, g, b);
 }
 
 void TinyScreen::background(uint32_t color) {
+    // For background, fill the entire canvas buffer
+    uint8_t val = (color != 0) ? 1 : 0;
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 12; col++) {
+            canvasBuffer[row][col] = val;
+        }
+    }
     matrix.background(color);
 }
 
 void TinyScreen::background(uint8_t r, uint8_t g, uint8_t b) {
+    uint8_t val = (r != 0 || g != 0 || b != 0) ? 1 : 0;
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 12; col++) {
+            canvasBuffer[row][col] = val;
+        }
+    }
     matrix.background(r, g, b);
 }
 
 void TinyScreen::noStroke() {
+    strokeEnabled = false;
     matrix.noStroke();
 }
 
 void TinyScreen::noFill() {
+    fillEnabled = false;
     matrix.noFill();
 }
 
-//--- Text Methods ---
+//--- Text Methods (Buffered) ---
 
+// Simple 3x5 font for canvas buffer rendering
+// Each character is 3 pixels wide, 5 pixels tall
+// Stored as 5 bytes (rows), 3 bits used per row (MSB first)
+static const uint8_t font3x5[][5] PROGMEM = {
+    // Space (32)
+    {0b000, 0b000, 0b000, 0b000, 0b000},
+    // ! (33)
+    {0b010, 0b010, 0b010, 0b000, 0b010},
+    // " (34)
+    {0b101, 0b101, 0b000, 0b000, 0b000},
+    // # (35)
+    {0b101, 0b111, 0b101, 0b111, 0b101},
+    // $ (36)
+    {0b111, 0b110, 0b111, 0b011, 0b111},
+    // % (37)
+    {0b101, 0b001, 0b010, 0b100, 0b101},
+    // & (38)
+    {0b010, 0b101, 0b010, 0b101, 0b011},
+    // ' (39)
+    {0b010, 0b010, 0b000, 0b000, 0b000},
+    // ( (40)
+    {0b001, 0b010, 0b010, 0b010, 0b001},
+    // ) (41)
+    {0b100, 0b010, 0b010, 0b010, 0b100},
+    // * (42)
+    {0b101, 0b010, 0b111, 0b010, 0b101},
+    // + (43)
+    {0b000, 0b010, 0b111, 0b010, 0b000},
+    // , (44)
+    {0b000, 0b000, 0b000, 0b010, 0b100},
+    // - (45)
+    {0b000, 0b000, 0b111, 0b000, 0b000},
+    // . (46)
+    {0b000, 0b000, 0b000, 0b000, 0b010},
+    // / (47)
+    {0b001, 0b001, 0b010, 0b100, 0b100},
+    // 0 (48)
+    {0b111, 0b101, 0b101, 0b101, 0b111},
+    // 1 (49)
+    {0b010, 0b110, 0b010, 0b010, 0b111},
+    // 2 (50)
+    {0b111, 0b001, 0b111, 0b100, 0b111},
+    // 3 (51)
+    {0b111, 0b001, 0b111, 0b001, 0b111},
+    // 4 (52)
+    {0b101, 0b101, 0b111, 0b001, 0b001},
+    // 5 (53)
+    {0b111, 0b100, 0b111, 0b001, 0b111},
+    // 6 (54)
+    {0b111, 0b100, 0b111, 0b101, 0b111},
+    // 7 (55)
+    {0b111, 0b001, 0b001, 0b001, 0b001},
+    // 8 (56)
+    {0b111, 0b101, 0b111, 0b101, 0b111},
+    // 9 (57)
+    {0b111, 0b101, 0b111, 0b001, 0b111},
+    // : (58)
+    {0b000, 0b010, 0b000, 0b010, 0b000},
+    // ; (59)
+    {0b000, 0b010, 0b000, 0b010, 0b100},
+    // < (60)
+    {0b001, 0b010, 0b100, 0b010, 0b001},
+    // = (61)
+    {0b000, 0b111, 0b000, 0b111, 0b000},
+    // > (62)
+    {0b100, 0b010, 0b001, 0b010, 0b100},
+    // ? (63)
+    {0b111, 0b001, 0b011, 0b000, 0b010},
+    // @ (64)
+    {0b011, 0b101, 0b111, 0b100, 0b011},
+    // A (65)
+    {0b010, 0b101, 0b111, 0b101, 0b101},
+    // B (66)
+    {0b110, 0b101, 0b110, 0b101, 0b110},
+    // C (67)
+    {0b011, 0b100, 0b100, 0b100, 0b011},
+    // D (68)
+    {0b110, 0b101, 0b101, 0b101, 0b110},
+    // E (69)
+    {0b111, 0b100, 0b110, 0b100, 0b111},
+    // F (70)
+    {0b111, 0b100, 0b110, 0b100, 0b100},
+    // G (71)
+    {0b011, 0b100, 0b101, 0b101, 0b011},
+    // H (72)
+    {0b101, 0b101, 0b111, 0b101, 0b101},
+    // I (73)
+    {0b111, 0b010, 0b010, 0b010, 0b111},
+    // J (74)
+    {0b001, 0b001, 0b001, 0b101, 0b010},
+    // K (75)
+    {0b101, 0b101, 0b110, 0b101, 0b101},
+    // L (76)
+    {0b100, 0b100, 0b100, 0b100, 0b111},
+    // M (77)
+    {0b101, 0b111, 0b101, 0b101, 0b101},
+    // N (78)
+    {0b101, 0b111, 0b111, 0b101, 0b101},
+    // O (79)
+    {0b010, 0b101, 0b101, 0b101, 0b010},
+    // P (80)
+    {0b110, 0b101, 0b110, 0b100, 0b100},
+    // Q (81)
+    {0b010, 0b101, 0b101, 0b111, 0b011},
+    // R (82)
+    {0b110, 0b101, 0b110, 0b101, 0b101},
+    // S (83)
+    {0b011, 0b100, 0b010, 0b001, 0b110},
+    // T (84)
+    {0b111, 0b010, 0b010, 0b010, 0b010},
+    // U (85)
+    {0b101, 0b101, 0b101, 0b101, 0b111},
+    // V (86)
+    {0b101, 0b101, 0b101, 0b101, 0b010},
+    // W (87)
+    {0b101, 0b101, 0b101, 0b111, 0b101},
+    // X (88)
+    {0b101, 0b101, 0b010, 0b101, 0b101},
+    // Y (89)
+    {0b101, 0b101, 0b010, 0b010, 0b010},
+    // Z (90)
+    {0b111, 0b001, 0b010, 0b100, 0b111},
+};
+
+// Internal helper: Draw a character with scaling
+void TinyScreen::bufferCharScaled(char c, int x, int y, uint8_t value, int scale) {
+    int index = -1;
+    
+    // Map character to font index
+    if (c >= 32 && c <= 90) {
+        index = c - 32;
+    } else if (c >= 'a' && c <= 'z') {
+        // Lowercase maps to uppercase
+        index = c - 'a' + 33;  // 'A' is at index 33 (65-32)
+    }
+    
+    if (index < 0 || index >= 59) return;
+    
+    // Draw 3x5 character with scaling
+    for (int row = 0; row < 5; row++) {
+        uint8_t rowData = pgm_read_byte(&font3x5[index][row]);
+        for (int col = 0; col < 3; col++) {
+            if (rowData & (0b100 >> col)) {
+                // Draw scaled pixel (scale x scale block)
+                for (int sy = 0; sy < scale; sy++) {
+                    for (int sx = 0; sx < scale; sx++) {
+                        bufferPoint(x + col * scale + sx, y + row * scale + sy, value);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Draw a single character to the canvas buffer
+void TinyScreen::textChar(char c, int x, int y) {
+    uint8_t value = strokeEnabled ? strokeValue : 1;
+    bufferCharScaled(c, x, y, value, textSize);
+}
+
+// Set text size (1 = normal 3x5, 2 = double 6x10)
+void TinyScreen::setTextSize(int size) {
+    textSize = (size < 1) ? 1 : ((size > 2) ? 2 : size);
+}
+
+// Draw a string to the canvas buffer
 void TinyScreen::text(const char* str, int x, int y) {
-    matrix.text(str, x, y);
+    int charWidth = 3 * textSize + 1;  // char width + 1 pixel spacing
+    int cursorX = x;
+    while (*str) {
+        textChar(*str, cursorX, y);
+        cursorX += charWidth;
+        str++;
+    }
 }
 
 void TinyScreen::text(const String& str, int x, int y) {
-    matrix.text(str, x, y);
+    text(str.c_str(), x, y);
 }
 
+// Set scroll speed (milliseconds per pixel)
+void TinyScreen::setScrollSpeed(unsigned long ms) {
+    scrollSpeed = ms;
+}
+
+// Reset scroll position
+void TinyScreen::resetScroll() {
+    scrollOffset = 0;
+    lastScrollTime = millis();
+}
+
+// Get current scroll offset
+int TinyScreen::getScrollOffset() {
+    return scrollOffset;
+}
+
+// Draw scrolling text - call this in your loop
+void TinyScreen::scrollText(const char* str, int y, int direction) {
+    int charWidth = 3 * textSize + 1;
+    int textWidth = strlen(str) * charWidth;
+    
+    // Update scroll position based on time
+    unsigned long now = millis();
+    if (now - lastScrollTime >= scrollSpeed) {
+        if (direction == SCROLL_LEFT) {
+            scrollOffset++;
+            if (scrollOffset > textWidth) {
+                scrollOffset = -12;  // Reset to right edge
+            }
+        } else if (direction == SCROLL_RIGHT) {
+            scrollOffset--;
+            if (scrollOffset < -textWidth) {
+                scrollOffset = 12;  // Reset to left edge
+            }
+        }
+        lastScrollTime = now;
+    }
+    
+    // Draw text at scrolled position
+    int drawX = (direction == SCROLL_LEFT) ? (12 - scrollOffset) : scrollOffset;
+    text(str, drawX, y);
+}
+
+void TinyScreen::scrollText(const String& str, int y, int direction) {
+    scrollText(str.c_str(), y, direction);
+}
+
+// Legacy methods that use ArduinoGraphics (won't work with buffered drawing)
 void TinyScreen::textFont(const Font& font) {
     matrix.textFont(font);
 }
 
 int TinyScreen::textFontWidth() {
-    return matrix.textFontWidth();
+    return textSize * 3;  // Return our font width
 }
 
 int TinyScreen::textFontHeight() {
-    return matrix.textFontHeight();
+    return textSize * 5;  // Return our font height
 }
 
-//--- Scrolling Text ---
+//--- Legacy Scrolling Text (ArduinoGraphics) ---
 
 void TinyScreen::beginText(int x, int y) {
     matrix.beginText(x, y);
@@ -496,14 +1057,33 @@ void TinyScreen::beginOverlay() {
         }
     }
     
-    // Load animation frame, then allow drawing on top
-    matrix.loadFrame(combinedFrame);
-    matrix.beginDraw();
+    // Load animation frame into canvas buffer for drawing on top
+    frameToBuffer(combinedFrame);
+    inOverlay = true;
+    inCanvasDraw = true;
+    
+    // Set default drawing style for overlay
+    strokeEnabled = true;
+    strokeValue = 1;
 }
 
 void TinyScreen::endOverlay() {
-    matrix.endDraw();
-    inOverlay = false;
+    if (inOverlay) {
+        // Convert buffer to frame and display
+        uint32_t frame[3];
+        canvasBufferToFrame(frame);
+        
+        // Apply invert if enabled
+        if (invertDisplay) {
+            frame[0] = ~frame[0];
+            frame[1] = ~frame[1];
+            frame[2] = ~frame[2];
+        }
+        
+        matrix.loadFrame(frame);
+        inOverlay = false;
+        inCanvasDraw = false;
+    }
 }
 
 void TinyScreen::displayFrame(const uint32_t frame[3]) {
