@@ -306,18 +306,26 @@ y=7 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95 |
         <p>Numbers inside = linear index for <code>ledWrite(index, state)</code></p>
 
         <h2>Getting Started</h2>
-        <p>Install the library, include it in your sketch, and start using one of the four modes:</p>
+        <p>Install the library, include it in your sketch, and start drawing:</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
 TinyScreen screen;
 
 void setup() {
     screen.begin();
-    // Start using Animation, Canvas, or Hybrid mode
 }
 
 void loop() {
-    screen.update();
+    screen.beginDraw();
+    screen.background(OFF);
+    screen.stroke(ON);
+    
+    // Draw a bouncing dot
+    int x = oscillateInt(0, 11, 2000);
+    int y = oscillateInt(0, 7, 1500);
+    screen.point(x, y);
+    
+    screen.endDraw();
 }</code></pre>
     `,
 
@@ -931,6 +939,119 @@ screen.setInvert(false);   // Normal display</code></pre>
             <tr><td><code>width()</code></td><td>12 (matrix width)</td></tr>
             <tr><td><code>height()</code></td><td>8 (matrix height)</td></tr>
         </table>
+
+        <h2>Canvas Animation Methods</h2>
+        <p>Smooth value control for creating fluid motion without manual timing math. These utilities work in both Canvas Mode and <a href="#" class="page-link" data-page="hybrid-mode">Hybrid Mode</a>.</p>
+
+        <div class="api-method">
+            <h3>oscillate(min, max, periodMs)</h3>
+            <p>Returns a float that smoothly cycles between min and max using a sine wave. The value oscillates automatically based on elapsed time.</p>
+            <pre><code class="language-cpp">// Value cycles 0→100→0 over 2 seconds
+float brightness = oscillate(0, 100, 2000);</code></pre>
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>min</code> — Minimum value</li>
+                <li><code>max</code> — Maximum value</li>
+                <li><code>periodMs</code> — Time for one complete cycle in milliseconds</li>
+            </ul>
+        </div>
+
+        <div class="api-method">
+            <h3>oscillateInt(min, max, periodMs)</h3>
+            <p>Integer version of oscillate() for pixel coordinates.</p>
+            <pre><code class="language-cpp">// Y position oscillates 0→7→0 over 1.5 seconds
+int y = oscillateInt(0, 7, 1500);
+screen.point(5, y);</code></pre>
+        </div>
+
+        <h3>Ease Class</h3>
+        <p>Smooth linear interpolation from current value to a target over time. Unlike oscillate() which cycles continuously, Ease moves to a target once then stops.</p>
+
+        <div class="api-method">
+            <h3>Ease(initial)</h3>
+            <p>Create an Ease object with an initial value.</p>
+            <pre><code class="language-cpp">Ease x(0);      // Start at 0
+Ease y(3.5);    // Start at 3.5
+Ease pos;       // Start at 0 (default)</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.to(target, durationMs)</h3>
+            <p>Start moving toward a target value over the specified duration.</p>
+            <pre><code class="language-cpp">x.to(11, 2000);   // Move to 11 over 2 seconds</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.value() / ease.intValue()</h3>
+            <p>Get the current interpolated value. Use <code>intValue()</code> for pixel coordinates.</p>
+            <pre><code class="language-cpp">float current = x.value();      // Float value
+int pixel = x.intValue();       // Rounded integer
+screen.point(x.intValue(), y.intValue());</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.done()</h3>
+            <p>Check if the animation has reached its target.</p>
+            <pre><code class="language-cpp">if (x.done()) {
+    x.to(0, 2000);  // Start new animation
+}</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.target()</h3>
+            <p>Get the current target value.</p>
+            <pre><code class="language-cpp">// Ping-pong logic
+if (x.done()) {
+    if (x.target() > 5) {
+        x.to(0, 2000);    // Go left
+    } else {
+        x.to(11, 2000);   // Go right
+    }
+}</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.jump(value)</h3>
+            <p>Instantly set the value without animation.</p>
+            <pre><code class="language-cpp">x.jump(0);        // Reset to start instantly
+x.to(11, 1000);   // Then animate</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.moving()</h3>
+            <p>Check if currently animating.</p>
+            <pre><code class="language-cpp">if (x.moving()) {
+    // Animation in progress
+}</code></pre>
+        </div>
+
+        <h3>Example: Combining Ease and oscillate()</h3>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+TinyScreen screen;
+Ease xPos(0);
+
+void setup() {
+    screen.begin();
+    xPos.to(11, 2000);  // Start moving right
+}
+
+void loop() {
+    // Ping-pong horizontal
+    if (xPos.done()) {
+        if (xPos.target() > 5) xPos.to(0, 2000);
+        else xPos.to(11, 2000);
+    }
+    
+    // Continuous vertical wave
+    int y = oscillateInt(1, 6, 1500);
+    
+    screen.beginDraw();
+    screen.background(OFF);
+    screen.stroke(ON);
+    screen.point(xPos.intValue(), y);
+    screen.endDraw();
+}</code></pre>
     `,
 
     'hybrid-mode': `
@@ -1043,6 +1164,131 @@ void loop() {
         <pre><code class="language-cpp">screen.setRotation(180);   // Flip display upside down
 screen.setInvert(true);    // Invert all pixels</code></pre>
         <p>See <a href="#" class="page-link" data-page="canvas-mode">Canvas Mode API</a> for full transform documentation.</p>
+
+        <h2>Canvas Animation Methods</h2>
+        <p>Smooth value control for creating fluid motion in overlays. These utilities work in both Hybrid Mode and <a href="#" class="page-link" data-page="canvas-mode">Canvas Mode</a>.</p>
+
+        <div class="api-method">
+            <h3>oscillate(min, max, periodMs)</h3>
+            <p>Returns a float that smoothly cycles between min and max using a sine wave.</p>
+            <pre><code class="language-cpp">// Overlay indicator that pulses up and down
+screen.update();
+screen.beginOverlay();
+int y = oscillateInt(0, 7, 1500);
+screen.point(11, y);
+screen.endOverlay();</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>oscillateInt(min, max, periodMs)</h3>
+            <p>Integer version for pixel coordinates.</p>
+            <pre><code class="language-cpp">// Multiple indicators at different speeds
+screen.beginOverlay();
+int y1 = oscillateInt(0, 7, 3000);   // Slow
+int y2 = oscillateInt(0, 7, 1500);   // Medium
+int y3 = oscillateInt(0, 7, 750);    // Fast
+screen.point(9, y1);
+screen.point(10, y2);
+screen.point(11, y3);
+screen.endOverlay();</code></pre>
+        </div>
+
+        <h3>Ease Class</h3>
+        <p>Smooth interpolation to target values. Perfect for animated HUD elements.</p>
+
+        <div class="api-method">
+            <h3>Ease(initial)</h3>
+            <p>Create an Ease object with an initial value.</p>
+            <pre><code class="language-cpp">Ease barWidth(0);  // Progress bar starts at 0</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.to(target, durationMs)</h3>
+            <p>Animate toward a target value.</p>
+            <pre><code class="language-cpp">barWidth.to(11, 3000);  // Fill over 3 seconds</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.value() / ease.intValue()</h3>
+            <p>Get the current interpolated value.</p>
+            <pre><code class="language-cpp">screen.beginOverlay();
+for (int x = 0; x <= barWidth.intValue(); x++) {
+    screen.point(x, 7);  // Progress bar
+}
+screen.endOverlay();</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ease.done() / ease.target() / ease.jump()</h3>
+            <p>Control methods for sequencing animations.</p>
+            <pre><code class="language-cpp">if (barWidth.done()) {
+    delay(1000);           // Pause when full
+    barWidth.jump(0);      // Reset instantly
+    barWidth.to(11, 3000); // Restart animation
+}</code></pre>
+        </div>
+
+        <h3>Example: Animated Progress Bar Overlay</h3>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "idle.h"
+
+TinyScreen screen;
+Animation idleAnim = idle;
+Ease barWidth(0);
+
+void setup() {
+    screen.begin();
+    screen.play(idleAnim, LOOP);
+    barWidth.to(11, 3000);
+}
+
+void loop() {
+    screen.update();
+    
+    if (barWidth.done()) {
+        delay(1000);
+        barWidth.jump(0);
+        barWidth.to(11, 3000);
+    }
+    
+    screen.beginOverlay();
+    screen.stroke(ON);
+    for (int x = 0; x <= barWidth.intValue(); x++) {
+        screen.point(x, 7);
+    }
+    screen.endOverlay();
+}</code></pre>
+
+        <h3>Example: Moving Indicator with Oscillation</h3>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "landscape.h"
+
+TinyScreen screen;
+Animation bgAnim = landscape;
+Ease xPos(0);
+
+void setup() {
+    screen.begin();
+    screen.play(bgAnim, LOOP);
+    xPos.to(11, 2000);
+}
+
+void loop() {
+    screen.update();
+    
+    // Ping-pong horizontal
+    if (xPos.done()) {
+        if (xPos.target() > 5) xPos.to(0, 2000);
+        else xPos.to(11, 2000);
+    }
+    
+    // Oscillating vertical
+    int y = oscillateInt(1, 6, 1000);
+    
+    screen.beginOverlay();
+    screen.point(xPos.intValue(), y);
+    screen.endOverlay();
+}</code></pre>
     `,
 
     'examples-basics': `
