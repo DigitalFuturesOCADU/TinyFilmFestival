@@ -42,17 +42,18 @@
 TinyScreen screen;
 
 // Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
+int trigPin = A0;
+int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
 const float FAR_THRESHOLD = 60.0;
 const float MID_THRESHOLD = 30.0;
 
 unsigned long lastRead = 0;
-const int readInterval = 50;
+int readInterval = 50;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
@@ -63,10 +64,12 @@ void setup() {
     Serial.println("  Close: filled rectangle");
 }
 
-void loop() {
+void loop()
+{
     float dist = 0;
     
-    if (millis() - lastRead > readInterval) {
+    if (millis() - lastRead > readInterval)
+    {
         dist = ultrasonic.getDistanceCM();
         lastRead = millis();
     }
@@ -75,19 +78,24 @@ void loop() {
     screen.background(OFF);
     screen.stroke(ON);
     
-    if (dist <= 0) {
+    if (dist <= 0)
+    {
         // No reading - show error indicator
         screen.point(0, 0);
         screen.point(11, 7);
-    } else if (dist > FAR_THRESHOLD) {
+    } else if (dist > FAR_THRESHOLD)
+    {
         // Far: single dot in center
         screen.point(5, 3);
         screen.point(6, 4);
-    } else if (dist > MID_THRESHOLD) {
+    } else if (dist > MID_THRESHOLD)
+    {
         // Middle: circle outline
         screen.noFill();
         screen.circle(5, 3, 2);
-    } else {
+    }
+    else
+    {
         // Close: filled rectangle
         screen.fill(ON);
         screen.rect(2, 1, 8, 6);

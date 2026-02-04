@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
         
-        if (query.length < 2) {
+        if (query.length < 2)
+        {
             searchResults.innerHTML = '';
             searchResults.classList.remove('visible');
             return;
@@ -26,13 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     searchInput.addEventListener('focus', () => {
-        if (searchInput.value.length >= 2) {
+        if (searchInput.value.length >= 2)
+        {
             searchResults.classList.add('visible');
         }
     });
 
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.search-container')) {
+        if (!e.target.closest('.search-container'))
+        {
             searchResults.classList.remove('visible');
         }
     });
@@ -55,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const page = link.dataset.page;
             
             // Check if this is an expandable toggle
-            if (link.classList.contains('nav-expand-toggle')) {
+            if (link.classList.contains('nav-expand-toggle'))
+            {
                 const parent = link.closest('.nav-expandable');
                 parent.classList.toggle('expanded');
                 // Don't navigate, just expand
@@ -96,7 +100,8 @@ function loadPage(page, updateHistory = true) {
     content.innerHTML = pageContent;
     
     // Update URL
-    if (updateHistory) {
+    if (updateHistory)
+    {
         history.pushState(null, '', `#${page}`);
     }
     
@@ -106,7 +111,8 @@ function loadPage(page, updateHistory = true) {
     });
     
     // Re-run Prism for syntax highlighting
-    if (typeof Prism !== 'undefined') {
+    if (typeof Prism !== 'undefined')
+    {
         Prism.highlightAll();
     }
     
@@ -214,7 +220,8 @@ function searchAPI(query) {
 function displaySearchResults(results, query) {
     const searchResults = document.getElementById('search-results');
     
-    if (results.length === 0) {
+    if (results.length === 0)
+    {
         searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
         searchResults.classList.add('visible');
         return;
@@ -283,6 +290,17 @@ const pages = {
             </a>
         </div>
 
+        <h2>Mixing Modes</h2>
+        <p><strong>Animation, Canvas, and Hybrid modes can be combined</strong> in the same sketch — they all use the same <code>TinyScreen</code> object:</p>
+        <ul>
+            <li>Play an animation, then switch to canvas drawing</li>
+            <li>Use <code>beginOverlay()</code> to draw on top of animations (Hybrid)</li>
+            <li>Mix <code>oscillateInt()</code> and <code>Ease</code> in any mode</li>
+        </ul>
+        <div class="info-box warning">
+            <strong>Simple LED is standalone</strong> — it uses a separate internal display buffer, so don't mix <code>ledWrite()</code> with the other modes in the same sketch.
+        </div>
+
         <h2>LED Matrix Layout</h2>
         <p>The R4 WiFi has a 12×8 LED matrix (96 LEDs total). Use (x, y) coordinates or linear index:</p>
         <div class="matrix-grid">     x=0  x=1  x=2  x=3  x=4  x=5  x=6  x=7  x=8  x=9  x=10 x=11
@@ -311,11 +329,13 @@ y=7 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95 |
 
 TinyScreen screen;
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     screen.beginDraw();
     screen.background(OFF);
     screen.stroke(ON);
@@ -396,7 +416,8 @@ void loop() {
 unsigned long lastBlink = 0;
 bool ledState = false;
 
-void setup() {
+void setup()
+{
     ledBegin();                   // Initialize matrix
     
     ledWrite(0, 0, HIGH);         // Top-left ON
@@ -404,9 +425,11 @@ void setup() {
     ledToggle(0, 0);              // Toggle top-left OFF
 }
 
-void loop() {
+void loop()
+{
     // Non-blocking blink using millis()
-    if (millis() - lastBlink >= 500) {
+    if (millis() - lastBlink >= 500)
+    {
         lastBlink = millis();
         ledState = !ledState;
         ledWrite(5, 3, ledState ? HIGH : LOW);
@@ -421,12 +444,14 @@ void loop() {
 TinyScreen screen;
 Animation myAnim = idle;        // Variable name from .h file
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(myAnim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
 }</code></pre>
 
@@ -436,11 +461,13 @@ void loop() {
 
 TinyScreen screen;
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     screen.beginDraw();
     screen.background(OFF);       // Clear to black
     screen.stroke(ON);
@@ -457,12 +484,14 @@ void loop() {
 TinyScreen screen;
 Animation anim = animation;
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(anim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
     screen.beginOverlay();
@@ -553,7 +582,8 @@ void loop() {
         <h2>Setup</h2>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
-void setup() {
+void setup()
+{
     ledBegin();    // Initialize the matrix
 }</code></pre>
 
@@ -562,7 +592,8 @@ void setup() {
         <div class="api-method">
             <h3>ledBegin()</h3>
             <p>Initialize the LED matrix. Call once in <code>setup()</code>.</p>
-            <pre><code class="language-cpp">void setup() {
+            <pre><code class="language-cpp">void setup()
+            {
     ledBegin();
 }</code></pre>
         </div>
@@ -592,7 +623,8 @@ ledWrite(95, HIGH);      // Last LED ON</code></pre>
             <p>Read the current state of an LED.</p>
             <p><strong>Returns:</strong> HIGH or LOW</p>
             <pre><code class="language-cpp">int state = ledRead(0, 0);
-if (state == HIGH) {
+if (state == HIGH)
+{
     // LED is on
 }</code></pre>
         </div>
@@ -637,12 +669,14 @@ if (state == HIGH) {
 TinyScreen screen;
 Animation anim = animation;    // 'animation' is defined in .h file
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(anim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     screen.update();           // REQUIRED - call every loop!
 }</code></pre>
 
@@ -688,7 +722,8 @@ screen.play(myAnim, ONCE, 2, 6);  // Play frames 2-6 once</code></pre>
         <div class="api-method">
             <h3>update()</h3>
             <p>Updates the animation. <strong>Must be called every loop.</strong></p>
-            <pre><code class="language-cpp">void loop() {
+            <pre><code class="language-cpp">void loop()
+            {
     screen.update();
 }</code></pre>
         </div>
@@ -789,11 +824,13 @@ screen.setInvert(false);   // Normal display</code></pre>
 
 TinyScreen screen;
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     screen.beginDraw();
     screen.background(OFF);   // Clear to black
     screen.stroke(ON);
@@ -992,7 +1029,8 @@ screen.point(x.intValue(), y.intValue());</code></pre>
         <div class="api-method">
             <h3>ease.done()</h3>
             <p>Check if the animation has reached its target.</p>
-            <pre><code class="language-cpp">if (x.done()) {
+            <pre><code class="language-cpp">if (x.done())
+            {
     x.to(0, 2000);  // Start new animation
 }</code></pre>
         </div>
@@ -1001,10 +1039,14 @@ screen.point(x.intValue(), y.intValue());</code></pre>
             <h3>ease.target()</h3>
             <p>Get the current target value.</p>
             <pre><code class="language-cpp">// Ping-pong logic
-if (x.done()) {
-    if (x.target() > 5) {
+if (x.done())
+{
+    if (x.target() > 5)
+    {
         x.to(0, 2000);    // Go left
-    } else {
+    }
+    else
+    {
         x.to(11, 2000);   // Go right
     }
 }</code></pre>
@@ -1020,7 +1062,8 @@ x.to(11, 1000);   // Then animate</code></pre>
         <div class="api-method">
             <h3>ease.moving()</h3>
             <p>Check if currently animating.</p>
-            <pre><code class="language-cpp">if (x.moving()) {
+            <pre><code class="language-cpp">if (x.moving())
+            {
     // Animation in progress
 }</code></pre>
         </div>
@@ -1031,16 +1074,25 @@ x.to(11, 1000);   // Then animate</code></pre>
 TinyScreen screen;
 Ease xPos(0);
 
-void setup() {
+void setup()
+{
     screen.begin();
     xPos.to(11, 2000);  // Start moving right
 }
 
-void loop() {
+void loop()
+{
     // Ping-pong horizontal
-    if (xPos.done()) {
-        if (xPos.target() > 5) xPos.to(0, 2000);
-        else xPos.to(11, 2000);
+    if (xPos.done())
+    {
+        if (xPos.target() > 5)
+        {
+            xPos.to(0, 2000);
+        }
+        else
+        {
+            xPos.to(11, 2000);
+        }
     }
     
     // Continuous vertical wave
@@ -1079,12 +1131,14 @@ void loop() {
 TinyScreen screen;
 Animation anim = animation;
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(anim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     // 1. Update animation frame
     screen.update();
     
@@ -1137,16 +1191,19 @@ Animation loadAnim = loading;
 int progress = 0;
 unsigned long lastUpdate = 0;
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(loadAnim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
     // Update progress every 50ms (non-blocking)
-    if (millis() - lastUpdate >= 50) {
+    if (millis() - lastUpdate >= 50)
+    {
         lastUpdate = millis();
         progress = (progress + 1) % 101;
     }
@@ -1212,7 +1269,8 @@ screen.endOverlay();</code></pre>
             <h3>ease.value() / ease.intValue()</h3>
             <p>Get the current interpolated value.</p>
             <pre><code class="language-cpp">screen.beginOverlay();
-for (int x = 0; x <= barWidth.intValue(); x++) {
+for (int x = 0; x <= barWidth.intValue(); x++)
+{
     screen.point(x, 7);  // Progress bar
 }
 screen.endOverlay();</code></pre>
@@ -1221,7 +1279,8 @@ screen.endOverlay();</code></pre>
         <div class="api-method">
             <h3>ease.done() / ease.target() / ease.jump()</h3>
             <p>Control methods for sequencing animations.</p>
-            <pre><code class="language-cpp">if (barWidth.done()) {
+            <pre><code class="language-cpp">if (barWidth.done())
+            {
     delay(1000);           // Pause when full
     barWidth.jump(0);      // Reset instantly
     barWidth.to(11, 3000); // Restart animation
@@ -1236,16 +1295,19 @@ TinyScreen screen;
 Animation idleAnim = idle;
 Ease barWidth(0);
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(idleAnim, LOOP);
     barWidth.to(11, 3000);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
-    if (barWidth.done()) {
+    if (barWidth.done())
+    {
         delay(1000);
         barWidth.jump(0);
         barWidth.to(11, 3000);
@@ -1253,7 +1315,8 @@ void loop() {
     
     screen.beginOverlay();
     screen.stroke(ON);
-    for (int x = 0; x <= barWidth.intValue(); x++) {
+    for (int x = 0; x <= barWidth.intValue(); x++)
+    {
         screen.point(x, 7);
     }
     screen.endOverlay();
@@ -1267,19 +1330,28 @@ TinyScreen screen;
 Animation bgAnim = landscape;
 Ease xPos(0);
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(bgAnim, LOOP);
     xPos.to(11, 2000);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
     // Ping-pong horizontal
-    if (xPos.done()) {
-        if (xPos.target() > 5) xPos.to(0, 2000);
-        else xPos.to(11, 2000);
+    if (xPos.done())
+    {
+        if (xPos.target() > 5)
+        {
+            xPos.to(0, 2000);
+        }
+        else
+        {
+            xPos.to(11, 2000);
+        }
     }
     
     // Oscillating vertical
@@ -1302,14 +1374,17 @@ void loop() {
 unsigned long lastBlink = 0;
 bool ledState = false;
 
-void setup() {
+void setup()
+{
     ledBegin();
     ledWrite(0, 0, HIGH);     // Top-left ON
 }
 
-void loop() {
+void loop()
+{
     // Non-blocking blink
-    if (millis() - lastBlink >= 500) {
+    if (millis() - lastBlink >= 500)
+    {
         lastBlink = millis();
         ledState = !ledState;
         ledWrite(5, 3, ledState ? HIGH : LOW);
@@ -1324,12 +1399,14 @@ void loop() {
 TinyScreen screen;
 Animation myAnim = animation;
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(myAnim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
 }</code></pre>
 
@@ -1339,11 +1416,13 @@ void loop() {
 
 TinyScreen screen;
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     screen.beginDraw();
     screen.background(OFF);
     screen.stroke(ON);
@@ -1489,7 +1568,8 @@ screen.play(myAnim, LOOP, 2, 6);</code></pre>
 unsigned long lastToggle = 0;
 bool ledState = false;
 
-void setup() {
+void setup()
+{
     ledBegin();                   // Initialize matrix
     
     ledWrite(0, 0, HIGH);         // Top-left ON
@@ -1497,12 +1577,14 @@ void setup() {
     ledToggle(0, 0);              // Toggle top-left OFF
 }
 
-void loop() {
+void loop()
+{
     // Non-blocking blink using millis()
-    if (millis() - lastToggle >= 500) {
+    if (millis() - lastToggle >= 500)
+    {
         lastToggle = millis();
         ledState = !ledState;
-        ledWrite(5, 3, ledState ? HIGH : LOW);
+        ledWrite(5, 3, ledState);     // ledWrite accepts bool directly
     }
 }</code></pre>
         <h2>What This Demonstrates</h2>
@@ -1511,7 +1593,7 @@ void loop() {
             <li>Turning LEDs on/off with <code>ledWrite()</code></li>
             <li>Using <code>ledToggle()</code> to flip LED state</li>
             <li>Non-blocking timing with <code>millis()</code></li>
-            <li>Coordinate system: (0,0) is top-left, (11,7) is bottom-right</li>
+            <li><code>ledWrite()</code> accepts bool directly (no ternary needed)</li>
         </ul>
     `,
 
@@ -1525,7 +1607,8 @@ void loop() {
 TinyScreen screen;
 Animation myAnim = animation;
 
-void setup() {
+void setup()
+{
     screen.begin();
     
     // Play animation in a loop
@@ -1533,7 +1616,8 @@ void setup() {
     screen.play(myAnim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
 }</code></pre>
         <h2>What This Demonstrates</h2>
@@ -1549,21 +1633,28 @@ void loop() {
     'example-first-canvas': `
         <h1>FirstCanvas Example</h1>
         <p class="example-breadcrumb">Examples → Basics → FirstCanvas</p>
-        <p>Draw graphics with code using Processing-style commands.</p>
+        <p>Draw graphics with code using <code>oscillateInt()</code> for smooth motion.</p>
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 
 TinyScreen screen;
 
-void setup() {
+// Animation speed (milliseconds for one complete cycle)
+int Y_PERIOD = 1500;  // How fast the point moves up/down
+
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     screen.beginDraw();
-    screen.background(OFF);   // Clear to black
-    
+    screen.background(OFF);
     screen.stroke(ON);
-    screen.line(0, 0, 11, 7);     // Diagonal line
+    
+    // Point oscillates smoothly between y=0 and y=7
+    int y = oscillateInt(0, 7, Y_PERIOD);
+    screen.point(5, y);
     
     screen.endDraw();
 }</code></pre>
@@ -1571,8 +1662,8 @@ void loop() {
         <ul>
             <li>Using <code>beginDraw()</code> and <code>endDraw()</code></li>
             <li>Clearing with <code>background(OFF)</code></li>
-            <li>Setting stroke state with <code>stroke(ON)</code></li>
-            <li>Drawing a line between two points</li>
+            <li>Using <code>oscillateInt()</code> for smooth cyclic motion</li>
+            <li>Breaking out timing variables (<code>Y_PERIOD</code>) for easy adjustment</li>
         </ul>
     `,
 
@@ -1589,7 +1680,8 @@ TinyScreen screen;
 Animation bgAnim = landscape;
 Animation fgAnim = fiz;
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.addLayer();                        // Add layer 1
     
@@ -1597,7 +1689,8 @@ void setup() {
     screen.playOnLayer(1, fgAnim, LOOP);      // Layer 1 (foreground)
 }
 
-void loop() {
+void loop()
+{
     screen.update();
 }</code></pre>
         <h2>What This Demonstrates</h2>
@@ -1619,7 +1712,8 @@ void loop() {
 TinyScreen screen;
 Animation anim = animation;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     screen.play(anim, LOOP);
@@ -1627,13 +1721,16 @@ void setup() {
     Serial.println("Commands: p=pause, r=resume, +=faster, -=slower");
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
-    if (Serial.available()) {
+    if (Serial.available())
+    {
         char c = Serial.read();
         
-        switch (c) {
+        switch (c)
+        {
             case 'p': screen.pause(); break;
             case 'r': screen.resume(); break;
             case '+': screen.setSpeed(screen.getCurrentSpeed() + 0.5); break;
@@ -1659,12 +1756,14 @@ void loop() {
 
 TinyScreen screen;
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.setScrollSpeed(100);  // 100ms per pixel
 }
 
-void loop() {
+void loop()
+{
     screen.beginDraw();
     screen.background(OFF);
     screen.stroke(ON);
@@ -1699,21 +1798,37 @@ bool completed = false;
 unsigned long lastMove = 0;
 int speed = 80;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     Serial.println("Send: 1=ONCE, 2=LOOP, 3=BOOMERANG");
 }
 
-void loop() {
-    if (Serial.available()) {
+void loop()
+{
+    if (Serial.available())
+    {
         char c = Serial.read();
-        if (c == '1') { currentMode = MODE_ONCE; resetAnimation(); }
-        if (c == '2') { currentMode = MODE_LOOP; resetAnimation(); }
-        if (c == '3') { currentMode = MODE_BOOMERANG; resetAnimation(); }
+        if (c == '1')
+        {
+            currentMode = MODE_ONCE;
+            resetAnimation();
+        }
+        if (c == '2')
+        {
+            currentMode = MODE_LOOP;
+            resetAnimation();
+        }
+        if (c == '3')
+        {
+            currentMode = MODE_BOOMERANG;
+            resetAnimation();
+        }
     }
     
-    if (millis() - lastMove >= speed && !completed) {
+    if (millis() - lastMove >= speed && !completed)
+    {
         updatePosition();
         lastMove = millis();
     }
@@ -1726,24 +1841,39 @@ void loop() {
     screen.endDraw();
 }
 
-void updatePosition() {
+void updatePosition()
+{
     x += direction;
     
-    switch(currentMode) {
+    switch(currentMode)
+    {
         case MODE_ONCE:
-            if (x >= 10) { x = 10; completed = true; }
+            if (x >= 10)
+            {
+                x = 10;
+                completed = true;
+            }
             break;
         case MODE_LOOP:
-            if (x >= 10) x = 0;
+            if (x >= 10)
+            {
+                x = 0;
+            }
             break;
         case MODE_BOOMERANG:
-            if (x >= 10 || x <= 0) direction *= -1;
+            if (x >= 10 || x <= 0)
+            {
+                direction *= -1;
+            }
             break;
     }
 }
 
-void resetAnimation() {
-    x = 0; direction = 1; completed = false;
+void resetAnimation()
+{
+    x = 0;
+    direction = 1;
+    completed = false;
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
@@ -1765,38 +1895,43 @@ TinyScreen screen;
 // Layer 1: Slow scan line
 int scanY = 0, scanDir = 1;
 unsigned long lastScan = 0;
-const int SCAN_SPEED = 200;
+int SCAN_SPEED = 200;
 
 // Layer 2: Fast bouncing dot
 int dotX = 6, dotDir = 1;
 unsigned long lastDot = 0;
-const int DOT_SPEED = 50;
+int DOT_SPEED = 50;
 
 // Layer 3: Pulsing ring
 int ringSize = 2, ringDir = 1;
 unsigned long lastRing = 0;
-const int RING_SPEED = 120;
+int RING_SPEED = 120;
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     unsigned long now = millis();
     
-    if (now - lastScan >= SCAN_SPEED) {
+    if (now - lastScan >= SCAN_SPEED)
+    {
         scanY += scanDir;
         if (scanY >= 7 || scanY <= 0) scanDir *= -1;
         lastScan = now;
     }
     
-    if (now - lastDot >= DOT_SPEED) {
+    if (now - lastDot >= DOT_SPEED)
+    {
         dotX += dotDir;
         if (dotX >= 11 || dotX <= 0) dotDir *= -1;
         lastDot = now;
     }
     
-    if (now - lastRing >= RING_SPEED) {
+    if (now - lastRing >= RING_SPEED)
+    {
         ringSize += ringDir;
         if (ringSize >= 4 || ringSize <= 1) ringDir *= -1;
         lastRing = now;
@@ -1833,17 +1968,20 @@ void loop() {
 TinyScreen screen;
 Animation bgAnim = landscape;
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(bgAnim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
     // Draw blinking indicator over animation
     screen.beginOverlay();
-    if ((millis() / 500) % 2 == 0) {
+    if ((millis() / 500) % 2 == 0)
+    {
         screen.point(11, 0);
     }
     screen.endOverlay();
@@ -1871,30 +2009,36 @@ Ease x(0);   // Start at left
 Ease y(0);   // Start at top
 
 // Target positions (corners and center)
-const int targets[][2] = {
+int targets[][2] = {
     {0, 0}, {11, 0}, {11, 7}, {0, 7}, {5, 3}
 };
-const int numTargets = 5;
+int numTargets = 5;
 int currentTarget = 0;
 unsigned long lastMove = 0;
 
-void setup() {
+void setup()
+{
     screen.begin();
     x.to(targets[0][0], 1000);
     y.to(targets[0][1], 1000);
     lastMove = millis();
 }
 
-void loop() {
+void loop()
+{
     // When done, pause then move to next target
-    if (x.done() && y.done()) {
-        if (millis() - lastMove > 500) {
+    if (x.done() && y.done())
+    {
+        if (millis() - lastMove > 500)
+        {
             currentTarget = (currentTarget + 1) % numTargets;
             x.to(targets[currentTarget][0], 800);
             y.to(targets[currentTarget][1], 800);
             lastMove = millis();
         }
-    } else {
+    }
+    else
+    {
         lastMove = millis();
     }
     
@@ -1921,11 +2065,13 @@ void loop() {
 
 TinyScreen screen;
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     screen.beginDraw();
     screen.background(OFF);
     screen.stroke(ON);
@@ -1965,17 +2111,23 @@ TinyScreen screen;
 
 Ease xPos(0);    // Horizontal easing
 
-void setup() {
+void setup()
+{
     screen.begin();
     xPos.to(11, 2000);  // Start moving right
 }
 
-void loop() {
+void loop()
+{
     // Ping-pong horizontal motion
-    if (xPos.done()) {
-        if (xPos.target() > 5) {
+    if (xPos.done())
+    {
+        if (xPos.target() > 5)
+        {
             xPos.to(0, 2000);
-        } else {
+        }
+        else
+        {
             xPos.to(11, 2000);
         }
     }

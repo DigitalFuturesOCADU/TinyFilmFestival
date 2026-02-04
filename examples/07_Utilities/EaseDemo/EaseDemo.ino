@@ -34,19 +34,20 @@ Ease x(0);   // Start at left
 Ease y(0);   // Start at top
 
 // Target positions (corners and center)
-const int targets[][2] = {
+int targets[][2] = {
     {0, 0},    // Top-left
     {11, 0},   // Top-right
     {11, 7},   // Bottom-right
     {0, 7},    // Bottom-left
     {5, 3}     // Center
 };
-const int numTargets = 5;
+int numTargets = 5;
 int currentTarget = 0;
 
 unsigned long lastMove = 0;
 
-void setup() {
+void setup()
+{
     screen.begin();
     
     // Start moving to first target
@@ -55,17 +56,22 @@ void setup() {
     lastMove = millis();
 }
 
-void loop() {
+void loop()
+{
     // When both x and y are done, wait a moment then move to next target
-    if (x.done() && y.done()) {
-        if (millis() - lastMove > 500) {  // Pause for 500ms
+    if (x.done() && y.done())
+    {
+        if (millis() - lastMove > 500)  // Pause for 500ms
+        {
             // Move to next target
             currentTarget = (currentTarget + 1) % numTargets;
             x.to(targets[currentTarget][0], 800);  // 800ms to reach target
             y.to(targets[currentTarget][1], 800);
             lastMove = millis();
         }
-    } else {
+    }
+    else
+    {
         lastMove = millis();
     }
     

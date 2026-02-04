@@ -39,16 +39,18 @@
 
 TinyScreen screen;
 
-const int pressurePin = A0;
+int pressurePin = A0;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     Serial.println("Canvas Pressure Map Demo");
     Serial.println("Press harder = taller bar");
 }
 
-void loop() {
+void loop()
+{
     int pressure = analogRead(pressurePin);
     
     // Map pressure to bar height (0-8 pixels)
@@ -60,7 +62,8 @@ void loop() {
     screen.fill(ON);
     
     // Draw bar from bottom up (centered horizontally)
-    if (barHeight > 0) {
+    if (barHeight > 0)
+    {
         screen.rect(4, 8 - barHeight, 4, barHeight);
     }
     

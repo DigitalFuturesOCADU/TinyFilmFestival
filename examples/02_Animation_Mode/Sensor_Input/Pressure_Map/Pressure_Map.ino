@@ -42,13 +42,14 @@
 TinyScreen screen;
 Animation idleAnim = idle;
 
-const int pressurePin = A0;
+int pressurePin = A0;
 
 // Define the output speed range (x10 for precision with integer math)
-const int MIN_SPEED = 5;   // 0.5x when no pressure
-const int MAX_SPEED = 40;  // 4.0x at full pressure
+int MIN_SPEED = 5;   // 0.5x when no pressure
+int MAX_SPEED = 40;  // 4.0x at full pressure
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     screen.play(idleAnim, LOOP);
@@ -56,7 +57,8 @@ void setup() {
     Serial.println("Press harder = faster animation");
 }
 
-void loop() {
+void loop()
+{
     int pressure = analogRead(pressurePin);
     
     // Map pressure (0-1023) to speed (0.5x - 4.0x)
@@ -67,7 +69,8 @@ void loop() {
     
     // Debug output (less frequent to not spam serial)
     static unsigned long lastPrint = 0;
-    if (millis() - lastPrint > 200) {
+    if (millis() - lastPrint > 200)
+    {
         Serial.print("Pressure: ");
         Serial.print(pressure);
         Serial.print(" -> ");

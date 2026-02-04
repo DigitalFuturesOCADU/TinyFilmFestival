@@ -43,20 +43,21 @@
 TinyScreen screen;
 
 // Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
+int trigPin = A0;
+int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
 const float MIN_DISTANCE = 5.0;
 const float MAX_DISTANCE = 80.0;
-const int MIN_RADIUS = 1;
-const int MAX_RADIUS = 4;
+int MIN_RADIUS = 1;
+int MAX_RADIUS = 4;
 
 unsigned long lastRead = 0;
-const int readInterval = 50;
+int readInterval = 50;
 int currentRadius = 1;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
@@ -64,11 +65,14 @@ void setup() {
     Serial.println("Move closer = bigger circle");
 }
 
-void loop() {
-    if (millis() - lastRead > readInterval) {
+void loop()
+{
+    if (millis() - lastRead > readInterval)
+    {
         float dist = ultrasonic.getDistanceCM();
         
-        if (dist > 0) {
+        if (dist > 0)
+        {
             // Constrain and map distance to radius
             dist = constrain(dist, MIN_DISTANCE, MAX_DISTANCE);
             // Map inverted: closer = bigger

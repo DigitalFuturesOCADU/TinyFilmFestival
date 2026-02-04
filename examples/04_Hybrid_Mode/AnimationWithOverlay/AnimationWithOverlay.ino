@@ -46,19 +46,23 @@ Animation backgroundAnim = idle;
 int indicatorLevel = 0;
 int indicatorDirection = 1;
 unsigned long lastIndicatorUpdate = 0;
-const int INDICATOR_SPEED = 150;
+int INDICATOR_SPEED = 150;
 
-void setup() {
+void setup()
+{
     screen.begin();
     screen.play(backgroundAnim, LOOP);
     screen.setSpeed(100);
 }
 
-void loop() {
+void loop()
+{
     // Update overlay indicator independently
-    if (millis() - lastIndicatorUpdate >= INDICATOR_SPEED) {
+    if (millis() - lastIndicatorUpdate >= INDICATOR_SPEED)
+    {
         indicatorLevel += indicatorDirection;
-        if (indicatorLevel >= 7 || indicatorLevel <= 0) {
+        if (indicatorLevel >= 7 || indicatorLevel <= 0)
+        {
             indicatorDirection *= -1;
         }
         lastIndicatorUpdate = millis();
@@ -68,7 +72,8 @@ void loop() {
     screen.beginOverlay();
     
     // Draw indicator bar on the right edge (column 11)
-    for (int y = 7; y > 7 - indicatorLevel; y--) {
+    for (int y = 7; y > 7 - indicatorLevel; y--)
+    {
         screen.point(11, y);
     }
     

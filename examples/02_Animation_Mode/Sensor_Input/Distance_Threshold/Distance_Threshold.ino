@@ -47,8 +47,8 @@ Animation idleAnim = idle;
 Animation goAnim = go;
 
 // Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
+int trigPin = A0;
+int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
 // Define threshold distances (in cm)
@@ -59,9 +59,10 @@ const float CLOSE_THRESHOLD = 30.0; // Closer than this = go (fast)
 int currentMode = 0;  // 0=far(idle), 1=mid(idle fast), 2=close(go)
 
 unsigned long lastRead = 0;
-const int readInterval = 100;
+int readInterval = 100;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
@@ -73,27 +74,36 @@ void setup() {
     Serial.println("  Close (<30cm): go");
 }
 
-void loop() {
-    if (millis() - lastRead > readInterval) {
+void loop()
+{
+    if (millis() - lastRead > readInterval)
+    {
         float dist = ultrasonic.getDistanceCM();
         
-        if (dist > 0) {
+        if (dist > 0)
+        {
             int newMode;
             
             // Determine mode based on thresholds
-            if (dist > FAR_THRESHOLD) {
+            if (dist > FAR_THRESHOLD)
+            {
                 newMode = 0;  // Far away = idle slow
-            } else if (dist > CLOSE_THRESHOLD) {
+            } else if (dist > CLOSE_THRESHOLD)
+            {
                 newMode = 1;  // Middle zone = idle fast
-            } else {
+            }
+            else
+            {
                 newMode = 2;  // Close = go
             }
             
             // Only switch animation when mode changes
-            if (newMode != currentMode) {
+            if (newMode != currentMode)
+            {
                 currentMode = newMode;
                 
-                switch (currentMode) {
+                switch (currentMode)
+                {
                     case 0: 
                         screen.play(idleAnim, LOOP);
                         screen.setSpeed(1.0);

@@ -2,14 +2,14 @@
  * TinyFilmFestival V2 - First Canvas
  * 01_Basics/FirstCanvas
  * 
- * Your first code-generated animation: a bouncing dot.
- * No pre-made animation file needed - the motion is created with code!
+ * Draw graphics with code using oscillate() for smooth motion.
+ * This example draws a point that moves smoothly up and down.
  * 
  * This example demonstrates:
  *   - Using beginDraw() and endDraw() to draw on the matrix
- *   - Clearing the screen each frame
- *   - Using variables to create motion
- *   - The basic animation loop pattern
+ *   - Clearing the screen with background(OFF)
+ *   - Using oscillateInt() for smooth cyclic motion
+ *   - Breaking out timing variables for easy adjustment
  * 
  * Hardware: Arduino UNO R4 WiFi (built-in 12×8 LED Matrix)
  * 
@@ -39,35 +39,23 @@
 
 TinyScreen screen;
 
-// Position and direction
-int x = 0;
-int direction = 1;  // 1 = moving right, -1 = moving left
+// Animation speed (milliseconds for one complete cycle)
+int Y_PERIOD = 1500;  // How fast the point moves up/down
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
-    // Start drawing
+void loop()
+{
     screen.beginDraw();
-    
-    // Clear the screen (set all pixels off)
     screen.background(OFF);
+    screen.stroke(ON);
     
-    // Draw a single point at the current position
-    screen.point(x, 4);  // y=4 is the middle row
+    // Point oscillates smoothly between y=0 and y=7
+    int y = oscillateInt(0, 7, Y_PERIOD);
+    screen.point(5, y);
     
-    // Show what we drew
     screen.endDraw();
-    
-    // Update position for next frame
-    x += direction;
-    
-    // Bounce off the edges
-    if (x >= 11 || x <= 0) {
-        direction *= -1;  // Reverse direction
-    }
-    
-    // Control animation speed (smaller = faster)
-    delay(100);
 }

@@ -42,9 +42,10 @@
 TinyScreen screen;
 Animation idleAnim = idle;
 
-const int pressurePin = A0;
+int pressurePin = A0;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     screen.play(idleAnim, LOOP);
@@ -52,7 +53,8 @@ void setup() {
     Serial.println("Press harder = more dots on top row");
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
     int pressure = analogRead(pressurePin);
@@ -63,7 +65,8 @@ void loop() {
     screen.beginOverlay();
     
     // Draw dots across top row
-    for (int x = 0; x < numDots; x++) {
+    for (int x = 0; x < numDots; x++)
+    {
         screen.point(x, 0);
     }
     

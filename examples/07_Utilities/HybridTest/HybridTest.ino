@@ -18,8 +18,8 @@ Animation anim2 = landscape;
 // Test state
 int testNum = 0;
 unsigned long lastTestSwitch = 0;
-const int TEST_DURATION = 5000;  // 5 seconds per test
-const int NUM_TESTS = 9;
+int TEST_DURATION = 5000;  // 5 seconds per test
+int NUM_TESTS = 9;
 
 // Animation variables
 int posX = 3;
@@ -28,7 +28,8 @@ int indicatorLevel = 0;
 int indicatorDir = 1;
 unsigned long lastIndicatorUpdate = 0;
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
     screen.begin();
     
@@ -41,11 +42,13 @@ void setup() {
     screen.setSpeed(120);
 }
 
-void printTestName(int test) {
+void printTestName(int test)
+{
     Serial.print("Test ");
     Serial.print(test);
     Serial.print(": ");
-    switch (test) {
+    switch (test)
+    {
         case 0: Serial.println("Animation + moving point"); break;
         case 1: Serial.println("Animation + indicator bar"); break;
         case 2: Serial.println("Animation + corner frame"); break;
@@ -58,9 +61,11 @@ void printTestName(int test) {
     }
 }
 
-void loop() {
+void loop()
+{
     // Switch test every TEST_DURATION ms
-    if (millis() - lastTestSwitch > TEST_DURATION) {
+    if (millis() - lastTestSwitch > TEST_DURATION)
+    {
         testNum = (testNum + 1) % NUM_TESTS;
         lastTestSwitch = millis();
         printTestName(testNum);
@@ -68,20 +73,24 @@ void loop() {
     }
     
     // Update indicator (for tests that use it)
-    if (millis() - lastIndicatorUpdate >= 100) {
+    if (millis() - lastIndicatorUpdate >= 100)
+    {
         indicatorLevel += indicatorDir;
-        if (indicatorLevel >= 7 || indicatorLevel <= 0) {
+        if (indicatorLevel >= 7 || indicatorLevel <= 0)
+        {
             indicatorDir *= -1;
         }
         posX += posDir;
-        if (posX >= 10 || posX <= 1) {
+        if (posX >= 10 || posX <= 1)
+        {
             posDir *= -1;
         }
         lastIndicatorUpdate = millis();
     }
     
     // Run current test
-    switch (testNum) {
+    switch (testNum)
+    {
         case 0: testMovingPoint(); break;
         case 1: testIndicatorBar(); break;
         case 2: testCornerFrame(); break;
@@ -94,14 +103,17 @@ void loop() {
     }
 }
 
-void setupTest(int test) {
+void setupTest(int test)
+{
     // Reset invert for all tests except test 8
-    if (test != 8) {
+    if (test != 8)
+    {
         screen.setInvert(false);
     }
     
     // Setup for specific tests
-    switch (test) {
+    switch (test)
+    {
         case 6:
             // Switch to second animation
             screen.play(anim2, LOOP);
@@ -120,9 +132,11 @@ void setupTest(int test) {
             break;
         default:
             // Resume/restart first animation
-            if (screen.isPaused()) {
+            if (screen.isPaused())
+            {
                 screen.resume();
-            } else if (test != 6) {
+            } else if (test != 6)
+            {
                 screen.play(anim1, LOOP);
                 screen.setSpeed(120);
             }
@@ -131,7 +145,8 @@ void setupTest(int test) {
 }
 
 // Test 0: Animation with a single moving point
-void testMovingPoint() {
+void testMovingPoint()
+{
     screen.beginOverlay();
     screen.stroke(ON);
     screen.point(posX, 4);
@@ -139,19 +154,22 @@ void testMovingPoint() {
 }
 
 // Test 1: Animation with indicator bar on right edge
-void testIndicatorBar() {
+void testIndicatorBar()
+{
     screen.beginOverlay();
     screen.stroke(ON);
     
     // Draw indicator bar on the right edge
-    for (int y = 7; y > 7 - indicatorLevel; y--) {
+    for (int y = 7; y > 7 - indicatorLevel; y--)
+    {
         screen.point(11, y);
     }
     screen.endOverlay();
 }
 
 // Test 2: Animation with corner brackets frame
-void testCornerFrame() {
+void testCornerFrame()
+{
     screen.beginOverlay();
     screen.stroke(ON);
     
@@ -179,7 +197,8 @@ void testCornerFrame() {
 }
 
 // Test 3: Animation with moving diagonal line
-void testMovingLine() {
+void testMovingLine()
+{
     screen.beginOverlay();
     screen.stroke(ON);
     screen.line(posX - 2, 0, posX + 2, 7);
@@ -187,7 +206,8 @@ void testMovingLine() {
 }
 
 // Test 4: Animation with text overlay
-void testTextOverlay() {
+void testTextOverlay()
+{
     screen.beginOverlay();
     screen.stroke(ON);
     screen.text("Hi", 0, 1);
@@ -195,7 +215,8 @@ void testTextOverlay() {
 }
 
 // Test 5: Animation with inverted rectangle (erase part of animation)
-void testInvertedRect() {
+void testInvertedRect()
+{
     screen.beginOverlay();
     
     // Draw a small filled OFF rectangle to "cut out" part of animation
@@ -212,7 +233,8 @@ void testInvertedRect() {
 }
 
 // Test 6: Switch animation while overlaying
-void testAnimationSwitch() {
+void testAnimationSwitch()
+{
     screen.beginOverlay();
     screen.stroke(ON);
     
@@ -227,7 +249,8 @@ void testAnimationSwitch() {
 }
 
 // Test 7: Paused animation with active drawing
-void testPausedWithDrawing() {
+void testPausedWithDrawing()
+{
     screen.beginOverlay();
     screen.stroke(ON);
     
@@ -241,7 +264,8 @@ void testPausedWithDrawing() {
 }
 
 // Test 8: Inverted animation with overlay
-void testInvertedAnimation() {
+void testInvertedAnimation()
+{
     screen.beginOverlay();
     screen.stroke(ON);
     

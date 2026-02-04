@@ -45,18 +45,19 @@ TinyScreen screen;
 Animation idleAnim = idle;
 
 // Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
+int trigPin = A0;
+int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
 const float FAR_THRESHOLD = 60.0;
 const float MID_THRESHOLD = 30.0;
 
 unsigned long lastRead = 0;
-const int readInterval = 50;
+int readInterval = 50;
 float currentDist = 100;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
@@ -68,12 +69,15 @@ void setup() {
     Serial.println("  Close: full border");
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
-    if (millis() - lastRead > readInterval) {
+    if (millis() - lastRead > readInterval)
+    {
         float dist = ultrasonic.getDistanceCM();
-        if (dist > 0) {
+        if (dist > 0)
+        {
             currentDist = dist;
         }
         lastRead = millis();
@@ -81,16 +85,20 @@ void loop() {
     
     screen.beginOverlay();
     
-    if (currentDist > FAR_THRESHOLD) {
+    if (currentDist > FAR_THRESHOLD)
+    {
         // Far: single corner indicator
         screen.point(11, 0);
-    } else if (currentDist > MID_THRESHOLD) {
+    } else if (currentDist > MID_THRESHOLD)
+    {
         // Middle: edge indicators (four corners)
         screen.point(0, 0);
         screen.point(11, 0);
         screen.point(0, 7);
         screen.point(11, 7);
-    } else {
+    }
+    else
+    {
         // Close: full border frame
         screen.line(0, 0, 11, 0);   // top
         screen.line(0, 7, 11, 7);   // bottom

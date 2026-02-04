@@ -66,7 +66,8 @@ bool completed = false;
 unsigned long lastMove = 0;
 int speed = 80;  // milliseconds per frame
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     
@@ -75,11 +76,14 @@ void setup() {
     Serial.println("Starting in LOOP mode");
 }
 
-void loop() {
+void loop()
+{
     // Check for mode changes via Serial
-    if (Serial.available()) {
+    if (Serial.available())
+    {
         char c = Serial.read();
-        switch(c) {
+        switch(c)
+        {
             case '1':
                 currentMode = MODE_ONCE;
                 resetAnimation();
@@ -99,7 +103,8 @@ void loop() {
     }
     
     // Update position at specified speed
-    if (millis() - lastMove >= speed && !completed) {
+    if (millis() - lastMove >= speed && !completed)
+    {
         updatePosition();
         lastMove = millis();
     }
@@ -113,13 +118,16 @@ void loop() {
     screen.endDraw();
 }
 
-void updatePosition() {
+void updatePosition()
+{
     x += direction;
     
-    switch(currentMode) {
+    switch(currentMode)
+    {
         case MODE_ONCE:
             // Stop when reaching the far edge
-            if (x >= 10) {
+            if (x >= 10)
+            {
                 x = 10;
                 completed = true;
                 Serial.println("Animation complete");
@@ -128,21 +136,24 @@ void updatePosition() {
             
         case MODE_LOOP:
             // Wrap around when exiting screen
-            if (x > 13) {
+            if (x > 13)
+            {
                 x = -2;  // Start just off the left edge
             }
             break;
             
         case MODE_BOOMERANG:
             // Bounce at edges
-            if (x >= 10 || x <= 1) {
+            if (x >= 10 || x <= 1)
+            {
                 direction *= -1;
             }
             break;
     }
 }
 
-void resetAnimation() {
+void resetAnimation()
+{
     x = 1;
     direction = 1;
     completed = false;

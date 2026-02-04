@@ -45,8 +45,8 @@ TinyScreen screen;
 Animation idleAnim = idle;
 
 // Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
+int trigPin = A0;
+int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
 // Define the input range (distance in cm)
@@ -54,13 +54,14 @@ const float MIN_DISTANCE = 5.0;    // Closest expected distance
 const float MAX_DISTANCE = 100.0;  // Farthest expected distance
 
 // Define the output range (speed multiplier x10 for integer math)
-const int MIN_SPEED = 5;   // 0.5x speed when far
-const int MAX_SPEED = 30;  // 3.0x speed when close
+int MIN_SPEED = 5;   // 0.5x speed when far
+int MAX_SPEED = 30;  // 3.0x speed when close
 
 unsigned long lastRead = 0;
-const int readInterval = 50;  // Faster reads for smoother response
+int readInterval = 50;  // Faster reads for smoother response
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
@@ -69,11 +70,14 @@ void setup() {
     Serial.println("Move hand closer = faster animation");
 }
 
-void loop() {
-    if (millis() - lastRead > readInterval) {
+void loop()
+{
+    if (millis() - lastRead > readInterval)
+    {
         float dist = ultrasonic.getDistanceCM();
         
-        if (dist > 0) {
+        if (dist > 0)
+        {
             // Constrain distance to expected range
             dist = constrain(dist, MIN_DISTANCE, MAX_DISTANCE);
             

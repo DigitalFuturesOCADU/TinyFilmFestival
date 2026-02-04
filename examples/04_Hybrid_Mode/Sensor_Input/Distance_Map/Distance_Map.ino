@@ -45,18 +45,19 @@ TinyScreen screen;
 Animation idleAnim = idle;
 
 // Distance sensor
-const int trigPin = A0;
-const int echoPin = A1;
+int trigPin = A0;
+int echoPin = A1;
 EasyUltrasonic ultrasonic;
 
 const float MIN_DISTANCE = 5.0;
 const float MAX_DISTANCE = 80.0;
 
 unsigned long lastRead = 0;
-const int readInterval = 50;
+int readInterval = 50;
 int barWidth = 1;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     ultrasonic.attach(trigPin, echoPin);
     screen.begin();
@@ -65,13 +66,16 @@ void setup() {
     Serial.println("Move closer = wider progress bar overlay");
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
-    if (millis() - lastRead > readInterval) {
+    if (millis() - lastRead > readInterval)
+    {
         float dist = ultrasonic.getDistanceCM();
         
-        if (dist > 0) {
+        if (dist > 0)
+        {
             dist = constrain(dist, MIN_DISTANCE, MAX_DISTANCE);
             // Map distance to bar width (closer = wider)
             barWidth = map(dist * 10, MIN_DISTANCE * 10, MAX_DISTANCE * 10, 
@@ -83,7 +87,8 @@ void loop() {
     screen.beginOverlay();
     
     // Draw progress bar on bottom row
-    for (int x = 0; x < barWidth; x++) {
+    for (int x = 0; x < barWidth; x++)
+    {
         screen.point(x, 7);
     }
     

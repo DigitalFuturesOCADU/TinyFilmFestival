@@ -32,20 +32,26 @@ TinyScreen screen;
 Ease xPos(0);    // Horizontal position, starts at 0
 Ease yPos(3);    // Vertical position, starts at middle
 
-void setup() {
+void setup()
+{
     screen.begin();
     
     // Start first animation: move to right side over 2 seconds
     xPos.to(11, 2000);
 }
 
-void loop() {
+void loop()
+{
     // When horizontal movement finishes, start a new target
-    if (xPos.done()) {
+    if (xPos.done())
+    {
         // Ping-pong between left and right
-        if (xPos.target() > 5) {
+        if (xPos.target() > 5)
+        {
             xPos.to(0, 2000);   // Move left over 2 seconds
-        } else {
+        }
+        else
+        {
             xPos.to(11, 2000);  // Move right over 2 seconds
         }
     }

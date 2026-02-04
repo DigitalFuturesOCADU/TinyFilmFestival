@@ -36,54 +36,27 @@
  * Numbers inside = linear index for ledWrite(index, state)
  */
 
-#include <TinyFilmFestival.h>
+#include "TinyFilmFestival.h"
 
-unsigned long lastBlinkTime = 0;
+unsigned long lastToggle = 0;
 bool ledState = false;
 
-void setup() {
-  ledBegin();  // Initialize the matrix (call once in setup)
-  
-  // Light up the four corners
-  ledWrite(0, 0, HIGH);   // Top-left corner
-  ledWrite(11, 0, HIGH);  // Top-right corner
-  ledWrite(0, 7, HIGH);   // Bottom-left corner
-  ledWrite(11, 7, HIGH);  // Bottom-right corner
-  
-  delay(2000);
-  
-  // Toggle corners off one by one
-  ledToggle(0, 0);
-  delay(300);
-  ledToggle(11, 0);
-  delay(300);
-  ledToggle(0, 7);
-  delay(300);
-  ledToggle(11, 7);
-  delay(300);
-  
-  // Draw a horizontal line across the middle
-  for (int x = 0; x < 12; x++) {
-    ledWrite(x, 3, HIGH);
-    delay(100);
-  }
-  
-  delay(1000);
-  
-  // Clear the line
-  for (int x = 0; x < 12; x++) {
-    ledWrite(x, 3, LOW);
-    delay(100);
-  }
-  
-  delay(500);
+void setup()
+{
+    ledBegin();                   // Initialize matrix
+    
+    ledWrite(0, 0, HIGH);         // Top-left ON
+    ledWrite(11, 7, HIGH);        // Bottom-right ON
+    ledToggle(0, 0);              // Toggle top-left OFF
 }
 
-void loop() {
-  // Blink center LED using a non-blocking timer
-  if (millis() - lastBlinkTime >= 500) {
-    lastBlinkTime = millis();
-    ledState = !ledState;
-    ledWrite(5, 3, ledState);
-  }
+void loop()
+{
+    // Non-blocking blink using millis()
+    if (millis() - lastToggle >= 500)
+    {
+        lastToggle = millis();
+        ledState = !ledState;
+        ledWrite(5, 3, ledState);     // ledWrite accepts bool directly
+    }
 }

@@ -43,9 +43,10 @@ Animation myAnim = animation;
 // Demo cycling
 int demoMode = 0;
 unsigned long lastChange = 0;
-const int demoDuration = 4000;
+int demoDuration = 4000;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     
@@ -56,9 +57,11 @@ void setup() {
     startDemo(0);
 }
 
-void loop() {
+void loop()
+{
     // Cycle through demos every few seconds
-    if (millis() - lastChange > demoDuration) {
+    if (millis() - lastChange > demoDuration)
+    {
         demoMode = (demoMode + 1) % 5;
         startDemo(demoMode);
         lastChange = millis();
@@ -67,8 +70,10 @@ void loop() {
     screen.update();
 }
 
-void startDemo(int mode) {
-    switch (mode) {
+void startDemo(int mode)
+{
+    switch (mode)
+    {
         case 0:
             // LOOP: continuous forward playback
             screen.play(myAnim, LOOP);

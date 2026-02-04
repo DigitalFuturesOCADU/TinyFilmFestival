@@ -44,16 +44,17 @@ TinyScreen screen;
 Animation idleAnim = idle;
 Animation goAnim = go;
 
-const int pressurePin = A0;
+int pressurePin = A0;
 
 // Define pressure thresholds (0-1023 range)
-const int LIGHT_THRESHOLD = 200;   // Below = idle slow
-const int MEDIUM_THRESHOLD = 500;  // Between = idle fast
+int LIGHT_THRESHOLD = 200;   // Below = idle slow
+int MEDIUM_THRESHOLD = 500;  // Between = idle fast
                                    // Above = go
 
 int currentMode = 0;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     screen.play(idleAnim, LOOP);
@@ -64,24 +65,31 @@ void setup() {
     Serial.println("  Hard (>500): go");
 }
 
-void loop() {
+void loop()
+{
     int pressure = analogRead(pressurePin);
     int newMode;
     
     // Determine mode based on pressure thresholds
-    if (pressure < LIGHT_THRESHOLD) {
+    if (pressure < LIGHT_THRESHOLD)
+    {
         newMode = 0;  // Light/no pressure = idle slow
-    } else if (pressure < MEDIUM_THRESHOLD) {
+    } else if (pressure < MEDIUM_THRESHOLD)
+    {
         newMode = 1;  // Medium pressure = idle fast
-    } else {
+    }
+    else
+    {
         newMode = 2;  // High pressure = go
     }
     
     // Only switch when mode changes
-    if (newMode != currentMode) {
+    if (newMode != currentMode)
+    {
         currentMode = newMode;
         
-        switch (currentMode) {
+        switch (currentMode)
+        {
             case 0: 
                 screen.play(idleAnim, LOOP);
                 screen.setSpeed(1.0);

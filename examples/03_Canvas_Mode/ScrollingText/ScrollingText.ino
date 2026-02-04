@@ -34,15 +34,18 @@ TinyScreen screen;
 int phase = 0;
 unsigned long phaseStart;
 
-void setup() {
+void setup()
+{
     screen.begin();
     phaseStart = millis();
 }
 
-void loop() {
+void loop()
+{
     unsigned long elapsed = millis() - phaseStart;
     
-    switch (phase) {
+    switch (phase)
+    {
         case 0:
             // Static text for 3 seconds
             screen.beginDraw();
@@ -50,7 +53,8 @@ void loop() {
             screen.text("Hi!", 1, 2);
             screen.endDraw();
             
-            if (elapsed > 3000) {
+            if (elapsed > 3000)
+            {
                 phase = 1;
                 phaseStart = millis();
                 screen.resetScroll();
@@ -65,7 +69,8 @@ void loop() {
             screen.scrollText("HELLO WORLD", 2, SCROLL_LEFT);
             screen.endDraw();
             
-            if (elapsed > 8000) {
+            if (elapsed > 8000)
+            {
                 phase = 2;
                 phaseStart = millis();
                 screen.resetScroll();
@@ -79,7 +84,8 @@ void loop() {
             screen.scrollText("ARDUINO", 2, SCROLL_RIGHT);
             screen.endDraw();
             
-            if (elapsed > 8000) {
+            if (elapsed > 8000)
+            {
                 phase = 0;
                 phaseStart = millis();
             }

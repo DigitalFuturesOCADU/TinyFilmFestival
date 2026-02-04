@@ -18,10 +18,11 @@ Animation anim2 = landscape;
 // Test state
 int testNum = 0;
 unsigned long lastTestSwitch = 0;
-const int TEST_DURATION = 4000;  // 4 seconds per test
-const int NUM_TESTS = 12;
+int TEST_DURATION = 4000;  // 4 seconds per test
+int NUM_TESTS = 12;
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
     screen.begin();
     
@@ -34,11 +35,13 @@ void setup() {
     setupTest(0);
 }
 
-void printTestName(int test) {
+void printTestName(int test)
+{
     Serial.print("\nTest ");
     Serial.print(test);
     Serial.print(": ");
-    switch (test) {
+    switch (test)
+    {
         case 0:  Serial.println("Basic LOOP playback"); break;
         case 1:  Serial.println("ONCE playback (plays once, stops)"); break;
         case 2:  Serial.println("Speed change (fast -> slow -> fast)"); break;
@@ -54,9 +57,11 @@ void printTestName(int test) {
     }
 }
 
-void loop() {
+void loop()
+{
     // Switch test every TEST_DURATION ms
-    if (millis() - lastTestSwitch > TEST_DURATION) {
+    if (millis() - lastTestSwitch > TEST_DURATION)
+    {
         testNum = (testNum + 1) % NUM_TESTS;
         lastTestSwitch = millis();
         printTestName(testNum);
@@ -70,13 +75,15 @@ void loop() {
     screen.update();
 }
 
-void setupTest(int test) {
+void setupTest(int test)
+{
     // Reset state for each test
     screen.setInvert(false);
     screen.stopLayer(0);
     screen.stopLayer(1);
     
-    switch (test) {
+    switch (test)
+    {
         case 0:  // Basic LOOP
             screen.play(anim1, LOOP);
             screen.setSpeed(100);
@@ -159,14 +166,18 @@ void setupTest(int test) {
     }
 }
 
-void runTest(int test) {
+void runTest(int test)
+{
     unsigned long elapsed = millis() - lastTestSwitch;
     
-    switch (test) {
+    switch (test)
+    {
         case 1:  // ONCE - report when complete
-            if (screen.isComplete()) {
+            if (screen.isComplete())
+            {
                 static bool reported = false;
-                if (!reported) {
+                if (!reported)
+                {
                     Serial.println("  -> Animation COMPLETE (stopped)");
                     reported = true;
                 }
@@ -174,20 +185,26 @@ void runTest(int test) {
             break;
             
         case 2:  // Speed change
-            if (elapsed < 1500) {
+            if (elapsed < 1500)
+            {
                 // Fast phase
-            } else if (elapsed < 2500) {
+            } else if (elapsed < 2500)
+            {
                 // Slow phase
                 static bool slowSet = false;
-                if (!slowSet) {
+                if (!slowSet)
+                {
                     screen.setSpeed(300);
                     Serial.println("  -> Changed to SLOW (300ms)");
                     slowSet = true;
                 }
-            } else {
+            }
+            else
+            {
                 // Fast again
                 static bool fastAgain = false;
-                if (!fastAgain) {
+                if (!fastAgain)
+                {
                     screen.setSpeed(50);
                     Serial.println("  -> Back to FAST (50ms)");
                     fastAgain = true;
@@ -196,16 +213,20 @@ void runTest(int test) {
             break;
             
         case 3:  // Pause/Resume
-            if (elapsed > 1000 && elapsed < 2000) {
+            if (elapsed > 1000 && elapsed < 2000)
+            {
                 static bool paused = false;
-                if (!paused) {
+                if (!paused)
+                {
                     screen.pause();
                     Serial.println("  -> PAUSED");
                     paused = true;
                 }
-            } else if (elapsed >= 2000) {
+            } else if (elapsed >= 2000)
+            {
                 static bool resumed = false;
-                if (!resumed) {
+                if (!resumed)
+                {
                     screen.resume();
                     Serial.println("  -> RESUMED");
                     resumed = true;
@@ -214,16 +235,20 @@ void runTest(int test) {
             break;
             
         case 4:  // Stop/Restart
-            if (elapsed > 1500 && elapsed < 2500) {
+            if (elapsed > 1500 && elapsed < 2500)
+            {
                 static bool stopped = false;
-                if (!stopped) {
+                if (!stopped)
+                {
                     screen.stop();
                     Serial.println("  -> STOPPED");
                     stopped = true;
                 }
-            } else if (elapsed >= 2500) {
+            } else if (elapsed >= 2500)
+            {
                 static bool restarted = false;
-                if (!restarted) {
+                if (!restarted)
+                {
                     screen.play(anim1, LOOP);
                     screen.setSpeed(100);
                     Serial.println("  -> RESTARTED");
@@ -233,9 +258,11 @@ void runTest(int test) {
             break;
             
         case 6:  // Animation switch
-            if (elapsed > 2000) {
+            if (elapsed > 2000)
+            {
                 static bool switched = false;
-                if (!switched) {
+                if (!switched)
+                {
                     screen.play(anim2, LOOP);
                     screen.setSpeed(80);
                     Serial.println("  -> Switched to animation 2");
@@ -246,7 +273,8 @@ void runTest(int test) {
             
         case 11: // Status reporting
             static unsigned long lastStatus = 0;
-            if (millis() - lastStatus > 500) {
+            if (millis() - lastStatus > 500)
+            {
                 Serial.print("  Frame: ");
                 Serial.print(screen.getCurrentFrame());
                 Serial.print("/");

@@ -16,10 +16,13 @@ int posX = 3;
 int posDir = 1;
 int testNum = 12;  // Start at test 12
 unsigned long lastTestSwitch = 0;
-const int TEST_DURATION = 4000;  // 4 seconds per test
-const int NUM_TESTS = 15;
+unsigned long lastFrame = 0;
+int FRAME_DELAY = 60;  // Animation frame rate
+int TEST_DURATION = 4000;  // 4 seconds per test
+int NUM_TESTS = 15;
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
     screen.begin();
     
@@ -28,11 +31,13 @@ void setup() {
     printTestName(0);
 }
 
-void printTestName(int test) {
+void printTestName(int test)
+{
     Serial.print("Test ");
     Serial.print(test);
     Serial.print(": ");
-    switch (test) {
+    switch (test)
+    {
         case 0: Serial.println("Filled circle - normal"); break;
         case 1: Serial.println("Filled circle - inverted"); break;
         case 2: Serial.println("Stroked circle - normal"); break;
@@ -51,9 +56,11 @@ void printTestName(int test) {
     }
 }
 
-void loop() {
+void loop()
+{
     // Switch test every TEST_DURATION ms
-    if (millis() - lastTestSwitch > TEST_DURATION) {
+    if (millis() - lastTestSwitch > TEST_DURATION)
+    {
         testNum = (testNum + 1) % NUM_TESTS;
         lastTestSwitch = millis();
         printTestName(testNum);
@@ -64,7 +71,8 @@ void loop() {
     
     screen.beginDraw();
     
-    switch (testNum) {
+    switch (testNum)
+    {
         case 0: testFilledCircleNormal(); break;
         case 1: testFilledCircleInverted(); break;
         case 2: testStrokedCircleNormal(); break;
@@ -84,17 +92,21 @@ void loop() {
     
     screen.endDraw();
     
-    // Update animation position
-    posX += posDir;
-    if (posX >= 9 || posX <= 2) {
-        posDir *= -1;
+    // Update animation position at controlled rate
+    if (millis() - lastFrame >= FRAME_DELAY)
+    {
+        lastFrame = millis();
+        posX += posDir;
+        if (posX >= 9 || posX <= 2)
+        {
+            posDir *= -1;
+        }
     }
-    
-    delay(60);
 }
 
 // Test 0: Filled circle - normal (dark bg, bright circle)
-void testFilledCircleNormal() {
+void testFilledCircleNormal()
+{
     screen.background(OFF);
     screen.fill(ON);
     screen.noStroke();
@@ -102,7 +114,8 @@ void testFilledCircleNormal() {
 }
 
 // Test 1: Filled circle - inverted (bright bg, dark circle)
-void testFilledCircleInverted() {
+void testFilledCircleInverted()
+{
     screen.background(ON);
     screen.fill(OFF);
     screen.noStroke();
@@ -110,7 +123,8 @@ void testFilledCircleInverted() {
 }
 
 // Test 2: Stroked circle - normal
-void testStrokedCircleNormal() {
+void testStrokedCircleNormal()
+{
     screen.background(OFF);
     screen.stroke(ON);
     screen.noFill();
@@ -118,7 +132,8 @@ void testStrokedCircleNormal() {
 }
 
 // Test 3: Stroked circle - inverted
-void testStrokedCircleInverted() {
+void testStrokedCircleInverted()
+{
     screen.background(ON);
     screen.stroke(OFF);
     screen.noFill();
@@ -126,7 +141,8 @@ void testStrokedCircleInverted() {
 }
 
 // Test 4: Moving lines - normal
-void testLinesNormal() {
+void testLinesNormal()
+{
     screen.background(OFF);
     screen.stroke(ON);
     // Diagonal lines that move
@@ -138,7 +154,8 @@ void testLinesNormal() {
 }
 
 // Test 5: Moving lines - inverted
-void testLinesInverted() {
+void testLinesInverted()
+{
     screen.background(ON);
     screen.stroke(OFF);
     screen.line(posX - 2, 0, posX + 2, 7);
@@ -148,12 +165,14 @@ void testLinesInverted() {
 }
 
 // Test 6: Moving points pattern
-void testPointsPattern() {
+void testPointsPattern()
+{
     screen.background(OFF);
     screen.stroke(ON);
     
     // Moving vertical line of points
-    for (int y = 0; y < 8; y++) {
+    for (int y = 0; y < 8; y++)
+    {
         screen.point(posX, y);
     }
     
@@ -164,13 +183,15 @@ void testPointsPattern() {
     screen.point(11, 7);
     
     // Alternating row based on position
-    for (int x = 0; x < 12; x += 2) {
+    for (int x = 0; x < 12; x += 2)
+    {
         screen.point(x + (posX % 2), 3);
     }
 }
 
 // Test 7: Complex shapes with multiple fill/stroke combinations
-void testComplexShapes() {
+void testComplexShapes()
+{
     screen.background(OFF);
     
     // Filled rectangle on left
@@ -194,7 +215,8 @@ void testComplexShapes() {
 }
 
 // Test 8: Text combined with shapes
-void testTextWithShapes() {
+void testTextWithShapes()
+{
     screen.background(OFF);
     screen.stroke(ON);
     
@@ -210,7 +232,8 @@ void testTextWithShapes() {
 }
 
 // Test 9: Inverted text effect
-void testTextInverted() {
+void testTextInverted()
+{
     screen.background(ON);
     screen.stroke(OFF);
     
@@ -225,7 +248,8 @@ void testTextInverted() {
 }
 
 // Test 10: Scrolling text left
-void testScrollingTextLeft() {
+void testScrollingTextLeft()
+{
     screen.background(OFF);
     screen.stroke(ON);
     screen.setScrollSpeed(60);
@@ -235,7 +259,8 @@ void testScrollingTextLeft() {
 }
 
 // Test 11: Scrolling text right
-void testScrollingTextRight() {
+void testScrollingTextRight()
+{
     screen.background(OFF);
     screen.stroke(ON);
     screen.setScrollSpeed(60);
@@ -245,7 +270,8 @@ void testScrollingTextRight() {
 }
 
 // Test 12: Text size 2 (double size)
-void testTextSizeDouble() {
+void testTextSizeDouble()
+{
     screen.background(OFF);
     screen.stroke(ON);
     screen.setTextSize(2);
@@ -256,7 +282,8 @@ void testTextSizeDouble() {
 }
 
 // Test 13: Rotation demo - cycles through 0, 90, 180, 270 degrees
-void testRotation() {
+void testRotation()
+{
     // Cycle rotation every 1 second (based on millis)
     int rotationStep = ((millis() - lastTestSwitch) / 1000) % 4;
     screen.setRotation(rotationStep * 90);
@@ -278,7 +305,8 @@ void testRotation() {
 }
 
 // Test 14: Rotation with text
-void testRotationWithText() {
+void testRotationWithText()
+{
     // Cycle rotation every 1 second
     int rotationStep = ((millis() - lastTestSwitch) / 1000) % 4;
     screen.setRotation(rotationStep * 90);

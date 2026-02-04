@@ -44,7 +44,8 @@ Animation fgAnim = fiz;         // Foreground layer
 
 int fgLayer;  // Foreground layer index
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     
@@ -62,7 +63,8 @@ void setup() {
     Serial.println("Layered animation running");
 }
 
-void loop() {
+void loop()
+{
     // update() handles all layers automatically
     screen.update();
 }

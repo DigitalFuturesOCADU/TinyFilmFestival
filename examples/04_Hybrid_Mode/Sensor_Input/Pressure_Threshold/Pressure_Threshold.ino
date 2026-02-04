@@ -42,12 +42,13 @@
 TinyScreen screen;
 Animation idleAnim = idle;
 
-const int pressurePin = A0;
+int pressurePin = A0;
 
-const int LIGHT_THRESHOLD = 200;
-const int HARD_THRESHOLD = 600;
+int LIGHT_THRESHOLD = 200;
+int HARD_THRESHOLD = 600;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     screen.play(idleAnim, LOOP);
@@ -58,22 +59,27 @@ void setup() {
     Serial.println("  Hard: full top line");
 }
 
-void loop() {
+void loop()
+{
     screen.update();
     
     int pressure = analogRead(pressurePin);
     
     screen.beginOverlay();
     
-    if (pressure < LIGHT_THRESHOLD) {
+    if (pressure < LIGHT_THRESHOLD)
+    {
         // No pressure: minimal indicator
         screen.point(5, 0);
-    } else if (pressure < HARD_THRESHOLD) {
+    } else if (pressure < HARD_THRESHOLD)
+    {
         // Medium: top row dots
         screen.point(3, 0);
         screen.point(5, 0);
         screen.point(7, 0);
-    } else {
+    }
+    else
+    {
         // Hard: top row full
         screen.line(0, 0, 11, 0);
     }

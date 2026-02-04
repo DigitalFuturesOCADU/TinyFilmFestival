@@ -40,12 +40,13 @@
 
 TinyScreen screen;
 
-const int pressurePin = A0;
+int pressurePin = A0;
 
-const int LIGHT_THRESHOLD = 200;
-const int HARD_THRESHOLD = 600;
+int LIGHT_THRESHOLD = 200;
+int HARD_THRESHOLD = 600;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     Serial.println("Canvas Pressure Threshold Demo");
@@ -55,21 +56,26 @@ void setup() {
     Serial.println("  Hard: X + cross pattern");
 }
 
-void loop() {
+void loop()
+{
     int pressure = analogRead(pressurePin);
     
     screen.beginDraw();
     screen.background(OFF);
     screen.stroke(ON);
     
-    if (pressure < LIGHT_THRESHOLD) {
+    if (pressure < LIGHT_THRESHOLD)
+    {
         // No/light pressure: horizontal line
         screen.line(0, 3, 11, 3);
-    } else if (pressure < HARD_THRESHOLD) {
+    } else if (pressure < HARD_THRESHOLD)
+    {
         // Medium pressure: cross pattern
         screen.line(0, 3, 11, 3);
         screen.line(5, 0, 5, 7);
-    } else {
+    }
+    else
+    {
         // Hard pressure: X pattern fills screen
         screen.line(0, 0, 11, 7);
         screen.line(11, 0, 0, 7);

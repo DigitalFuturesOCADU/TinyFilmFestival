@@ -31,7 +31,8 @@ const unsigned long CYCLE_LENGTH = 12000;  // 12 second cycle
 // State tracking to only trigger once
 int lastPhase = -1;
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
     screen.begin();
     
@@ -55,14 +56,16 @@ void setup() {
     Serial.println(">> PLAY Animation 1");
 }
 
-void loop() {
+void loop()
+{
     unsigned long elapsed = millis() - cycleStart;
     
     // Determine current phase (0-5)
     int phase = elapsed / 2000;
     
     // Reset cycle
-    if (elapsed >= CYCLE_LENGTH) {
+    if (elapsed >= CYCLE_LENGTH)
+    {
         cycleStart = millis();
         lastPhase = -1;
         screen.play(anim1, LOOP);
@@ -73,10 +76,12 @@ void loop() {
     }
     
     // Only act when phase changes
-    if (phase != lastPhase) {
+    if (phase != lastPhase)
+    {
         lastPhase = phase;
         
-        switch (phase) {
+        switch (phase)
+        {
             case 0:
                 // Already playing from setup/restart
                 break;
@@ -119,15 +124,19 @@ void loop() {
     
     // Print status every 500ms
     static unsigned long lastPrint = 0;
-    if (millis() - lastPrint > 500) {
+    if (millis() - lastPrint > 500)
+    {
         Serial.print("  [");
         Serial.print(elapsed / 1000.0, 1);
         Serial.print("s] Frame ");
         Serial.print(screen.getCurrentFrame());
         Serial.print(" | ");
-        if (screen.isPaused()) {
+        if (screen.isPaused())
+        {
             Serial.println("PAUSED");
-        } else {
+        }
+        else
+        {
             Serial.println("PLAYING");
         }
         lastPrint = millis();

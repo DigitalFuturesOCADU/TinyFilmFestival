@@ -28,11 +28,13 @@
 
 TinyScreen screen;
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     screen.beginDraw();
     screen.background(OFF);
     screen.stroke(ON);

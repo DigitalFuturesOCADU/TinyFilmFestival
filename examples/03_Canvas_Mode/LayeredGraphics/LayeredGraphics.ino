@@ -47,49 +47,57 @@ TinyScreen screen;
 int scanY = 0;
 int scanDirection = 1;
 unsigned long lastScanUpdate = 0;
-const int SCAN_SPEED = 200;  // Slow: 200ms per step
+int SCAN_SPEED = 200;  // Slow: 200ms per step
 
 // === Layer 2: Fast bouncing dot (foreground) ===
 int dotX = 6;
 int dotDirection = 1;
 unsigned long lastDotUpdate = 0;
-const int DOT_SPEED = 50;  // Fast: 50ms per step
+int DOT_SPEED = 50;  // Fast: 50ms per step
 
 // === Layer 3: Pulsing center ring (medium speed) ===
 int ringSize = 2;
 int ringDirection = 1;
 unsigned long lastRingUpdate = 0;
-const int RING_SPEED = 120;  // Medium: 120ms per step
+int RING_SPEED = 120;  // Medium: 120ms per step
 
-void setup() {
+void setup()
+{
     screen.begin();
 }
 
-void loop() {
+void loop()
+{
     unsigned long currentTime = millis();
     
     // Update Layer 1: Scan line (slow)
-    if (currentTime - lastScanUpdate >= SCAN_SPEED) {
+    if (currentTime - lastScanUpdate >= SCAN_SPEED)
+    {
         scanY += scanDirection;
-        if (scanY >= 7 || scanY <= 0) {
+        if (scanY >= 7 || scanY <= 0)
+        {
             scanDirection *= -1;
         }
         lastScanUpdate = currentTime;
     }
     
     // Update Layer 2: Bouncing dot (fast)
-    if (currentTime - lastDotUpdate >= DOT_SPEED) {
+    if (currentTime - lastDotUpdate >= DOT_SPEED)
+    {
         dotX += dotDirection;
-        if (dotX >= 11 || dotX <= 0) {
+        if (dotX >= 11 || dotX <= 0)
+        {
             dotDirection *= -1;
         }
         lastDotUpdate = currentTime;
     }
     
     // Update Layer 3: Pulsing ring (medium)
-    if (currentTime - lastRingUpdate >= RING_SPEED) {
+    if (currentTime - lastRingUpdate >= RING_SPEED)
+    {
         ringSize += ringDirection;
-        if (ringSize >= 4 || ringSize <= 1) {
+        if (ringSize >= 4 || ringSize <= 1)
+        {
             ringDirection *= -1;
         }
         lastRingUpdate = currentTime;

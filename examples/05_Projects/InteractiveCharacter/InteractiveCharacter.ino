@@ -75,10 +75,10 @@ CharacterState previousState = SLEEPING;
 
 // === Timing ===
 unsigned long lastSensorRead = 0;
-const int SENSOR_INTERVAL = 100;  // Read sensor every 100ms
+int SENSOR_INTERVAL = 100;  // Read sensor every 100ms
 
 unsigned long lastSparkle = 0;
-const int SPARKLE_INTERVAL = 50;
+int SPARKLE_INTERVAL = 50;
 
 unsigned long lastFlash = 0;
 bool flashOn = false;
@@ -87,7 +87,8 @@ bool flashOn = false;
 int sparkleX = 0;
 int sparkleY = 0;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     screen.begin();
     
@@ -99,7 +100,8 @@ void setup() {
     Serial.println("Approach the sensor to wake the character!");
 }
 
-void loop() {
+void loop()
+{
     // Read distance sensor
     float distance = readDistance();
     
@@ -107,7 +109,8 @@ void loop() {
     CharacterState newState = determineState(distance);
     
     // Handle state changes
-    if (newState != currentState) {
+    if (newState != currentState)
+    {
         previousState = currentState;
         currentState = newState;
         onStateChange();
@@ -121,7 +124,8 @@ void loop() {
     
     // Debug output
     static unsigned long lastDebug = 0;
-    if (millis() - lastDebug > 500) {
+    if (millis() - lastDebug > 500)
+    {
         Serial.print("Distance: ");
         Serial.print(distance);
         Serial.print(" cm, State: ");
@@ -130,12 +134,15 @@ void loop() {
     }
 }
 
-float readDistance() {
+float readDistance()
+{
     static float lastDistance = 100;
     
-    if (millis() - lastSensorRead >= SENSOR_INTERVAL) {
+    if (millis() - lastSensorRead >= SENSOR_INTERVAL)
+    {
         float d = sensor.measureDistanceCm();
-        if (d > 0) {
+        if (d > 0)
+        {
             lastDistance = d;
         }
         lastSensorRead = millis();
@@ -143,20 +150,28 @@ float readDistance() {
     return lastDistance;
 }
 
-CharacterState determineState(float distance) {
-    if (distance < 15) {
+CharacterState determineState(float distance)
+{
+    if (distance < 15)
+    {
         return OVERWHELMED;
-    } else if (distance < 30) {
+    } else if (distance < 30)
+    {
         return EXCITED;
-    } else if (distance < 60) {
+    } else if (distance < 60)
+    {
         return ALERT;
-    } else {
+    }
+    else
+    {
         return SLEEPING;
     }
 }
 
-void onStateChange() {
-    switch (currentState) {
+void onStateChange()
+{
+    switch (currentState)
+    {
         case SLEEPING:
             screen.play(idleAnim, LOOP);
             screen.setSpeed(300);  // Very slow
@@ -178,15 +193,18 @@ void onStateChange() {
     }
 }
 
-void drawOverlay() {
+void drawOverlay()
+{
     // beginOverlay updates animation AND starts drawing mode
     screen.beginOverlay();
     
-    switch (currentState) {
+    switch (currentState)
+    {
         case SLEEPING:
             // Draw "Zzz" indicator in corner
             screen.point(10, 0);
-            if ((millis() / 500) % 2 == 0) {
+            if ((millis() / 500) % 2 == 0)
+            {
                 screen.point(11, 1);
             }
             break;
@@ -199,7 +217,8 @@ void drawOverlay() {
             
         case EXCITED:
             // Draw random sparkles around the character
-            if (millis() - lastSparkle >= SPARKLE_INTERVAL) {
+            if (millis() - lastSparkle >= SPARKLE_INTERVAL)
+            {
                 sparkleX = random(0, 12);
                 sparkleY = random(0, 8);
                 lastSparkle = millis();
@@ -211,11 +230,13 @@ void drawOverlay() {
             
         case OVERWHELMED:
             // Flash warning border
-            if (millis() - lastFlash >= 100) {
+            if (millis() - lastFlash >= 100)
+            {
                 flashOn = !flashOn;
                 lastFlash = millis();
             }
-            if (flashOn) {
+            if (flashOn)
+            {
                 // Draw border
                 screen.line(0, 0, 11, 0);   // Top
                 screen.line(0, 7, 11, 7);   // Bottom
@@ -228,8 +249,10 @@ void drawOverlay() {
     screen.endOverlay();
 }
 
-const char* getStateName(CharacterState state) {
-    switch (state) {
+const char* getStateName(CharacterState state)
+{
+    switch (state)
+    {
         case SLEEPING: return "SLEEPING";
         case ALERT: return "ALERT";
         case EXCITED: return "EXCITED";

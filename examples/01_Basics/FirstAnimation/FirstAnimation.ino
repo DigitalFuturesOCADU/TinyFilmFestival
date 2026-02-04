@@ -38,7 +38,8 @@
 TinyScreen screen;
 Animation myAnim = animation;
 
-void setup() {
+void setup()
+{
     screen.begin();
     
     // Play animation in a loop
@@ -46,6 +47,7 @@ void setup() {
     screen.play(myAnim, LOOP);
 }
 
-void loop() {
+void loop()
+{
     screen.update();
 }
