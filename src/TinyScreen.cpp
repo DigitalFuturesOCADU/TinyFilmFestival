@@ -211,10 +211,12 @@ TinyScreen::TinyScreen() : layerCount(1), inOverlay(false), ledBufferDirty(false
     combinedFrame[1] = 0;
     combinedFrame[2] = 0;
     
-    // Initialize LED buffer to all off
+    // Initialize LED buffer and blink state to all off
     for (int x = 0; x < 12; x++) {
         for (int y = 0; y < 8; y++) {
             ledBuffer[x][y] = 0;
+            blinkRate[x][y] = 0;
+            lastBlinkTime[x][y] = 0;
         }
     }
     
@@ -1118,6 +1120,7 @@ void TinyScreen::indexToXY(int index, int& x, int& y) {
 void TinyScreen::led(int x, int y, bool state) {
     if (x < 0 || x >= 12 || y < 0 || y >= 8) return;
     
+    blinkRate[x][y] = 0;  // Direct write cancels blink on this LED
     ledBuffer[x][y] = state ? 1 : 0;
     ledBufferDirty = true;
     show();  // Auto-display for immediate feedback
@@ -1143,6 +1146,7 @@ bool TinyScreen::getLed(int ledNum) {
 void TinyScreen::toggle(int x, int y) {
     if (x < 0 || x >= 12 || y < 0 || y >= 8) return;
     
+    blinkRate[x][y] = 0;  // Manual toggle cancels blink on this LED
     ledBuffer[x][y] = ledBuffer[x][y] ? 0 : 1;
     ledBufferDirty = true;
     show();
@@ -1158,6 +1162,8 @@ void TinyScreen::clearLeds() {
     for (int x = 0; x < 12; x++) {
         for (int y = 0; y < 8; y++) {
             ledBuffer[x][y] = 0;
+            blinkRate[x][y] = 0;
+            lastBlinkTime[x][y] = 0;
         }
     }
     ledBufferDirty = true;
@@ -1184,6 +1190,75 @@ void TinyScreen::show() {
     
     matrix.loadFrame(frame);
     ledBufferDirty = false;
+}
+
+//==============================================================================
+// Blink Control Methods
+//==============================================================================
+
+void TinyScreen::blink(int x, int y, unsigned long rateMs) {
+    if (x < 0 || x >= 12 || y < 0 || y >= 8) return;
+    if (rateMs == 0) { noBlink(x, y); return; }
+    
+    blinkRate[x][y] = rateMs;
+    lastBlinkTime[x][y] = millis();
+    ledBuffer[x][y] = 1;      // Start in ON state
+    ledBufferDirty = true;
+    show();
+}
+
+void TinyScreen::blink(int ledNum, unsigned long rateMs) {
+    int x, y;
+    indexToXY(ledNum, x, y);
+    blink(x, y, rateMs);
+}
+
+void TinyScreen::noBlink(int x, int y) {
+    if (x < 0 || x >= 12 || y < 0 || y >= 8) return;
+    
+    blinkRate[x][y] = 0;
+    lastBlinkTime[x][y] = 0;
+    ledBuffer[x][y] = 0;      // Turn LED off when blinking stops
+    ledBufferDirty = true;
+    show();
+}
+
+void TinyScreen::noBlink(int ledNum) {
+    int x, y;
+    indexToXY(ledNum, x, y);
+    noBlink(x, y);
+}
+
+void TinyScreen::noBlink() {
+    for (int x = 0; x < 12; x++) {
+        for (int y = 0; y < 8; y++) {
+            blinkRate[x][y] = 0;
+            lastBlinkTime[x][y] = 0;
+        }
+    }
+    // Don't change ledBuffer — non-blinking LEDs keep their state
+}
+
+void TinyScreen::updateBlinks() {
+    unsigned long now = millis();
+    bool anyChanged = false;
+    
+    for (int x = 0; x < 12; x++) {
+        for (int y = 0; y < 8; y++) {
+            if (blinkRate[x][y] == 0) continue;  // Not blinking
+            
+            if (now - lastBlinkTime[x][y] >= blinkRate[x][y]) {
+                lastBlinkTime[x][y] = now;
+                ledBuffer[x][y] = ledBuffer[x][y] ? 0 : 1;
+                anyChanged = true;
+            }
+        }
+    }
+    
+    if (anyChanged) {
+        ledBufferDirty = true;
+        show();
+    }
 }
 
 //==============================================================================
@@ -1234,6 +1309,30 @@ void ledClear() {
 
 void ledShow() {
     getDefaultScreen().show();
+}
+
+void ledBlink(int x, int y, unsigned long rateMs) {
+    getDefaultScreen().blink(x, y, rateMs);
+}
+
+void ledBlink(int ledNum, unsigned long rateMs) {
+    getDefaultScreen().blink(ledNum, rateMs);
+}
+
+void ledNoBlink(int x, int y) {
+    getDefaultScreen().noBlink(x, y);
+}
+
+void ledNoBlink(int ledNum) {
+    getDefaultScreen().noBlink(ledNum);
+}
+
+void ledNoBlink() {
+    getDefaultScreen().noBlink();
+}
+
+void ledUpdate() {
+    getDefaultScreen().updateBlinks();
 }
 
 TinyScreen& getLedMatrix() {

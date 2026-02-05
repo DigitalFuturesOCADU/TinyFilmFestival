@@ -136,6 +136,14 @@ const searchIndex = [
     { method: 'ledToggle(x, y)', description: 'Toggle LED between ON and OFF', page: 'simple-led', category: 'Simple LED' },
     { method: 'ledClear()', description: 'Turn off all LEDs', page: 'simple-led', category: 'Simple LED' },
     
+    // LED Blink
+    { method: 'ledBlink(x, y, rateMs)', description: 'Blink LED at (x,y) every rateMs milliseconds', page: 'led-blink', category: 'LED Blink' },
+    { method: 'ledBlink(index, rateMs)', description: 'Blink LED by linear index (0-95)', page: 'led-blink', category: 'LED Blink' },
+    { method: 'ledNoBlink(x, y)', description: 'Stop blinking LED at (x,y) and turn it off', page: 'led-blink', category: 'LED Blink' },
+    { method: 'ledNoBlink(index)', description: 'Stop blinking LED by linear index', page: 'led-blink', category: 'LED Blink' },
+    { method: 'ledNoBlink()', description: 'Stop all LEDs from blinking', page: 'led-blink', category: 'LED Blink' },
+    { method: 'ledUpdate()', description: 'Process blink timers — call every loop', page: 'led-blink', category: 'LED Blink' },
+    
     // Animation Mode
     { method: 'begin()', description: 'Initialize the LED matrix for TinyScreen', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'play(animation, mode)', description: 'Start playing an animation', page: 'animation-mode', category: 'Animation Mode' },
@@ -699,6 +707,110 @@ if (state == HIGH)
             <p>Turn off all LEDs.</p>
             <pre><code class="language-cpp">ledClear();    // All LEDs off</code></pre>
         </div>
+    `,
+
+    'led-blink': `
+        <h1>LED Blink</h1>
+        <p>Non-blocking per-LED blink control. Each LED can blink at its own independent rate while other LEDs remain static or blink at different rates.</p>
+
+        <div class="info-box note">
+            <strong>Requires ledUpdate()</strong>
+            Unlike the other Simple LED functions, blink requires <code>ledUpdate()</code> to be called every <code>loop()</code> to process the blink timers.
+        </div>
+
+        <h2>Setup</h2>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+void setup()
+{
+    ledBegin();
+    ledBlink(5, 3, 500);    // Blink center LED every 500ms
+}
+
+void loop()
+{
+    ledUpdate();             // REQUIRED — drives all blink timers
+}</code></pre>
+
+        <h2>Functions</h2>
+
+        <div class="api-method">
+            <h3>ledBlink(x, y, rateMs)</h3>
+            <p>Start blinking an LED at coordinates (x, y). The LED toggles ON/OFF every <code>rateMs</code> milliseconds. Non-blocking — all LEDs run on independent timers.</p>
+            <table>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+                <tr><td>x</td><td>int</td><td>X coordinate (0-11)</td></tr>
+                <tr><td>y</td><td>int</td><td>Y coordinate (0-7)</td></tr>
+                <tr><td>rateMs</td><td>unsigned long</td><td>Toggle interval in milliseconds</td></tr>
+            </table>
+            <pre><code class="language-cpp">ledBlink(0, 0, 200);     // Fast blink (200ms)
+ledBlink(5, 3, 1000);    // Slow blink (1 second)</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ledBlink(index, rateMs)</h3>
+            <p>Start blinking an LED by linear index (0-95).</p>
+            <pre><code class="language-cpp">ledBlink(0, 250);        // First LED, 250ms blink
+ledBlink(95, 750);       // Last LED, 750ms blink</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ledNoBlink(x, y)</h3>
+            <p>Stop blinking a specific LED. The LED is turned OFF.</p>
+            <pre><code class="language-cpp">ledNoBlink(0, 0);    // Stop blinking, turn LED off</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ledNoBlink(index)</h3>
+            <p>Stop blinking an LED by linear index. The LED is turned OFF.</p>
+            <pre><code class="language-cpp">ledNoBlink(41);      // Stop blinking LED 41</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ledNoBlink()</h3>
+            <p>Stop <strong>all</strong> blinking. Non-blinking LEDs that were set with <code>ledWrite()</code> keep their current state.</p>
+            <pre><code class="language-cpp">ledNoBlink();        // Cancel all blinks (static LEDs unaffected)</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>ledUpdate()</h3>
+            <p>Process all blink timers. <strong>Must be called every <code>loop()</code>.</strong> Only writes to the display when a blink state actually changes, so it is very efficient.</p>
+            <pre><code class="language-cpp">void loop()
+{
+    ledUpdate();
+}</code></pre>
+        </div>
+
+        <h2>Mixing with Other Simple LED Functions</h2>
+        <p>Blink works alongside all existing Simple LED functions. They share the same LED buffer:</p>
+        <ul>
+            <li><code>ledWrite()</code> or <code>ledToggle()</code> on a blinking LED <strong>cancels its blink</strong> — the LED becomes static at the value you set.</li>
+            <li><code>ledBlink()</code> on a static LED starts it blinking without affecting other LEDs.</li>
+            <li><code>ledRead()</code> returns the LED's current instantaneous state (ON or OFF), even mid-blink.</li>
+            <li><code>ledClear()</code> stops all blinks and turns everything off.</li>
+        </ul>
+        <pre><code class="language-cpp">void setup()
+{
+    ledBegin();
+
+    ledWrite(0, 0, HIGH);        // Static ON
+    ledBlink(5, 3, 500);         // Blinking at 500ms
+    ledBlink(11, 7, 1000);       // Blinking at 1000ms
+
+    // Later...
+    ledWrite(5, 3, HIGH);        // Cancels blink — now static ON
+    ledToggle(11, 7);            // Cancels blink — now static (toggled)
+}</code></pre>
+
+        <h2>TinyScreen Object Methods</h2>
+        <p>If you are using the <code>TinyScreen</code> object directly, the equivalent methods are available:</p>
+        <table>
+            <tr><th>Standalone Function</th><th>TinyScreen Method</th></tr>
+            <tr><td><code>ledBlink(x, y, rate)</code></td><td><code>screen.blink(x, y, rate)</code></td></tr>
+            <tr><td><code>ledNoBlink(x, y)</code></td><td><code>screen.noBlink(x, y)</code></td></tr>
+            <tr><td><code>ledNoBlink()</code></td><td><code>screen.noBlink()</code></td></tr>
+            <tr><td><code>ledUpdate()</code></td><td><code>screen.updateBlinks()</code></td></tr>
+        </table>
     `,
 
     'animation-mode': `
@@ -1654,6 +1766,51 @@ void loop()
             <li>Non-blocking timing with <code>millis()</code></li>
             <li><code>ledWrite()</code> accepts bool directly (no ternary needed)</li>
         </ul>
+    `,
+
+    'example-blink-frame': `
+        <h1>BlinkFrame Example</h1>
+        <p class="example-breadcrumb">Examples → Basics → BlinkFrame</p>
+        <p>A solid inner rectangle with an outer frame of LEDs blinking at random rates.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+
+void setup()
+{
+    ledBegin();
+    randomSeed(analogRead(A0));   // Seed RNG for varied rates
+
+    for (int x = 0; x < 12; x++)
+    {
+        for (int y = 0; y < 8; y++)
+        {
+            // Inner rectangle: x 2-9, y 2-5  (solid ON)
+            if (x >= 2 && x <= 9 && y >= 2 && y <= 5)
+            {
+                ledWrite(x, y, HIGH);
+            }
+            else
+            {
+                // Outer frame: blink at a random rate (100-800 ms)
+                ledBlink(x, y, random(100, 800));
+            }
+        }
+    }
+}
+
+void loop()
+{
+    ledUpdate();   // Process all blink timers — call every loop!
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Using <code>ledBlink()</code> with per-LED random rates</li>
+            <li>Mixing <code>ledWrite()</code> (static) and <code>ledBlink()</code> (animated) in the same sketch</li>
+            <li>All 96 LEDs managed from one shared buffer — blinking and static coexist</li>
+            <li>Calling <code>ledUpdate()</code> every loop to drive blink timers</li>
+        </ul>
+        <div class="info-box note">
+            <strong>See also:</strong> <a href="#" data-page="led-blink">LED Blink API Reference</a> for the full list of blink functions.
+        </div>
     `,
 
     'example-first-animation': `

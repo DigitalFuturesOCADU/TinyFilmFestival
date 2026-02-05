@@ -343,9 +343,21 @@ public:
     void show();                                  // Push buffered LED changes to display
     void clearLeds();                             // Turn off all LEDs
     
+    // Blink control (non-blocking, per-LED independent rates)
+    void blink(int x, int y, unsigned long rateMs);   // Blink LED at (x,y) every rateMs
+    void blink(int ledNum, unsigned long rateMs);     // Blink LED by index every rateMs
+    void noBlink(int x, int y);                       // Stop blinking LED at (x,y), turn it OFF
+    void noBlink(int ledNum);                         // Stop blinking LED by index
+    void noBlink();                                   // Stop all blinking
+    void updateBlinks();                              // Process blink timers (call in loop!)
+    
 private:
     uint8_t ledBuffer[12][8];                     // Internal buffer for LED states
     bool ledBufferDirty;                          // Track if buffer needs display update
+    
+    // Blink state (per-LED)
+    unsigned long blinkRate[12][8];               // 0 = not blinking, >0 = interval in ms
+    unsigned long lastBlinkTime[12][8];           // Last toggle time per LED
     
     // Helper to convert linear index to x,y
     void indexToXY(int index, int& x, int& y);
@@ -376,6 +388,12 @@ void ledToggle(int x, int y);                     // Toggle LED at (x,y)
 void ledToggle(int ledNum);                       // Toggle LED by index
 void ledClear();                                  // Turn off all LEDs
 void ledShow();                                   // Push changes to display (auto-called by ledWrite)
+void ledBlink(int x, int y, unsigned long rateMs); // Blink LED at (x,y) every rateMs
+void ledBlink(int ledNum, unsigned long rateMs);   // Blink LED by index every rateMs
+void ledNoBlink(int x, int y);                     // Stop blinking LED at (x,y)
+void ledNoBlink(int ledNum);                       // Stop blinking LED by index
+void ledNoBlink();                                 // Stop all blinking
+void ledUpdate();                                  // Process blink timers (call in loop!)
 
 // Get the internal TinyScreen instance (for mixing with other features)
 TinyScreen& getLedMatrix();
