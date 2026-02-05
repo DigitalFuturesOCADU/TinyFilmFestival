@@ -501,7 +501,7 @@ void loop()
 }</code></pre>
     `,
 
-    'editor-guide': \`
+    'editor-guide': `
         <h1>LED Matrix Editor</h1>
         <p>The <a href="https://ledmatrix-editor.arduino.cc/" target="_blank">Arduino LED Matrix Editor</a> provides a visual interface for creating LED matrix animations.</p>
 
@@ -632,9 +632,9 @@ void loop()
             <li>Click "Choose File" and select your <code>.h</code> file</li>
             <li>Click "Save GIF" to download the animated GIF</li>
         </ol>
-    \`,
+    `,
 
-    'simple-led': \`
+    'simple-led': `
         <h1>Simple LED Mode</h1>
         <p>Control individual LEDs like <code>digitalWrite()</code> — the simplest way to get started with the LED matrix.</p>
 
