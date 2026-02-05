@@ -204,8 +204,8 @@ const searchIndex = [
     { method: 'ease.intValue()', description: 'Get current value as integer', page: 'example-ease-demo', category: 'Canvas Animation' },
     { method: 'ease.done()', description: 'Check if animation is complete', page: 'example-ease-demo', category: 'Canvas Animation' },
     { method: 'ease.target()', description: 'Get the target value', page: 'example-ease-demo', category: 'Canvas Animation' },
-    { method: 'oscillateInt(min, max, period)', description: 'Get oscillating integer value', page: 'example-oscillator-demo', category: 'Canvas Animation' },
-    { method: 'oscillateFloat(min, max, period)', description: 'Get oscillating float value', page: 'example-oscillator-demo', category: 'Canvas Animation' },
+    { method: 'oscillateInt(min, max, period, offset)', description: 'Get oscillating integer value with optional phase offset', page: 'example-oscillator-demo', category: 'Canvas Animation' },
+    { method: 'oscillate(min, max, period, offset)', description: 'Get oscillating float value with optional phase offset', page: 'example-oscillator-demo', category: 'Canvas Animation' },
     
     // Constants
     { method: 'LOOP', description: 'Play animation continuously', page: 'animation-mode', category: 'Constants' },
@@ -271,7 +271,7 @@ function displaySearchResults(results, query) {
 // Page content
 const pages = {
     'home': `
-        <h1>TinyFilmFestival <span class="version-badge">v2.4.1</span></h1>
+        <h1>TinyFilmFestival <span class="version-badge">v2.4.2</span></h1>
         <p>A library for the Arduino UNO R4 WiFi's built-in 12×8 LED Matrix. One class, four modes.</p>
 
         <h2>Four Modes</h2>
@@ -1152,24 +1152,34 @@ screen.setInvert(false);   // Normal display</code></pre>
         <p>Smooth value control for creating fluid motion without manual timing math. These utilities work in both Canvas Mode and <a href="#" class="page-link" data-page="hybrid-mode">Hybrid Mode</a>.</p>
 
         <div class="api-method">
-            <h3>oscillate(min, max, periodMs)</h3>
+            <h3>oscillate(min, max, periodMs, offset)</h3>
             <p>Returns a float that smoothly cycles between min and max using a sine wave. The value oscillates automatically based on elapsed time.</p>
             <pre><code class="language-cpp">// Value cycles 0→100→0 over 2 seconds
-float brightness = oscillate(0, 100, 2000);</code></pre>
+float brightness = oscillate(0, 100, 2000);
+
+// Same cycle but shifted by half a period
+float brightness2 = oscillate(0, 100, 2000, 0.5);</code></pre>
             <p><strong>Parameters:</strong></p>
             <ul>
                 <li><code>min</code> — Minimum value</li>
                 <li><code>max</code> — Maximum value</li>
                 <li><code>periodMs</code> — Time for one complete cycle in milliseconds</li>
+                <li><code>offset</code> — Phase offset as a fraction of the period (0.0–1.0). Default: <code>0.0</code></li>
             </ul>
         </div>
 
         <div class="api-method">
-            <h3>oscillateInt(min, max, periodMs)</h3>
+            <h3>oscillateInt(min, max, periodMs, offset)</h3>
             <p>Integer version of oscillate() for pixel coordinates.</p>
             <pre><code class="language-cpp">// Y position oscillates 0→7→0 over 1.5 seconds
 int y = oscillateInt(0, 7, 1500);
-screen.point(5, y);</code></pre>
+screen.point(5, y);
+
+// Two points oscillating out of phase
+int y1 = oscillateInt(0, 7, 1500);          // In phase
+int y2 = oscillateInt(0, 7, 1500, 0.5);     // Opposite phase
+screen.point(4, y1);
+screen.point(6, y2);</code></pre>
         </div>
 
         <h3>Ease Class</h3>
@@ -1397,7 +1407,7 @@ screen.setInvert(true);    // Invert all pixels</code></pre>
         <p>Smooth value control for creating fluid motion in overlays. These utilities work in both Hybrid Mode and <a href="#" class="page-link" data-page="canvas-mode">Canvas Mode</a>.</p>
 
         <div class="api-method">
-            <h3>oscillate(min, max, periodMs)</h3>
+            <h3>oscillate(min, max, periodMs, offset)</h3>
             <p>Returns a float that smoothly cycles between min and max using a sine wave.</p>
             <pre><code class="language-cpp">// Overlay indicator that pulses up and down
 screen.update();
@@ -1408,13 +1418,13 @@ screen.endOverlay();</code></pre>
         </div>
 
         <div class="api-method">
-            <h3>oscillateInt(min, max, periodMs)</h3>
-            <p>Integer version for pixel coordinates.</p>
-            <pre><code class="language-cpp">// Multiple indicators at different speeds
+            <h3>oscillateInt(min, max, periodMs, offset)</h3>
+            <p>Integer version for pixel coordinates. Use <code>offset</code> (0.0–1.0) to shift the phase so multiple indicators move out of sync.</p>
+            <pre><code class="language-cpp">// Multiple indicators at different speeds and phases
 screen.beginOverlay();
-int y1 = oscillateInt(0, 7, 3000);   // Slow
-int y2 = oscillateInt(0, 7, 1500);   // Medium
-int y3 = oscillateInt(0, 7, 750);    // Fast
+int y1 = oscillateInt(0, 7, 3000);           // Slow
+int y2 = oscillateInt(0, 7, 1500, 0.25);     // Medium, quarter-phase offset
+int y3 = oscillateInt(0, 7, 750, 0.5);       // Fast, half-phase offset
 screen.point(9, y1);
 screen.point(10, y2);
 screen.point(11, y3);
@@ -1849,6 +1859,36 @@ void loop()
             <li>Playing with <code>LOOP</code> mode</li>
             <li>Calling <code>update()</code> every loop</li>
         </ul>
+
+        <h2>Using Your Own Animation</h2>
+        <p>To use an animation you created in the <a href="#" data-page="editor-guide">LED Matrix Editor</a>:</p>
+        <ol>
+            <li>Create your animation in the editor and click the <img src="images/hDownload.png" alt="Export" class="icon-inline"> button to download the <code>.h</code> file</li>
+            <li>Copy the downloaded <code>.h</code> file into the same folder as your <code>.ino</code> sketch</li>
+            <li>Update the <code>#include</code> to match your file name</li>
+            <li>Update the <code>Animation</code> variable to match the array name inside the <code>.h</code> file</li>
+        </ol>
+        <p>For example, if you downloaded a file called <code>myWalk.h</code> and it contains an array called <code>myWalk</code>:</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "myWalk.h"              // Your downloaded file
+
+TinyScreen screen;
+Animation myAnim = myWalk;       // Must match the array name in the .h file
+
+void setup()
+{
+    screen.begin();
+    screen.play(myAnim, LOOP);
+}
+
+void loop()
+{
+    screen.update();
+}</code></pre>
+        <div class="info-box warning">
+            <strong>Important</strong>
+            Do not include spaces in the file name when exporting from the editor. The file name and the array name inside the file must also be valid C++ identifiers (no spaces, no special characters).
+        </div>
     `,
 
     'example-first-canvas': `

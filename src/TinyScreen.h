@@ -404,11 +404,13 @@ TinyScreen& getLedMatrix();
 
 // Oscillate: Returns a value that smoothly cycles between min and max
 // Uses a sine wave, period is the time for one complete cycle in milliseconds
+// Optional offset shifts the phase (0.0 = no shift, 0.5 = half cycle offset)
 // Example: oscillate(0, 100, 2000) cycles 0→100→0 over 2 seconds
-float oscillate(float min, float max, unsigned long periodMs);
+// Example: oscillate(0, 100, 2000, 0.5) same but shifted by half a cycle
+float oscillate(float min, float max, unsigned long periodMs, float offset = 0.0f);
 
 // Integer version for convenience
-int oscillateInt(int min, int max, unsigned long periodMs);
+int oscillateInt(int min, int max, unsigned long periodMs, float offset = 0.0f);
 
 //------------------------------------------------------------------------------
 // Ease Class - Smooth linear interpolation to target values

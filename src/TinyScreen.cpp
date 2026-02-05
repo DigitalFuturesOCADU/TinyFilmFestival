@@ -1343,16 +1343,16 @@ TinyScreen& getLedMatrix() {
 // Animation Utilities Implementation
 //------------------------------------------------------------------------------
 
-float oscillate(float min, float max, unsigned long periodMs) {
+float oscillate(float min, float max, unsigned long periodMs, float offset) {
     // Use millis() to create a continuous sine wave
-    float t = (float)(millis() % periodMs) / (float)periodMs;
+    float t = (float)(millis() % periodMs) / (float)periodMs + offset;
     float sineValue = sin(t * 2.0f * PI);  // -1 to 1
     float normalized = (sineValue + 1.0f) / 2.0f;  // 0 to 1
     return min + normalized * (max - min);
 }
 
-int oscillateInt(int min, int max, unsigned long periodMs) {
-    return (int)round(oscillate((float)min, (float)max, periodMs));
+int oscillateInt(int min, int max, unsigned long periodMs, float offset) {
+    return (int)round(oscillate((float)min, (float)max, periodMs, offset));
 }
 
 //------------------------------------------------------------------------------
