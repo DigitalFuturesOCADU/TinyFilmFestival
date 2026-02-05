@@ -1967,6 +1967,18 @@ void loop()
         <h1>PlaybackControl Example</h1>
         <p class="example-breadcrumb">Examples → Animation Mode → PlaybackControl</p>
         <p>Control animation playback via Serial commands — pause, resume, change speed.</p>
+
+        <div class="info-box note">
+            <strong>Using the Serial Monitor</strong>
+            <ol>
+                <li>Upload the sketch to your board</li>
+                <li>In the Arduino IDE, go to <strong>Tools → Serial Monitor</strong> (or press <code>Ctrl+Shift+M</code> / <code>Cmd+Shift+M</code>)</li>
+                <li>Set the baud rate to <strong>9600</strong> (bottom-right dropdown)</li>
+                <li>Type a single character (<code>p</code>, <code>r</code>, <code>+</code>, or <code>-</code>) into the text field at the top and press <strong>Send</strong> (or hit Enter)</li>
+            </ol>
+            Make sure <strong>"No line ending"</strong> is selected in the dropdown next to the baud rate so only the character itself is sent.
+        </div>
+
         <pre><code class="language-cpp">#include "TinyFilmFestival.h"
 #include "animation.h"
 
