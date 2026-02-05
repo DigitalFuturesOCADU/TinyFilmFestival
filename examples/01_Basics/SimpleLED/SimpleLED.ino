@@ -40,23 +40,28 @@
 
 unsigned long lastToggle = 0;
 bool ledState = false;
+int blinkSpeed = 500;   // Blink interval in milliseconds
 
 void setup()
 {
     ledBegin();                   // Initialize matrix
     
     ledWrite(0, 0, HIGH);         // Top-left ON
+    ledWrite(11, 0, HIGH);        // Top-right ON
+    ledWrite(0, 7, HIGH);         // Bottom-left ON
     ledWrite(11, 7, HIGH);        // Bottom-right ON
-    ledToggle(0, 0);              // Toggle top-left OFF
 }
 
 void loop()
 {
     // Non-blocking blink using millis()
-    if (millis() - lastToggle >= 500)
+    if (millis() - lastToggle >= blinkSpeed)
     {
         lastToggle = millis();
         ledState = !ledState;
-        ledWrite(5, 3, ledState);     // ledWrite accepts bool directly
+        ledWrite(5, 3, ledState);     // Center 2x2 block blinks together
+        ledWrite(6, 3, ledState);
+        ledWrite(5, 4, ledState);
+        ledWrite(6, 4, ledState);
     }
 }

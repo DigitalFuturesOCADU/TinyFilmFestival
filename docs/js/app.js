@@ -271,7 +271,7 @@ function displaySearchResults(results, query) {
 // Page content
 const pages = {
     'home': `
-        <h1>TinyFilmFestival <span class="version-badge">v2.4.0</span></h1>
+        <h1>TinyFilmFestival <span class="version-badge">v2.4.1</span></h1>
         <p>A library for the Arduino UNO R4 WiFi's built-in 12×8 LED Matrix. One class, four modes.</p>
 
         <h2>Four Modes</h2>
@@ -1738,33 +1738,38 @@ screen.play(myAnim, LOOP, 2, 6);</code></pre>
 
 unsigned long lastToggle = 0;
 bool ledState = false;
+int blinkSpeed = 500;   // Blink interval in milliseconds
 
 void setup()
 {
     ledBegin();                   // Initialize matrix
     
     ledWrite(0, 0, HIGH);         // Top-left ON
+    ledWrite(11, 0, HIGH);        // Top-right ON
+    ledWrite(0, 7, HIGH);         // Bottom-left ON
     ledWrite(11, 7, HIGH);        // Bottom-right ON
-    ledToggle(0, 0);              // Toggle top-left OFF
 }
 
 void loop()
 {
     // Non-blocking blink using millis()
-    if (millis() - lastToggle >= 500)
+    if (millis() - lastToggle >= blinkSpeed)
     {
         lastToggle = millis();
         ledState = !ledState;
-        ledWrite(5, 3, ledState);     // ledWrite accepts bool directly
+        ledWrite(5, 3, ledState);     // Center 2x2 block blinks together
+        ledWrite(6, 3, ledState);
+        ledWrite(5, 4, ledState);
+        ledWrite(6, 4, ledState);
     }
 }</code></pre>
         <h2>What This Demonstrates</h2>
         <ul>
             <li>Initializing the LED matrix with <code>ledBegin()</code></li>
             <li>Turning LEDs on/off with <code>ledWrite()</code></li>
-            <li>Using <code>ledToggle()</code> to flip LED state</li>
             <li>Non-blocking timing with <code>millis()</code></li>
             <li><code>ledWrite()</code> accepts bool directly (no ternary needed)</li>
+            <li>Multiple LEDs can be updated together in the same timer block</li>
         </ul>
     `,
 

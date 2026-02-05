@@ -130,10 +130,10 @@ body {
 .version-badge {
     font-size: 0.55em;
     font-weight: 500;
-    background: var(--accent-color, #0366d6);
+    background: #000;
     color: #fff;
     padding: 2px 7px;
-    border-radius: 10px;
+    border-radius: 4px;
     vertical-align: middle;
     letter-spacing: 0.02em;
 }
