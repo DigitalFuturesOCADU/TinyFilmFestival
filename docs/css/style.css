@@ -509,6 +509,23 @@ body {
     margin-bottom: 4px;
 }
 
+/* Documentation Images */
+.doc-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin: 16px 0 24px 0;
+    display: block;
+}
+
+.icon-inline {
+    height: 24px;
+    width: auto;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 /* Cards / Sections */
 .card {
     background: var(--bg-secondary);

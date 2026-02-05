@@ -501,17 +501,21 @@ void loop()
 }</code></pre>
     `,
 
-    'editor-guide': `
+    'editor-guide': \`
         <h1>LED Matrix Editor</h1>
         <p>The <a href="https://ledmatrix-editor.arduino.cc/" target="_blank">Arduino LED Matrix Editor</a> provides a visual interface for creating LED matrix animations.</p>
 
-        <h2>Features</h2>
+        <h2>Overview</h2>
+        <p>The editor allows you to:</p>
         <ul>
             <li>Create animations by painting/erasing pixels frame by frame</li>
             <li>Copy frames for easy transitions</li>
             <li>Move pixels as a group within a frame</li>
             <li>Set display time for each frame</li>
         </ul>
+
+        <h2>Interface</h2>
+        <img src="images/matrixEditor.png" alt="LED Matrix Editor Interface" class="doc-image">
 
         <h2>Keyboard Shortcuts</h2>
         
@@ -546,36 +550,91 @@ void loop()
         </table>
 
         <h2>File Types</h2>
-        <p>The editor works with two file types:</p>
-        <ul>
-            <li><strong>.mpj</strong> — Working project file (save/restore your session)</li>
-            <li><strong>.h</strong> — Exported animation for Arduino</li>
-        </ul>
+        <p>The editor is a web-based tool, so your work is not automatically saved. Use these controls to manage your files:</p>
+        
+        <img src="images/downloadControls.png" alt="Download Controls" class="doc-image">
+        
+        <table>
+            <tr><th>Icon</th><th>File Type</th><th>Description</th></tr>
+            <tr>
+                <td><img src="images/mpjDownload.png" alt="Save MPJ" class="icon-inline"></td>
+                <td><strong>.mpj</strong></td>
+                <td>Save working project file (preserves your session)</td>
+            </tr>
+            <tr>
+                <td><img src="images/mpjUpload.png" alt="Load MPJ" class="icon-inline"></td>
+                <td><strong>.mpj</strong></td>
+                <td>Restore a previous session by uploading</td>
+            </tr>
+            <tr>
+                <td><img src="images/hDownload.png" alt="Export H" class="icon-inline"></td>
+                <td><strong>.h</strong></td>
+                <td>Export animation as Arduino code</td>
+            </tr>
+        </table>
 
         <h2>Using Animations in Arduino</h2>
-        <ol>
-            <li>Export your animation as a <code>.h</code> file</li>
-            <li>Copy the file to your Arduino sketch folder</li>
-            <li>Include it in your sketch: <code>#include "myAnimation.h"</code></li>
-            <li>Create an Animation variable: <code>Animation myAnim = animation;</code></li>
-            <li>Play it: <code>screen.play(myAnim, LOOP);</code></li>
-        </ol>
+        <p>Follow these steps to use your animation in an Arduino sketch:</p>
 
-        <div class="info-box note">
+        <h3>Step 1: Export Your Animation</h3>
+        <p>Click the <img src="images/hDownload.png" alt="Export" class="icon-inline"> button to download your animation as a <code>.h</code> file. Choose a descriptive name for the file.</p>
+        
+        <div class="info-box warning">
             <strong>Important</strong>
             Do not include spaces in the file name when exporting.
         </div>
 
+        <img src="images/downloadSteps.png" alt="Download Steps" class="doc-image">
+
+        <h3>Step 2: Add to Your Sketch</h3>
+        <ol>
+            <li>Locate the folder containing your Arduino sketch (<code>.ino</code> file)</li>
+            <li>Copy the <code>.h</code> file you downloaded into that folder</li>
+            <li>Include it in your sketch: <code>#include "yourAnimation.h"</code></li>
+            <li>Create an Animation variable using the name from inside the file</li>
+            <li>Play it with <code>screen.play()</code></li>
+        </ol>
+
+        <h3>Understanding Variable Names</h3>
+        <p>When you export an animation, the <code>.h</code> file contains a variable with a specific name. You need to reference this name in your code:</p>
+        
+        <img src="images/variableNames.png" alt="Variable Names" class="doc-image">
+
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "myAnimation.h"    // Your exported file
+
+TinyScreen screen;
+Animation myAnim = animation;   // 'animation' is the variable name in the .h file
+
+void setup()
+{
+    screen.begin();
+    screen.play(myAnim, LOOP);
+}
+
+void loop()
+{
+    screen.update();
+}</code></pre>
+
+        <div class="info-box note">
+            <strong>Tip</strong>
+            The variable name inside the <code>.h</code> file is typically <code>animation</code>, but check your exported file to confirm.
+        </div>
+
+        <h2>Example Animations</h2>
+        <p>The library includes several <a href="https://github.com/DigitalFuturesOCADU/TinyFilmFestival/tree/main/exampleAnimations" target="_blank">example animations</a> you can use to get started.</p>
+
         <h2>Converting to GIF</h2>
-        <p>You can convert <code>.h</code> files to animated GIFs for documentation:</p>
+        <p>For documentation purposes, you can convert <code>.h</code> files to animated GIFs:</p>
         <ol>
             <li>Go to the <a href="https://npuckett.github.io/gifBuilder/" target="_blank">GIF Builder</a></li>
             <li>Click "Choose File" and select your <code>.h</code> file</li>
-            <li>Click "Save GIF" to download</li>
+            <li>Click "Save GIF" to download the animated GIF</li>
         </ol>
-    `,
+    \`,
 
-    'simple-led': `
+    'simple-led': \`
         <h1>Simple LED Mode</h1>
         <p>Control individual LEDs like <code>digitalWrite()</code> — the simplest way to get started with the LED matrix.</p>
 
