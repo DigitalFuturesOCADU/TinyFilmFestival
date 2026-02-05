@@ -127,6 +127,17 @@ body {
     margin-bottom: 4px;
 }
 
+.version-badge {
+    font-size: 0.55em;
+    font-weight: 500;
+    background: var(--accent-color, #0366d6);
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 10px;
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+}
+
 .sidebar-header .tagline {
     font-size: 13px;
     color: var(--text-muted);

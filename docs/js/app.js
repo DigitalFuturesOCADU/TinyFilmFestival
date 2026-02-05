@@ -271,7 +271,7 @@ function displaySearchResults(results, query) {
 // Page content
 const pages = {
     'home': `
-        <h1>TinyFilmFestival</h1>
+        <h1>TinyFilmFestival <span class="version-badge">v2.4.0</span></h1>
         <p>A library for the Arduino UNO R4 WiFi's built-in 12×8 LED Matrix. One class, four modes.</p>
 
         <h2>Four Modes</h2>
