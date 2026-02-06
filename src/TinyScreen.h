@@ -127,6 +127,9 @@ private:
     PlayMode currentMode;
     AnimationState currentState;
 
+    int8_t offsetX;
+    int8_t offsetY;
+    
     void cleanup();
     void copyTimings(const uint32_t frames[][4], int numFrames);
     bool isValidAnimation() const { return currentAnimation != nullptr && frameCount > 0; }
@@ -158,6 +161,11 @@ public:
     int getCurrentSpeed() const;
     int getStartFrame() const { return startFrameIndex + 1; }
     int getEndFrame() const { return endFrameIndex + 1; }
+    
+    // Position offset
+    void setOffset(int x, int y);
+    int getOffsetX() const { return offsetX; }
+    int getOffsetY() const { return offsetY; }
 };
 
 //------------------------------------------------------------------------------
@@ -238,6 +246,14 @@ public:
     void resume();
     void restoreOriginalSpeed();
     void stop();
+    
+    //--- Animation Position (offset animations on the display) ---
+    void setPosition(int x, int y);
+    void setPositionOnLayer(int layer, int x, int y);
+    int getPositionX() const;
+    int getPositionY() const;
+    int getPositionXOnLayer(int layer) const;
+    int getPositionYOnLayer(int layer) const;
     
     //--- Frame Update (call in loop!) ---
     void update();

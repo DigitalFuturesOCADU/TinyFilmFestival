@@ -1,6 +1,6 @@
 // TinyFilmFestival.h
 // 
-// TinyFilmFestival V2.0 - Unified LED Matrix Library
+// TinyFilmFestival V2.5 - Unified LED Matrix Library
 // for Arduino UNO R4 WiFi
 //
 // This header provides backward compatibility with V1.x code.

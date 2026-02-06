@@ -168,6 +168,12 @@ const searchIndex = [
     { method: 'pauseLayer(layer)', description: 'Pause specific layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'resumeLayer(layer)', description: 'Resume specific layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'stopLayer(layer)', description: 'Stop specific layer', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'setPosition(x, y)', description: 'Set x,y position offset for primary animation', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'setPositionOnLayer(layer, x, y)', description: 'Set position offset for specific layer', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'getPositionX()', description: 'Get current X position offset', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'getPositionY()', description: 'Get current Y position offset', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'getPositionXOnLayer(layer)', description: 'Get X position of specific layer', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'getPositionYOnLayer(layer)', description: 'Get Y position of specific layer', page: 'animation-mode', category: 'Animation Mode' },
     
     // Canvas Mode
     { method: 'beginDraw()', description: 'Begin a drawing operation', page: 'canvas-mode', category: 'Canvas Mode' },
@@ -271,7 +277,7 @@ function displaySearchResults(results, query) {
 // Page content
 const pages = {
     'home': `
-        <h1>TinyFilmFestival <span class="version-badge">v2.4.2</span></h1>
+        <h1>TinyFilmFestival <span class="version-badge">v2.5.0</span></h1>
         <p>A library for the Arduino UNO R4 WiFi's built-in 12×8 LED Matrix. One class, four modes.</p>
 
         <h2>Four Modes</h2>
@@ -824,12 +830,18 @@ ledBlink(95, 750);       // Last LED, 750ms blink</code></pre>
             <img src="../images/pow.gif" alt="Pow animation">
         </div>
 
+        <div class="info-box tip">
+            <strong>Dynamic Motion</strong>
+            Animations aren't stuck in place — use <code>setPosition(x, y)</code> with <code>oscillateInt()</code> for continuous cyclic motion, or <code>Ease.to()</code> for smooth one-shot transitions to a target position. See <a href="#" onclick="navigateTo('animation-mode'); setTimeout(() => document.getElementById('animation-positioning')?.scrollIntoView({behavior:'smooth'}), 100); return false;">Animation Positioning</a> below.
+        </div>
+
         <h2>Overview</h2>
         <p>Animation Mode is like a video player for the LED matrix:</p>
         <ul>
             <li><strong>Load</strong> animation frames from <code>.h</code> files</li>
             <li><strong>Play</strong> with different modes (loop, once, boomerang)</li>
             <li><strong>Control</strong> speed, pause, resume, and playback position</li>
+            <li><strong>Position</strong> animations dynamically — slide, oscillate, or map to sensor input</li>
             <li><strong>Layer</strong> multiple animations on top of each other</li>
         </ul>
 
@@ -970,6 +982,91 @@ screen.setInvert(false);   // Normal display</code></pre>
             <h3>getInvert()</h3>
             <p>Check if display is currently inverted.</p>
             <pre><code class="language-cpp">bool inverted = screen.getInvert();</code></pre>
+        </div>
+
+        <h2 id="animation-positioning">Animation Positioning</h2>
+        <p>Dynamically position an animation clip anywhere on the display. Pixels that move beyond the 12×8 matrix edges are automatically clipped, and areas with no animation data remain off.</p>
+        <p>This is perfect for:</p>
+        <ul>
+            <li><strong>Moving characters</strong> — animate a small sprite, position it dynamically</li>
+            <li><strong>Scrolling effects</strong> — slide animations on/off screen</li>
+            <li><strong>Sensor-driven placement</strong> — map sensor input to animation position</li>
+            <li><strong>Layered scenes</strong> — position foreground characters over background animations</li>
+        </ul>
+
+        <div class="api-method">
+            <h3>setPosition(x, y)</h3>
+            <p>Set the x,y position offset for the primary animation layer. The animation is shifted by the given amount — positive x moves right, positive y moves down. Negative values move left/up, clipping at the edge.</p>
+            <table>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+                <tr><td>x</td><td>int</td><td>Horizontal offset (positive = right, negative = left)</td></tr>
+                <tr><td>y</td><td>int</td><td>Vertical offset (positive = down, negative = up)</td></tr>
+            </table>
+            <pre><code class="language-cpp">screen.setPosition(3, 2);    // Shift animation right 3, down 2
+screen.setPosition(-2, 0);   // Shift left 2 (left edge is clipped)
+screen.setPosition(0, 0);    // Reset to default position</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>setPositionOnLayer(layer, x, y)</h3>
+            <p>Set position offset for a specific animation layer.</p>
+            <table>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+                <tr><td>layer</td><td>int</td><td>Layer index</td></tr>
+                <tr><td>x</td><td>int</td><td>Horizontal offset</td></tr>
+                <tr><td>y</td><td>int</td><td>Vertical offset</td></tr>
+            </table>
+            <pre><code class="language-cpp">screen.setPositionOnLayer(1, 5, 0);  // Move layer 1 right by 5</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>getPositionX() / getPositionY()</h3>
+            <p>Get the current position offset of the primary layer.</p>
+            <pre><code class="language-cpp">int x = screen.getPositionX();
+int y = screen.getPositionY();</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>getPositionXOnLayer(layer) / getPositionYOnLayer(layer)</h3>
+            <p>Get the current position offset of a specific layer.</p>
+            <pre><code class="language-cpp">int x = screen.getPositionXOnLayer(1);
+int y = screen.getPositionYOnLayer(1);</code></pre>
+        </div>
+
+        <h3>Example: Oscillating Animation</h3>
+        <p>Use <code>oscillateInt()</code> to smoothly slide an animation back and forth across the display with a sine-wave motion. No manual timing needed — just set the range and period.</p>
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "animation.h"
+
+TinyScreen screen;
+Animation anim = animation;
+
+void setup()
+{
+    screen.begin();
+    screen.play(anim, LOOP);
+}
+
+void loop()
+{
+    // Smoothly oscillate X position back and forth (2-second cycle)
+    int x = oscillateInt(-2, 6, 2000);
+
+    screen.setPosition(x, 0);
+    screen.update();
+}</code></pre>
+
+        <div class="info-box tip">
+            <strong>Combine axes</strong>
+            Add a second <code>oscillateInt()</code> for the Y axis. Use a different period or a phase offset to create diagonal motion:
+            <pre><code class="language-cpp">int x = oscillateInt(-2, 6, 2000);
+int y = oscillateInt(-1, 3, 1500, 0.25);  // phase-shifted
+screen.setPosition(x, y);</code></pre>
+        </div>
+
+        <div class="info-box note">
+            <strong>Position persists</strong>
+            The position offset is a property of the layer slot, not the animation. It persists across <code>play()</code> and <code>stop()</code> calls until you change it.
         </div>
     `,
 
@@ -1614,12 +1711,13 @@ void loop()
 
     'examples-animation': `
         <h1>Animation Mode Examples</h1>
-        <p>Examples demonstrating Animation Mode features including layering and playback control.</p>
+        <p>Examples demonstrating Animation Mode features including layering, playback control, and positioning.</p>
 
         <h2>Examples</h2>
         <ul class="example-list">
             <li><a href="#" class="example-link" data-page="example-layered-animations"><h5>LayeredAnimations</h5><p>Stack multiple animations on different layers</p></a></li>
             <li><a href="#" class="example-link" data-page="example-playback-control"><h5>PlaybackControl</h5><p>Pause, resume, and control animation speed</p></a></li>
+            <li><a href="#" class="example-link" data-page="example-positioned-animation"><h5>PositionedAnimation</h5><p>Dynamically position an animation clip in x,y with edge clipping</p></a></li>
         </ul>
     `,
 
@@ -2018,6 +2116,54 @@ void loop()
             <li>Reading current speed with <code>getCurrentSpeed()</code></li>
             <li>Serial communication for debugging</li>
         </ul>
+    `,
+
+    'example-positioned-animation': `
+        <h1>PositionedAnimation Example</h1>
+        <p class="example-breadcrumb">Examples → Animation Mode → PositionedAnimation</p>
+        <p>Dynamically position an animation clip anywhere on the display. The character bounces around using <code>oscillateInt()</code>, and pixels are automatically clipped at the matrix edges.</p>
+
+        <pre><code class="language-cpp">#include "TinyFilmFestival.h"
+#include "character.h"
+
+TinyScreen screen;
+Animation charAnim = character;
+
+// Motion timing (milliseconds per full cycle)
+int X_PERIOD = 3000;   // Horizontal oscillation period
+int Y_PERIOD = 2000;   // Vertical oscillation period
+
+void setup()
+{
+    screen.begin();
+    screen.play(charAnim, LOOP);
+}
+
+void loop()
+{
+    // Smoothly oscillate position across the display
+    // X range: -2 to 9  (partially clips at both edges)
+    // Y range: -1 to 3  (partially clips at top, fits at bottom)
+    int x = oscillateInt(-2, 9, X_PERIOD);
+    int y = oscillateInt(-1, 3, Y_PERIOD, 0.25);  // Phase offset for diagonal motion
+
+    screen.setPosition(x, y);
+    screen.update();
+}</code></pre>
+        <h2>What This Demonstrates</h2>
+        <ul>
+            <li>Using <code>setPosition(x, y)</code> to move an animation on the display</li>
+            <li>Automatic edge clipping — pixels beyond the 12×8 boundary are not drawn</li>
+            <li>Combining <code>oscillateInt()</code> with positioning for smooth motion</li>
+            <li>Phase offset creates diagonal, organic-feeling movement</li>
+            <li>Negative positions clip the animation at the left/top edges</li>
+        </ul>
+        <h2>How It Works</h2>
+        <p>The <code>setPosition(x, y)</code> method shifts the entire animation frame by the given offset before displaying it. This happens at the bit level — each pixel in the 96-bit frame is remapped from its source position to the offset destination. Any pixel that falls outside the 12×8 matrix is simply discarded.</p>
+        <div class="info-box note">
+            <strong>Works with layers too!</strong>
+            Use <code>setPositionOnLayer(layer, x, y)</code> to position individual layers independently. This lets you create scenes with a static background and a moving foreground character.
+        </div>
     `,
 
     // Individual Examples - Canvas Mode

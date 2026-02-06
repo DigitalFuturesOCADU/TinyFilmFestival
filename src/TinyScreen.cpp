@@ -20,7 +20,9 @@ AnimationLayer::AnimationLayer() :
     currentAnimation(nullptr),
     lastUpdateTime(0),
     currentMode(PLAY_ONCE),
-    currentState(IDLE)
+    currentState(IDLE),
+    offsetX(0),
+    offsetY(0)
 {
 }
 
@@ -139,10 +141,58 @@ int AnimationLayer::getCurrentSpeed() const {
 bool AnimationLayer::getFrame(uint32_t frame[3]) const {
     if (!isValidAnimation() || currentState == IDLE) return false;
     
-    frame[0] = currentAnimation[currentFrameIndex][0];
-    frame[1] = currentAnimation[currentFrameIndex][1];
-    frame[2] = currentAnimation[currentFrameIndex][2];
+    if (offsetX == 0 && offsetY == 0) {
+        // No offset — return raw frame data
+        frame[0] = currentAnimation[currentFrameIndex][0];
+        frame[1] = currentAnimation[currentFrameIndex][1];
+        frame[2] = currentAnimation[currentFrameIndex][2];
+    } else {
+        // Apply position offset with clipping
+        const uint32_t* src = currentAnimation[currentFrameIndex];
+        frame[0] = 0;
+        frame[1] = 0;
+        frame[2] = 0;
+        
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 12; col++) {
+                // Map display pixel back to source animation pixel
+                int srcCol = col - offsetX;
+                int srcRow = row - offsetY;
+                
+                // Skip if source is out of bounds (clipping)
+                if (srcCol < 0 || srcCol >= 12 || srcRow < 0 || srcRow >= 8) continue;
+                
+                // Read source pixel
+                int srcBit = srcRow * 12 + srcCol;
+                bool pixelOn = false;
+                if (srcBit < 32) {
+                    pixelOn = (src[0] & (1UL << (31 - srcBit))) != 0;
+                } else if (srcBit < 64) {
+                    pixelOn = (src[1] & (1UL << (63 - srcBit))) != 0;
+                } else {
+                    pixelOn = (src[2] & (1UL << (95 - srcBit))) != 0;
+                }
+                
+                // Write to destination if source pixel is on
+                if (pixelOn) {
+                    int dstBit = row * 12 + col;
+                    if (dstBit < 32) {
+                        frame[0] |= (1UL << (31 - dstBit));
+                    } else if (dstBit < 64) {
+                        frame[1] |= (1UL << (63 - dstBit));
+                    } else {
+                        frame[2] |= (1UL << (95 - dstBit));
+                    }
+                }
+            }
+        }
+    }
     return true;
+}
+
+void AnimationLayer::setOffset(int x, int y) {
+    offsetX = (int8_t)x;
+    offsetY = (int8_t)y;
 }
 
 bool AnimationLayer::updateFrame() {
@@ -326,6 +376,40 @@ void TinyScreen::restoreOriginalSpeed() {
 
 void TinyScreen::stop() {
     primary().stop();
+}
+
+//--- Animation Position ---
+
+void TinyScreen::setPosition(int x, int y) {
+    primary().setOffset(x, y);
+}
+
+void TinyScreen::setPositionOnLayer(int layer, int x, int y) {
+    if (layer >= 0 && layer < layerCount) {
+        layers[layer].setOffset(x, y);
+    }
+}
+
+int TinyScreen::getPositionX() const {
+    return primary().getOffsetX();
+}
+
+int TinyScreen::getPositionY() const {
+    return primary().getOffsetY();
+}
+
+int TinyScreen::getPositionXOnLayer(int layer) const {
+    if (layer >= 0 && layer < layerCount) {
+        return layers[layer].getOffsetX();
+    }
+    return 0;
+}
+
+int TinyScreen::getPositionYOnLayer(int layer) const {
+    if (layer >= 0 && layer < layerCount) {
+        return layers[layer].getOffsetY();
+    }
+    return 0;
 }
 
 //--- Frame Update ---

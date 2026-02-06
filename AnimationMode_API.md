@@ -36,10 +36,16 @@
   - [pauseLayer()](#pauselayer)
   - [resumeLayer()](#resumelayer)
   - [stopLayer()](#stoplayer)
+- [Animation Positioning](#animation-positioning)
+  - [setPosition()](#setposition)
+  - [setPositionOnLayer()](#setpositiononlayer)
+  - [getPositionX() / getPositionY()](#getpositionx--getpositiony)
+  - [getPositionXOnLayer() / getPositionYOnLayer()](#getpositionxonlayer--getpositionyonlayer)
 - [Example Sketches](#example-sketches)
   - [Basic Animation](#basic-animation)
   - [Playback Control](#playback-control)
   - [Layered Animations](#layered-animations-example)
+  - [Positioned Animation](#positioned-animation-example)
 
 ---
 
@@ -804,6 +810,143 @@ Nothing
 
 ---
 
+## Animation Positioning
+
+Dynamically position an animation clip anywhere on the display. Pixels that move beyond the 12×8 matrix edges are automatically clipped, and areas with no animation data remain off.
+
+This is ideal for:
+- **Moving characters** — animate a small sprite, position it dynamically
+- **Scrolling effects** — slide animations on/off screen
+- **Sensor-driven placement** — map sensor input to animation position
+- **Layered scenes** — position foreground characters over background animations
+
+### `setPosition()`
+
+#### Description
+
+Sets the x,y position offset for the primary animation layer (layer 0). The animation is shifted by the given amount — positive x moves right, positive y moves down. Negative values shift left/up, clipping pixels at the edges.
+
+The position persists across `play()` and `stop()` calls until you change it.
+
+#### Syntax
+
+```cpp
+screen.setPosition(x, y)
+```
+
+#### Parameters
+
+- `x`: Horizontal offset (positive = right, negative = left)
+- `y`: Vertical offset (positive = down, negative = up)
+
+#### Returns
+
+Nothing
+
+#### Example
+
+```cpp
+screen.setPosition(3, 2);    // Shift animation right 3, down 2
+screen.setPosition(-2, 0);   // Shift left 2 (left columns clipped)
+screen.setPosition(0, 0);    // Reset to default position
+```
+
+---
+
+### `setPositionOnLayer()`
+
+#### Description
+
+Sets the x,y position offset for a specific animation layer.
+
+#### Syntax
+
+```cpp
+screen.setPositionOnLayer(layer, x, y)
+```
+
+#### Parameters
+
+- `layer`: Layer index (0 is the default/background layer)
+- `x`: Horizontal offset
+- `y`: Vertical offset
+
+#### Returns
+
+Nothing
+
+#### Example
+
+```cpp
+screen.setPositionOnLayer(1, 5, 0);  // Move layer 1 right by 5
+```
+
+---
+
+### `getPositionX()` / `getPositionY()`
+
+#### Description
+
+Returns the current position offset of the primary layer.
+
+#### Syntax
+
+```cpp
+screen.getPositionX()
+screen.getPositionY()
+```
+
+#### Parameters
+
+None
+
+#### Returns
+
+Integer: current position offset
+
+#### Example
+
+```cpp
+int x = screen.getPositionX();
+int y = screen.getPositionY();
+Serial.print("Position: ");
+Serial.print(x);
+Serial.print(", ");
+Serial.println(y);
+```
+
+---
+
+### `getPositionXOnLayer()` / `getPositionYOnLayer()`
+
+#### Description
+
+Returns the current position offset of a specific layer.
+
+#### Syntax
+
+```cpp
+screen.getPositionXOnLayer(layer)
+screen.getPositionYOnLayer(layer)
+```
+
+#### Parameters
+
+- `layer`: Layer index
+
+#### Returns
+
+Integer: current position offset of the specified layer
+
+#### Example
+
+```cpp
+int fgX = screen.getPositionXOnLayer(1);
+int fgY = screen.getPositionYOnLayer(1);
+```
+
+---
+
 ## Example Sketches
 
 ### Basic Animation
@@ -923,6 +1066,40 @@ void setup() {
 
 void loop() {
     screen.update();  // Updates all layers and composites them
+}
+```
+
+---
+
+### Positioned Animation Example
+
+```cpp
+/*
+ * Positioned Animation Example
+ * Dynamically position an animation clip on the display.
+ * The character bounces around using oscillateInt() and
+ * pixels are automatically clipped at the matrix edges.
+ */
+#include "TinyFilmFestival.h"
+#include "character.h"
+
+TinyScreen screen;
+Animation charAnim = character;
+
+int X_PERIOD = 3000;   // Horizontal oscillation period
+int Y_PERIOD = 2000;   // Vertical oscillation period
+
+void setup() {
+    screen.begin();
+    screen.play(charAnim, LOOP);
+}
+
+void loop() {
+    int x = oscillateInt(-2, 9, X_PERIOD);
+    int y = oscillateInt(-1, 3, Y_PERIOD, 0.25);
+
+    screen.setPosition(x, y);
+    screen.update();
 }
 ```
 
