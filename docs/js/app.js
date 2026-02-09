@@ -1145,6 +1145,11 @@ screen.noFill();      // No fill (outline only)</code></pre>
 
         <h2>Drawing Methods</h2>
 
+        <div class="info-box note">
+            <strong>Coordinate System</strong>
+            Coordinates start at the top-left corner of the matrix. <code>(0, 0)</code> is the top-left pixel, <code>(11, 7)</code> is the bottom-right.
+        </div>
+
         <div class="api-method">
             <h3>point(x, y)</h3>
             <p>Draw a single point.</p>
