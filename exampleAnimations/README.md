@@ -2,4 +2,4 @@
 |--------------------------------------|--------------------------------------|----------------------------|
 | ![Load](../images/load.gif)          | ![Pow](../images/pow.gif)           | ![Go](../images/go.gif)    |
 
-Gifs created by uploading .h files to [gifBuilder](https://npuckett.github.io/gifBuilder/)
+GIFs created by uploading .h files to [gifBuilder](https://npuckett.github.io/gifBuilder/)

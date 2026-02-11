@@ -124,7 +124,7 @@ void loop() {
 }
 ```
 
-See [Canvas Mode API](CanvasMode_API.md) for detailed drawing primitives with visual diagrams.
+See the Canvas Mode API in the docs: https://digitalfuturesocadu.github.io/TinyFilmFestival/docs/#canvas-mode
 
 ### Hybrid Mode
 Combine both — play an animation and draw additional elements on top.
@@ -172,9 +172,9 @@ TinyFilmFestival wraps the Arduino LED Matrix and ArduinoGraphics libraries into
 
 | Guide | What's inside |
 |-------|---------------|
-| [Animation Mode API](AnimationMode_API.md) | `play()`, `pause()`, `setSpeed()`, layering multiple animations |
-| [Canvas Mode API](CanvasMode_API.md) | `point()`, `line()`, `rect()`, `circle()`, `text()`, scrolling |
-| [Hybrid Mode API](HybridMode_API.md) | `beginOverlay()` / `endOverlay()` for drawing over animations |
+| [Animation Mode API](https://digitalfuturesocadu.github.io/TinyFilmFestival/docs/#animation-mode) | `play()`, `pause()`, `setSpeed()`, layering multiple animations |
+| [Canvas Mode API](https://digitalfuturesocadu.github.io/TinyFilmFestival/docs/#canvas-mode) | `point()`, `line()`, `rect()`, `circle()`, `text()`, scrolling |
+| [Hybrid Mode API](https://digitalfuturesocadu.github.io/TinyFilmFestival/docs/#hybrid-mode) | `beginOverlay()` / `endOverlay()` for drawing over animations |
 | [LED Matrix Editor Guide](editor-guide.md) | How to create and export `.h` animation files |
 | [Example Animations](exampleAnimations/) | Pre-made `.h` files ready to use in your projects |
 
@@ -196,6 +196,8 @@ Find these in **File → Examples → TinyFilmFestival**
 |---------|-------------|
 | **PlaybackControl** | All playback modes (LOOP/ONCE/BOOMERANG), speed control, partial clips |
 | **LayeredAnimations** | Multiple animations combined with addLayer() and playOnLayer() |
+| **PositionedAnimation** | Move animations with x/y offsets and clipping |
+| **Sensor_Input/** | Distance and pressure sensor-driven animation control |
 
 ### 03_Canvas_Mode
 | Example | Description |
@@ -203,25 +205,34 @@ Find these in **File → Examples → TinyFilmFestival**
 | **MovingShapes** | Motion patterns mirroring animation modes (continuous, single-pass, bounce) |
 | **LayeredGraphics** | Multiple independent animated elements drawn in layers |
 | **ScrollingText** | Static and scrolling text display |
+| **Sensor_Input/** | Distance and pressure sensor-driven canvas visuals |
 
 ### 04_Hybrid_Mode
 | Example | Description |
 |---------|-------------|
 | **AnimationWithOverlay** | Pre-made animation with code-drawn progress indicator |
+| **Sensor_Input/** | Sensor-driven overlays on animations |
 
-### 05_Sensor_Control
-| Example | Description |
-|---------|-------------|
-| **Button_PlayPause** | Toggle animation play/pause with button |
-| **Button_ContentSwitch** | Switch between animations based on button state |
-| **Distance_SpeedControl** | Control animation speed with ultrasonic sensor |
-| **Distance_ZoneSwitch** | Switch animations based on proximity zones |
-| **Pressure_SpeedControl** | Control animation speed with pressure sensor |
-
-### 06_Projects
+### 05_Projects
 | Example | Description |
 |---------|-------------|
 | **InteractiveCharacter** | Complete project: 4-zone proximity character with sparkle effects |
+
+### 06_Canvas_Animation
+| Example | Description |
+|---------|-------------|
+| **EaseDemo** | Smooth value interpolation with `Ease` |
+| **OscillatorDemo** | Continuous sine wave motion using `oscillate()` |
+| **SmoothAnimation** | Combining Ease and oscillate for complex motion |
+
+### 07_Utilities
+| Example | Description |
+|---------|-------------|
+| **AnimationTest** | Animation Mode comprehensive test |
+| **DrawingTest** | Canvas Mode comprehensive test |
+| **HybridTest** | Hybrid Mode comprehensive test |
+| **PlaybackTest** | Focused playback control test |
+| **SmoothAnimation** | Alternate smooth motion demo |
 
 ---
 

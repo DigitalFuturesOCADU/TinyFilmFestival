@@ -135,6 +135,7 @@ const searchIndex = [
     { method: 'ledRead(x, y)', description: 'Read current state of an LED', page: 'simple-led', category: 'Simple LED' },
     { method: 'ledToggle(x, y)', description: 'Toggle LED between ON and OFF', page: 'simple-led', category: 'Simple LED' },
     { method: 'ledClear()', description: 'Turn off all LEDs', page: 'simple-led', category: 'Simple LED' },
+    { method: 'setAutoShow(enabled)', description: 'Enable/disable auto display after LED writes', page: 'simple-led', category: 'Simple LED' },
     
     // LED Blink
     { method: 'ledBlink(x, y, rateMs)', description: 'Blink LED at (x,y) every rateMs milliseconds', page: 'led-blink', category: 'LED Blink' },
@@ -152,9 +153,9 @@ const searchIndex = [
     { method: 'resume()', description: 'Resume paused animation', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'stop()', description: 'Stop animation and clear display', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'update()', description: 'Update animation frame (call every loop)', page: 'animation-mode', category: 'Animation Mode' },
-    { method: 'setSpeed(multiplier)', description: 'Change playback speed', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'setSpeed(speedMs)', description: 'Set milliseconds per frame (negative = reverse)', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'restoreOriginalSpeed()', description: 'Reset to original timing', page: 'animation-mode', category: 'Animation Mode' },
-    { method: 'getCurrentSpeed()', description: 'Get current speed multiplier', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'getCurrentSpeed()', description: 'Get current speed in ms per frame', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'isPlaying()', description: 'Check if animation is playing', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'isPaused()', description: 'Check if animation is paused', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'isComplete()', description: 'Check if ONCE mode finished', page: 'animation-mode', category: 'Animation Mode' },
@@ -164,7 +165,7 @@ const searchIndex = [
     { method: 'getInvert()', description: 'Check if display is inverted', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'addLayer()', description: 'Add a new animation layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'playOnLayer(layer, anim, mode)', description: 'Play animation on specific layer', page: 'animation-mode', category: 'Animation Mode' },
-    { method: 'setSpeedOnLayer(layer, speed)', description: 'Set speed for specific layer', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'setSpeedOnLayer(layer, speedMs)', description: 'Set speed for specific layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'pauseLayer(layer)', description: 'Pause specific layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'resumeLayer(layer)', description: 'Resume specific layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'stopLayer(layer)', description: 'Stop specific layer', page: 'animation-mode', category: 'Animation Mode' },
@@ -190,7 +191,7 @@ const searchIndex = [
     { method: 'ellipse(cx, cy, width, height)', description: 'Draw an ellipse', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'text(string, x, y)', description: 'Draw text at position', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'setTextSize(size)', description: 'Set text size (1 or 2)', page: 'canvas-mode', category: 'Canvas Mode' },
-    { method: 'scrollText(string, x, y)', description: 'Draw scrolling text', page: 'canvas-mode', category: 'Canvas Mode' },
+    { method: 'scrollText(string, y, direction)', description: 'Draw scrolling text', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'setScrollSpeed(ms)', description: 'Set scroll speed in milliseconds', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'resetScroll()', description: 'Reset scroll position to start', page: 'canvas-mode', category: 'Canvas Mode' },
     { method: 'setRotation(degrees)', description: 'Set display rotation (0, 90, 180, 270)', page: 'canvas-mode', category: 'Canvas Mode' },
@@ -694,9 +695,9 @@ ledWrite(95, HIGH);      // Last LED ON</code></pre>
         <div class="api-method">
             <h3>ledRead(x, y)</h3>
             <p>Read the current state of an LED.</p>
-            <p><strong>Returns:</strong> HIGH or LOW</p>
-            <pre><code class="language-cpp">int state = ledRead(0, 0);
-if (state == HIGH)
+            <p><strong>Returns:</strong> <code>true</code> (on) or <code>false</code> (off)</p>
+            <pre><code class="language-cpp">bool state = ledRead(0, 0);
+if (state)
 {
     // LED is on
 }</code></pre>
@@ -712,6 +713,18 @@ if (state == HIGH)
             <h3>ledClear()</h3>
             <p>Turn off all LEDs.</p>
             <pre><code class="language-cpp">ledClear();    // All LEDs off</code></pre>
+        </div>
+
+        <div class="api-method">
+            <h3>setAutoShow(enabled)</h3>
+            <p>Enable or disable automatic display updates after LED writes when using a <code>TinyScreen</code> object.</p>
+            <pre><code class="language-cpp">TinyScreen screen;
+screen.begin();
+
+screen.setAutoShow(false);  // Batch multiple LED writes
+screen.led(0, 0, true);
+screen.led(1, 0, true);
+screen.show();              // Push once</code></pre>
         </div>
     `,
 
@@ -785,6 +798,11 @@ ledBlink(95, 750);       // Last LED, 750ms blink</code></pre>
 {
     ledUpdate();
 }</code></pre>
+        </div>
+
+        <div class="info-box note">
+            <strong>Auto-show</strong>
+            If you are using a <code>TinyScreen</code> object with <code>setAutoShow(false)</code>, call <code>screen.show()</code> after <code>screen.updateBlinks()</code> to flush changes.
         </div>
 
         <h2>Mixing with Other Simple LED Functions</h2>
@@ -898,7 +916,7 @@ screen.play(myAnim, ONCE, 2, 6);  // Play frames 2-6 once</code></pre>
 
         <div class="api-method">
             <h3>stop()</h3>
-            <p>Stops the animation and clears the display.</p>
+            <p>Stops the animation. The next <code>update()</code> clears the display.</p>
             <pre><code class="language-cpp">screen.stop();</code></pre>
         </div>
 
@@ -922,10 +940,11 @@ screen.play(myAnim, ONCE, 2, 6);  // Play frames 2-6 once</code></pre>
         <h2>Speed Control</h2>
 
         <div class="api-method">
-            <h3>setSpeed(multiplier)</h3>
-            <p>Change playback speed. 1.0 = normal, 2.0 = double speed, 0.5 = half speed.</p>
-            <pre><code class="language-cpp">screen.setSpeed(2.0);     // 2x speed
-screen.setSpeed(0.5);     // Half speed</code></pre>
+            <h3>setSpeed(speedMs)</h3>
+            <p>Set playback speed in milliseconds per frame. Smaller values are faster. Negative values play backward. Use 0 to pause.</p>
+            <pre><code class="language-cpp">screen.setSpeed(50);    // Very fast: 50ms per frame
+screen.setSpeed(500);   // Slow: half second per frame
+screen.setSpeed(-100);  // Backward: 100ms per frame</code></pre>
         </div>
 
         <div class="api-method">
@@ -936,8 +955,8 @@ screen.setSpeed(0.5);     // Half speed</code></pre>
 
         <div class="api-method">
             <h3>getCurrentSpeed()</h3>
-            <p>Get the current speed multiplier.</p>
-            <pre><code class="language-cpp">float speed = screen.getCurrentSpeed();</code></pre>
+            <p>Get the current speed in milliseconds per frame.</p>
+            <pre><code class="language-cpp">int speedMs = screen.getCurrentSpeed();</code></pre>
         </div>
 
         <h2>Status Methods</h2>
@@ -963,7 +982,7 @@ screen.playOnLayer(1, foregroundAnim, LOOP);  // Layer 1 (foreground)</code></pr
             <tr><th>Method</th><th>Description</th></tr>
             <tr><td><code>addLayer()</code></td><td>Add a new animation layer</td></tr>
             <tr><td><code>playOnLayer(layer, anim, mode)</code></td><td>Play animation on specific layer</td></tr>
-            <tr><td><code>setSpeedOnLayer(layer, speed)</code></td><td>Set speed for specific layer</td></tr>
+            <tr><td><code>setSpeedOnLayer(layer, speedMs)</code></td><td>Set speed in ms per frame (negative = reverse)</td></tr>
             <tr><td><code>pauseLayer(layer)</code></td><td>Pause specific layer</td></tr>
             <tr><td><code>resumeLayer(layer)</code></td><td>Resume specific layer</td></tr>
             <tr><td><code>stopLayer(layer)</code></td><td>Stop specific layer</td></tr>
@@ -1196,9 +1215,10 @@ screen.setTextSize(2);   // Double size</code></pre>
         </div>
 
         <div class="api-method">
-            <h3>scrollText(string, x, y)</h3>
+            <h3>scrollText(string, y, direction)</h3>
             <p>Draw scrolling text that automatically moves across the display.</p>
-            <pre><code class="language-cpp">screen.scrollText("Hello World!", 0, 1);</code></pre>
+            <pre><code class="language-cpp">screen.scrollText("Hello World!", 0, SCROLL_LEFT);
+screen.scrollText("Hello World!", 7, SCROLL_RIGHT);</code></pre>
         </div>
 
         <div class="api-method">
@@ -1222,6 +1242,7 @@ screen.setTextSize(2);   // Double size</code></pre>
 screen.setRotation(90);    // Rotated 90° clockwise
 screen.setRotation(180);   // Upside down
 screen.setRotation(270);   // Rotated 270° clockwise</code></pre>
+            <p><strong>Note:</strong> 90° and 270° rotations use a centered crop because the matrix is 12x8 (non-square).</p>
         </div>
 
         <div class="api-method">
@@ -1268,6 +1289,7 @@ float brightness2 = oscillate(0, 100, 2000, 0.5);</code></pre>
                 <li><code>periodMs</code> — Time for one complete cycle in milliseconds</li>
                 <li><code>offset</code> — Phase offset as a fraction of the period (0.0–1.0). Default: <code>0.0</code></li>
             </ul>
+            <p><strong>Note:</strong> <code>periodMs</code> must be greater than 0. If you pass 0, the function returns <code>min</code>.</p>
         </div>
 
         <div class="api-method">
@@ -1517,6 +1539,7 @@ screen.beginOverlay();
 int y = oscillateInt(0, 7, 1500);
 screen.point(11, y);
 screen.endOverlay();</code></pre>
+            <p><strong>Note:</strong> <code>periodMs</code> must be greater than 0. If you pass 0, the function returns <code>min</code>.</p>
         </div>
 
         <div class="api-method">
@@ -1761,9 +1784,9 @@ x.done();            // Check if animation complete
 x.target();          // Get target value</code></pre>
 
         <h2>Oscillate Functions</h2>
-        <p>The <code>oscillateInt()</code> and <code>oscillateFloat()</code> functions create continuous sine wave motion.</p>
+        <p>The <code>oscillateInt()</code> and <code>oscillate()</code> functions create continuous sine wave motion.</p>
         <pre><code class="language-cpp">int y = oscillateInt(0, 7, 1500);      // Oscillate 0-7 over 1.5 seconds
-float val = oscillateFloat(0.0, 1.0, 1000);  // Oscillate 0.0-1.0 over 1 second</code></pre>
+    float val = oscillate(0.0, 1.0, 1000);  // Oscillate 0.0-1.0 over 1 second</code></pre>
 
         <h2>Examples</h2>
         <ul class="example-list">
@@ -2109,8 +2132,8 @@ void loop()
         {
             case 'p': screen.pause(); break;
             case 'r': screen.resume(); break;
-            case '+': screen.setSpeed(screen.getCurrentSpeed() + 0.5); break;
-            case '-': screen.setSpeed(max(0.1, screen.getCurrentSpeed() - 0.5)); break;
+            case '+': screen.setSpeed(screen.getCurrentSpeed() + 50); break;
+            case '-': screen.setSpeed(max(10, screen.getCurrentSpeed() - 50)); break;
         }
     }
 }</code></pre>

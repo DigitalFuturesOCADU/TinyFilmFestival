@@ -17,6 +17,10 @@ AnimationLayer::AnimationLayer() :
     isBoomerang(false),
     isReversing(false),
     isPlayingBackward(false),
+    defaultPlayingBackward(false),
+    speedDirectionOverride(false),
+    useSpeedMultiplier(false),
+    speedMultiplier(1.0f),
     currentAnimation(nullptr),
     lastUpdateTime(0),
     currentMode(PLAY_ONCE),
@@ -81,6 +85,11 @@ void AnimationLayer::start(const Animation& animation, PlayMode mode, int startF
         endFrameIndex = startFrameIndex;
         startFrameIndex = temp;
     }
+
+    defaultPlayingBackward = isPlayingBackward;
+    speedDirectionOverride = false;
+    useSpeedMultiplier = false;
+    speedMultiplier = 1.0f;
     
     currentFrameIndex = isPlayingBackward ? endFrameIndex : startFrameIndex;
     isReversing = false;
@@ -95,12 +104,46 @@ void AnimationLayer::setSpeed(int speedMs) {
         currentState = PAUSED;
     } else {
         isCustomSpeed = true;
-        customSpeedInterval = speedMs;
+        useSpeedMultiplier = false;
+        customSpeedInterval = abs(speedMs);
+        if (speedMs < 0) {
+            isPlayingBackward = true;
+            speedDirectionOverride = true;
+        } else {
+            speedDirectionOverride = false;
+            isPlayingBackward = defaultPlayingBackward;
+        }
         
         if (currentState != PLAYING) {
             lastUpdateTime = millis();
             currentState = PLAYING;
         }
+    }
+}
+
+void AnimationLayer::setSpeed(float multiplier) {
+    if (!isValidAnimation()) return;
+
+    if (multiplier == 0.0f) {
+        currentState = PAUSED;
+        return;
+    }
+
+    isCustomSpeed = true;
+    useSpeedMultiplier = true;
+    speedMultiplier = abs(multiplier);
+
+    if (multiplier < 0.0f) {
+        isPlayingBackward = true;
+        speedDirectionOverride = true;
+    } else {
+        speedDirectionOverride = false;
+        isPlayingBackward = defaultPlayingBackward;
+    }
+
+    if (currentState != PLAYING) {
+        lastUpdateTime = millis();
+        currentState = PLAYING;
     }
 }
 
@@ -122,6 +165,12 @@ void AnimationLayer::restoreOriginalSpeed() {
     
     if (isCustomSpeed) {
         isCustomSpeed = false;
+        useSpeedMultiplier = false;
+        speedMultiplier = 1.0f;
+        if (speedDirectionOverride) {
+            speedDirectionOverride = false;
+            isPlayingBackward = defaultPlayingBackward;
+        }
         if (currentState != PLAYING) {
             lastUpdateTime = millis();
             currentState = PLAYING;
@@ -135,7 +184,14 @@ void AnimationLayer::stop() {
 
 int AnimationLayer::getCurrentSpeed() const {
     if (!isValidAnimation()) return 0;
-    return isCustomSpeed ? customSpeedInterval : originalTimings[currentFrameIndex];
+    if (!isCustomSpeed) {
+        return originalTimings[currentFrameIndex];
+    }
+    if (useSpeedMultiplier) {
+        float interval = (float)originalTimings[currentFrameIndex] / speedMultiplier;
+        return (int)max(1.0f, round(interval));
+    }
+    return customSpeedInterval;
 }
 
 bool AnimationLayer::getFrame(uint32_t frame[3]) const {
@@ -199,7 +255,13 @@ bool AnimationLayer::updateFrame() {
     if (currentState != PLAYING || !isValidAnimation()) return false;
 
     unsigned long currentTime = millis();
-    uint32_t interval = isCustomSpeed ? customSpeedInterval : originalTimings[currentFrameIndex];
+    uint32_t interval = 0;
+    if (isCustomSpeed && useSpeedMultiplier) {
+        float scaled = (float)originalTimings[currentFrameIndex] / speedMultiplier;
+        interval = (uint32_t)max(1.0f, round(scaled));
+    } else {
+        interval = isCustomSpeed ? customSpeedInterval : originalTimings[currentFrameIndex];
+    }
 
     if (currentTime - lastUpdateTime < interval) return false;
 
@@ -256,7 +318,7 @@ bool AnimationLayer::updateFrame() {
 // TinyScreen Implementation
 //==============================================================================
 
-TinyScreen::TinyScreen() : layerCount(1), inOverlay(false), ledBufferDirty(false) {
+TinyScreen::TinyScreen() : layerCount(1), inOverlay(false), autoShow(true), ledBufferDirty(false) {
     combinedFrame[0] = 0;
     combinedFrame[1] = 0;
     combinedFrame[2] = 0;
@@ -299,6 +361,19 @@ bool TinyScreen::begin() {
     return matrix.begin();
 }
 
+PlayMode TinyScreen::coercePlayMode(int mode) {
+    switch (mode) {
+        case PLAY_ONCE:
+            return PLAY_ONCE;
+        case PLAY_LOOP:
+            return PLAY_LOOP;
+        case PLAY_BOOMERANG:
+            return PLAY_BOOMERANG;
+        default:
+            return LOOP;
+    }
+}
+
 //--- Animation Mode (simple) ---
 
 void TinyScreen::play(const Animation& animation, PlayMode mode) {
@@ -309,8 +384,20 @@ void TinyScreen::play(const Animation& animation, PlayMode mode, int startFrame,
     primary().start(animation, mode, startFrame, endFrame);
 }
 
+void TinyScreen::play(const Animation& animation, int mode) {
+    play(animation, coercePlayMode(mode));
+}
+
+void TinyScreen::play(const Animation& animation, int mode, int startFrame, int endFrame) {
+    play(animation, coercePlayMode(mode), startFrame, endFrame);
+}
+
 void TinyScreen::startAnimation(const Animation& animation, PlayMode mode, int startFrame, int endFrame) {
     primary().start(animation, mode, startFrame, endFrame);
+}
+
+void TinyScreen::startAnimation(const Animation& animation, int mode, int startFrame, int endFrame) {
+    startAnimation(animation, coercePlayMode(mode), startFrame, endFrame);
 }
 
 //--- Layered Animations ---
@@ -332,10 +419,28 @@ void TinyScreen::playOnLayer(int layer, const Animation& animation, PlayMode mod
     }
 }
 
+void TinyScreen::playOnLayer(int layer, const Animation& animation, int mode) {
+    playOnLayer(layer, animation, coercePlayMode(mode));
+}
+
+void TinyScreen::playOnLayer(int layer, const Animation& animation, int mode, int startFrame, int endFrame) {
+    playOnLayer(layer, animation, coercePlayMode(mode), startFrame, endFrame);
+}
+
 void TinyScreen::setSpeedOnLayer(int layer, int speedMs) {
     if (layer >= 0 && layer < layerCount) {
         layers[layer].setSpeed(speedMs);
     }
+}
+
+void TinyScreen::setSpeedOnLayer(int layer, float speedMultiplier) {
+    if (layer >= 0 && layer < layerCount) {
+        layers[layer].setSpeed(speedMultiplier);
+    }
+}
+
+void TinyScreen::setSpeedOnLayer(int layer, double speedMultiplier) {
+    setSpeedOnLayer(layer, (float)speedMultiplier);
 }
 
 void TinyScreen::pauseLayer(int layer) {
@@ -360,6 +465,14 @@ void TinyScreen::stopLayer(int layer) {
 
 void TinyScreen::setSpeed(int speedMs) {
     primary().setSpeed(speedMs);
+}
+
+void TinyScreen::setSpeed(float speedMultiplier) {
+    primary().setSpeed(speedMultiplier);
+}
+
+void TinyScreen::setSpeed(double speedMultiplier) {
+    setSpeed((float)speedMultiplier);
 }
 
 void TinyScreen::pause() {
@@ -460,18 +573,28 @@ void TinyScreen::canvasBufferToFrame(uint32_t frame[3]) {
             // Apply rotation to get source coordinates
             int srcRow, srcCol;
             switch (rotation) {
-                case 1:  // 90° clockwise
-                    srcRow = 11 - col;
-                    srcCol = row;
+                case 1: { // 90° clockwise (center-cropped)
+                    const int xOffset = 2; // (12 - 8) / 2
+                    const int yOffset = 2; // (12 - 8) / 2
+                    int rx = col - xOffset;     // rotated x in 0..7
+                    int ry = row + yOffset;     // rotated y in 0..11
+                    srcRow = (rx >= 0 && rx < 8 && ry >= 0 && ry < 12) ? (7 - rx) : -1;
+                    srcCol = ry;
                     break;
+                }
                 case 2:  // 180°
                     srcRow = 7 - row;
                     srcCol = 11 - col;
                     break;
-                case 3:  // 270° clockwise (90° counter-clockwise)
-                    srcRow = col;
-                    srcCol = 7 - row;
+                case 3: { // 270° clockwise (center-cropped)
+                    const int xOffset = 2; // (12 - 8) / 2
+                    const int yOffset = 2; // (12 - 8) / 2
+                    int rx = col - xOffset;     // rotated x in 0..7
+                    int ry = row + yOffset;     // rotated y in 0..11
+                    srcRow = rx;
+                    srcCol = (rx >= 0 && rx < 8 && ry >= 0 && ry < 12) ? (11 - ry) : -1;
                     break;
+                }
                 default: // 0° (no rotation)
                     srcRow = row;
                     srcCol = col;
@@ -1207,7 +1330,9 @@ void TinyScreen::led(int x, int y, bool state) {
     blinkRate[x][y] = 0;  // Direct write cancels blink on this LED
     ledBuffer[x][y] = state ? 1 : 0;
     ledBufferDirty = true;
-    show();  // Auto-display for immediate feedback
+    if (autoShow) {
+        show();
+    }
 }
 
 void TinyScreen::led(int ledNum, bool state) {
@@ -1233,7 +1358,9 @@ void TinyScreen::toggle(int x, int y) {
     blinkRate[x][y] = 0;  // Manual toggle cancels blink on this LED
     ledBuffer[x][y] = ledBuffer[x][y] ? 0 : 1;
     ledBufferDirty = true;
-    show();
+    if (autoShow) {
+        show();
+    }
 }
 
 void TinyScreen::toggle(int ledNum) {
@@ -1251,7 +1378,9 @@ void TinyScreen::clearLeds() {
         }
     }
     ledBufferDirty = true;
-    show();
+    if (autoShow) {
+        show();
+    }
 }
 
 void TinyScreen::show() {
@@ -1288,7 +1417,9 @@ void TinyScreen::blink(int x, int y, unsigned long rateMs) {
     lastBlinkTime[x][y] = millis();
     ledBuffer[x][y] = 1;      // Start in ON state
     ledBufferDirty = true;
-    show();
+    if (autoShow) {
+        show();
+    }
 }
 
 void TinyScreen::blink(int ledNum, unsigned long rateMs) {
@@ -1304,7 +1435,9 @@ void TinyScreen::noBlink(int x, int y) {
     lastBlinkTime[x][y] = 0;
     ledBuffer[x][y] = 0;      // Turn LED off when blinking stops
     ledBufferDirty = true;
-    show();
+    if (autoShow) {
+        show();
+    }
 }
 
 void TinyScreen::noBlink(int ledNum) {
@@ -1341,8 +1474,14 @@ void TinyScreen::updateBlinks() {
     
     if (anyChanged) {
         ledBufferDirty = true;
-        show();
+        if (autoShow) {
+            show();
+        }
     }
+}
+
+void TinyScreen::setAutoShow(bool enabled) {
+    autoShow = enabled;
 }
 
 //==============================================================================
@@ -1428,6 +1567,9 @@ TinyScreen& getLedMatrix() {
 //------------------------------------------------------------------------------
 
 float oscillate(float min, float max, unsigned long periodMs, float offset) {
+    if (periodMs == 0) {
+        return min;
+    }
     // Use millis() to create a continuous sine wave
     float t = (float)(millis() % periodMs) / (float)periodMs + offset;
     float sineValue = sin(t * 2.0f * PI);  // -1 to 1

@@ -122,6 +122,10 @@ private:
     bool isBoomerang;
     bool isReversing;
     bool isPlayingBackward;
+    bool defaultPlayingBackward;
+    bool speedDirectionOverride;
+    bool useSpeedMultiplier;
+    float speedMultiplier;
     const uint32_t (*currentAnimation)[4];
     unsigned long lastUpdateTime;
     PlayMode currentMode;
@@ -140,6 +144,8 @@ public:
 
     void start(const Animation& animation, PlayMode mode, int startFrame, int endFrame);
     void setSpeed(int speedMs);
+    void setSpeed(float speedMultiplier);
+    void setSpeed(double speedMultiplier);
     void pause();
     void resume();
     void restoreOriginalSpeed();
@@ -178,6 +184,7 @@ private:
     uint8_t layerCount;
     uint32_t combinedFrame[3];
     bool inOverlay;
+    bool autoShow;
     
     // Canvas mode buffering (flicker-free drawing)
     uint8_t canvasBuffer[8][12];      // [row][col] pixel buffer
@@ -212,6 +219,8 @@ private:
     AnimationLayer& primary() { return layers[0]; }
     const AnimationLayer& primary() const { return layers[0]; }
 
+    static PlayMode coercePlayMode(int mode);
+
 public:
     TinyScreen();
     
@@ -221,12 +230,21 @@ public:
     //--- Animation Mode (simple single animation) ---
     void play(const Animation& animation, PlayMode mode = LOOP);
     void play(const Animation& animation, PlayMode mode, int startFrame, int endFrame);
+    void play(const Animation& animation, int mode);
+    void play(const Animation& animation, int mode, int startFrame, int endFrame);
     
     // Full API alias (backward compatible)
     void startAnimation(const Animation& animation, PlayMode mode = PLAY_ONCE, int startFrame = 0, int endFrame = 0);
+    void startAnimation(const Animation& animation, int mode, int startFrame = 0, int endFrame = 0);
     
     template<size_t N>
     void startAnimation(const uint32_t (&frames)[N][4], PlayMode mode = PLAY_ONCE, int startFrame = 0, int endFrame = 0) {
+        Animation anim(frames);
+        startAnimation(anim, mode, startFrame, endFrame);
+    }
+
+    template<size_t N>
+    void startAnimation(const uint32_t (&frames)[N][4], int mode, int startFrame = 0, int endFrame = 0) {
         Animation anim(frames);
         startAnimation(anim, mode, startFrame, endFrame);
     }
@@ -235,13 +253,18 @@ public:
     int addLayer();  // Returns layer index, or -1 if full
     void playOnLayer(int layer, const Animation& animation, PlayMode mode = LOOP);
     void playOnLayer(int layer, const Animation& animation, PlayMode mode, int startFrame, int endFrame);
+    void playOnLayer(int layer, const Animation& animation, int mode);
+    void playOnLayer(int layer, const Animation& animation, int mode, int startFrame, int endFrame);
     void setSpeedOnLayer(int layer, int speedMs);
+    void setSpeedOnLayer(int layer, float speedMultiplier);
+    void setSpeedOnLayer(int layer, double speedMultiplier);
     void pauseLayer(int layer);
     void resumeLayer(int layer);
     void stopLayer(int layer);
     
     //--- Playback Control (affects primary layer) ---
     void setSpeed(int speedMs);
+    void setSpeed(float speedMultiplier);
     void pause();
     void resume();
     void restoreOriginalSpeed();
@@ -357,6 +380,8 @@ public:
     void toggle(int x, int y);                    // Toggle LED at (x,y)
     void toggle(int ledNum);                      // Toggle LED by linear index
     void show();                                  // Push buffered LED changes to display
+    void setAutoShow(bool enabled);               // Auto-display after LED writes
+    bool getAutoShow() const { return autoShow; }
     void clearLeds();                             // Turn off all LEDs
     
     // Blink control (non-blocking, per-LED independent rates)

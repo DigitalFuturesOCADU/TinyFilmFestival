@@ -308,7 +308,7 @@ screen.setSpeed(speedMs)
 
 #### Parameters
 
-- `speedMs`: Milliseconds per frame (smaller = faster)
+- `speedMs`: Milliseconds per frame (smaller = faster). Use a negative value to play backward. Use `0` to pause.
 
 #### Returns
 
@@ -320,6 +320,7 @@ Nothing
 screen.play(myAnim, LOOP);
 screen.setSpeed(50);   // Very fast: 50ms per frame
 screen.setSpeed(500);  // Slow: half second per frame
+screen.setSpeed(-100); // Backward: 100ms per frame
 ```
 
 ---
@@ -724,7 +725,7 @@ screen.setSpeedOnLayer(layer, speedMs)
 #### Parameters
 
 - `layer`: Layer index
-- `speedMs`: Milliseconds per frame
+- `speedMs`: Milliseconds per frame. Use a negative value to play backward. Use `0` to pause.
 
 #### Returns
 
@@ -733,7 +734,8 @@ Nothing
 #### Example
 
 ```cpp
-screen.setSpeedOnLayer(1, 50);  // Speed up layer 1
+screen.setSpeedOnLayer(1, 50);   // Speed up layer 1
+screen.setSpeedOnLayer(1, -80);  // Play layer 1 backward
 ```
 
 ---
