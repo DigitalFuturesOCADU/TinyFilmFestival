@@ -153,7 +153,7 @@ const searchIndex = [
     { method: 'resume()', description: 'Resume paused animation', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'stop()', description: 'Stop animation and clear display', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'update()', description: 'Update animation frame (call every loop)', page: 'animation-mode', category: 'Animation Mode' },
-    { method: 'setSpeed(speedMs)', description: 'Set milliseconds per frame (negative = reverse)', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'setSpeed(speedMs | speedMultiplier)', description: 'Set ms per frame or a multiplier (negative = reverse)', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'restoreOriginalSpeed()', description: 'Reset to original timing', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'getCurrentSpeed()', description: 'Get current speed in ms per frame', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'isPlaying()', description: 'Check if animation is playing', page: 'animation-mode', category: 'Animation Mode' },
@@ -165,7 +165,7 @@ const searchIndex = [
     { method: 'getInvert()', description: 'Check if display is inverted', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'addLayer()', description: 'Add a new animation layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'playOnLayer(layer, anim, mode)', description: 'Play animation on specific layer', page: 'animation-mode', category: 'Animation Mode' },
-    { method: 'setSpeedOnLayer(layer, speedMs)', description: 'Set speed for specific layer', page: 'animation-mode', category: 'Animation Mode' },
+    { method: 'setSpeedOnLayer(layer, speedMs | speedMultiplier)', description: 'Set ms per frame or a multiplier for a layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'pauseLayer(layer)', description: 'Pause specific layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'resumeLayer(layer)', description: 'Resume specific layer', page: 'animation-mode', category: 'Animation Mode' },
     { method: 'stopLayer(layer)', description: 'Stop specific layer', page: 'animation-mode', category: 'Animation Mode' },
@@ -940,11 +940,16 @@ screen.play(myAnim, ONCE, 2, 6);  // Play frames 2-6 once</code></pre>
         <h2>Speed Control</h2>
 
         <div class="api-method">
-            <h3>setSpeed(speedMs)</h3>
-            <p>Set playback speed in milliseconds per frame. Smaller values are faster. Negative values play backward. Use 0 to pause.</p>
-            <pre><code class="language-cpp">screen.setSpeed(50);    // Very fast: 50ms per frame
-screen.setSpeed(500);   // Slow: half second per frame
-screen.setSpeed(-100);  // Backward: 100ms per frame</code></pre>
+            <h3>setSpeed(speedMs | speedMultiplier)</h3>
+            <p>Set playback speed using either milliseconds per frame or a multiplier. Negative values play backward. Use 0 to pause.</p>
+            <pre><code class="language-cpp">// Milliseconds per frame
+    screen.setSpeed(50);    // Very fast: 50ms per frame
+    screen.setSpeed(500);   // Slow: half second per frame
+    screen.setSpeed(-100);  // Backward: 100ms per frame
+
+    // Multipliers (1.0 = original speed)
+    screen.setSpeed(0.5);   // Half speed
+    screen.setSpeed(2.0);   // Double speed</code></pre>
         </div>
 
         <div class="api-method">
@@ -982,7 +987,7 @@ screen.playOnLayer(1, foregroundAnim, LOOP);  // Layer 1 (foreground)</code></pr
             <tr><th>Method</th><th>Description</th></tr>
             <tr><td><code>addLayer()</code></td><td>Add a new animation layer</td></tr>
             <tr><td><code>playOnLayer(layer, anim, mode)</code></td><td>Play animation on specific layer</td></tr>
-            <tr><td><code>setSpeedOnLayer(layer, speedMs)</code></td><td>Set speed in ms per frame (negative = reverse)</td></tr>
+            <tr><td><code>setSpeedOnLayer(layer, speedMs | speedMultiplier)</code></td><td>Set ms per frame or multiplier (negative = reverse)</td></tr>
             <tr><td><code>pauseLayer(layer)</code></td><td>Pause specific layer</td></tr>
             <tr><td><code>resumeLayer(layer)</code></td><td>Resume specific layer</td></tr>
             <tr><td><code>stopLayer(layer)</code></td><td>Stop specific layer</td></tr>

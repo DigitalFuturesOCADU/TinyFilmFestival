@@ -298,17 +298,19 @@ void loop() {
 
 #### Description
 
-Sets a custom playback speed, overriding the per-frame timings from the `.h` file.
+Sets a custom playback speed, overriding the per-frame timings from the `.h` file. You can provide milliseconds per frame or a multiplier.
 
 #### Syntax
 
 ```cpp
 screen.setSpeed(speedMs)
+screen.setSpeed(speedMultiplier)
 ```
 
 #### Parameters
 
 - `speedMs`: Milliseconds per frame (smaller = faster). Use a negative value to play backward. Use `0` to pause.
+- `speedMultiplier`: Playback multiplier (1.0 = original speed, 0.5 = half speed, 2.0 = double speed). Use a negative value to play backward. Use `0` to pause.
 
 #### Returns
 
@@ -321,6 +323,8 @@ screen.play(myAnim, LOOP);
 screen.setSpeed(50);   // Very fast: 50ms per frame
 screen.setSpeed(500);  // Slow: half second per frame
 screen.setSpeed(-100); // Backward: 100ms per frame
+screen.setSpeed(0.5);  // Half speed (multiplier)
+screen.setSpeed(2.0);  // Double speed (multiplier)
 ```
 
 ---
@@ -714,18 +718,20 @@ void loop() {
 
 #### Description
 
-Sets playback speed for a specific layer.
+Sets playback speed for a specific layer. You can provide milliseconds per frame or a multiplier.
 
 #### Syntax
 
 ```cpp
 screen.setSpeedOnLayer(layer, speedMs)
+screen.setSpeedOnLayer(layer, speedMultiplier)
 ```
 
 #### Parameters
 
 - `layer`: Layer index
 - `speedMs`: Milliseconds per frame. Use a negative value to play backward. Use `0` to pause.
+- `speedMultiplier`: Playback multiplier (1.0 = original speed, 0.5 = half speed, 2.0 = double speed). Use a negative value to play backward. Use `0` to pause.
 
 #### Returns
 
@@ -736,6 +742,7 @@ Nothing
 ```cpp
 screen.setSpeedOnLayer(1, 50);   // Speed up layer 1
 screen.setSpeedOnLayer(1, -80);  // Play layer 1 backward
+screen.setSpeedOnLayer(1, 0.5);  // Half speed (multiplier)
 ```
 
 ---
