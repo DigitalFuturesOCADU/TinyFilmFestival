@@ -265,6 +265,7 @@ public:
     //--- Playback Control (affects primary layer) ---
     void setSpeed(int speedMs);
     void setSpeed(float speedMultiplier);
+    void setSpeed(double speedMultiplier);
     void pause();
     void resume();
     void restoreOriginalSpeed();
